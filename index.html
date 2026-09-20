@@ -8,7 +8,7 @@
     <!-- Grafik Takibi için Chart.js Entegrasyonu -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDK Entegrasyonu (Firestore Eklendi) -->
+    <!-- Firebase SDK Entegrasyonu (Firestore) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
@@ -118,13 +118,21 @@
         .day-title-area { text-align: left; }
         .day-name { font-size: 13px; text-transform: uppercase; font-weight: 700; color: var(--subtext-color); }
         .day-date { font-size: 16px; font-weight: 800; margin-top: 2px; }
-        .day-note-btn { background: var(--container-bg); border: 1px solid var(--border-color); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; color: var(--text-color); font-weight: 600; }
+        .day-action-btns { display: flex; gap: 4px; }
+        .day-note-btn { background: var(--container-bg); border: 1px solid var(--border-color); font-size: 11px; padding: 4px 6px; border-radius: 6px; cursor: pointer; color: var(--text-color); font-weight: 600; }
         .day-note-btn:hover { background-color: var(--item-hover); color: var(--accent-color); }
 
-        .day-note-drawer { background-color: var(--container-bg); border-bottom: 1px solid var(--border-color); padding: 10px 12px; display: none; flex-direction: column; gap: 6px; }
-        .day-note-drawer.open { display: flex; }
+        .day-note-drawer, .day-work-drawer { background-color: var(--container-bg); border-bottom: 1px solid var(--border-color); padding: 10px 12px; display: none; flex-direction: column; gap: 6px; }
+        .day-note-drawer.open, .day-work-drawer.open { display: flex; }
         .day-note-textarea { width: 100%; height: 60px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 12px; resize: none; outline: none; }
         
+        .work-summary-container { padding: 8px 12px; background-color: rgba(16, 185, 129, 0.05); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
+        .work-summary-title { font-size: 11px; font-weight: 700; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; }
+        .work-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+        .work-pill { background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: var(--text-color); }
+        .work-pill-delete { cursor: pointer; color: var(--subtext-color); font-weight: bold; margin-left: 2px; }
+        .work-pill-delete:hover { color: var(--danger-color); }
+
         .drop-zone { flex: 1; padding: 14px; min-height: 350px; display: flex; flex-direction: column; gap: 12px; }
         .drop-zone.drag-over { background-color: var(--drag-over-bg); }
         .pool-zone { min-height: 350px; }
@@ -135,9 +143,7 @@
         .draggable-task.completed .task-text { text-decoration: line-through; color: var(--completed-color); }
         .draggable-task.completed .task-subject-badge { opacity: 0.5; }
         .task-text { flex: 1; line-height: 1.4; pointer-events: none; font-weight: 500; }
-        
         .task-subject-badge { font-size: 11px; font-weight: 700; color: var(--accent-color); background: var(--motivation-bg); padding: 2px 6px; border-radius: 4px; width: fit-content; margin-bottom: 2px; }
-        
         .task-actions { display: flex; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 2px; }
         .delete-btn { background: none; border: none; color: var(--subtext-color); cursor: pointer; font-size: 13px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
         .delete-btn:hover { background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color); }
@@ -184,6 +190,11 @@
         .error-card-item { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
         .error-card-item.resolved { opacity: 0.6; border-style: dashed; }
         .error-img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
+
+        .error-filter-panel { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .error-filter-btn { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+        .error-filter-btn:hover { background-color: var(--item-hover); }
+        .error-filter-btn.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
         
         .image-modal { display: none; position: fixed; z-index: 10000; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; padding: 20px; }
         .image-modal img { max-width: 90%; max-height: 90vh; border-radius: 8px; }
@@ -274,7 +285,7 @@
         <div id="curriculumTab" class="tab-content">
             <div class="curriculum-toolbar">
                 <input type="text" id="curriculumSearch" class="curriculum-search" placeholder="Konu ara..." oninput="renderCurriculum()">
-                <button class="btn-icon" onclick="resetCurriculumConfirm()">🔄 Varsayılana Dön</button>
+                <button class="btn-icon" onclick="resetCurriculumConfirm()">🔄 İşaretleri Sıfırla</button>
             </div>
             <div class="course-grid" id="curriculumGrid"></div>
         </div>
@@ -342,10 +353,22 @@
                 </div>
 
                 <div class="error-list-card">
-                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
                         <span>Hata Defterim (<span id="errCount">0</span> Soru)</span>
                         <input type="text" id="errSearch" class="curriculum-search" placeholder="Ara..." oninput="renderErrorLog()" style="padding: 4px 10px; font-size: 12px; min-width: 150px;">
                     </div>
+                    
+                    <div class="error-filter-panel" id="errorFilterPanel">
+                        <button class="error-filter-btn active" data-subject="ALL" onclick="toggleErrorFilter('ALL')">Tüm Dersler</button>
+                        <button class="error-filter-btn" data-subject="Matematik" onclick="toggleErrorFilter('Matematik')">Matematik</button>
+                        <button class="error-filter-btn" data-subject="Geometri" onclick="toggleErrorFilter('Geometri')">Geometri</button>
+                        <button class="error-filter-btn" data-subject="Fizik" onclick="toggleErrorFilter('Fizik')">Fizik</button>
+                        <button class="error-filter-btn" data-subject="Kimya" onclick="toggleErrorFilter('Kimya')">Kimya</button>
+                        <button class="error-filter-btn" data-subject="Biyoloji" onclick="toggleErrorFilter('Biyoloji')">Biyoloji</button>
+                        <button class="error-filter-btn" data-subject="Türkçe" onclick="toggleErrorFilter('Türkçe')">Türkçe</button>
+                        <button class="error-filter-btn" data-subject="Sosyal" onclick="toggleErrorFilter('Sosyal')">Sosyal</button>
+                    </div>
+
                     <div class="error-items-grid" id="errorGrid"></div>
                 </div>
             </div>
@@ -389,10 +412,14 @@
         <div id="examsTab" class="tab-content">
             <div class="exam-grid">
                 <div class="error-form-card">
-                    <div class="error-form-title">Yeni Deneme Kaydet</div>
+                    <div class="error-form-title" id="examFormTitle">Yeni Deneme Kaydet</div>
                     <div class="form-field">
                         <label for="examName">Deneme Adı / Yayın</label>
                         <input type="text" id="examName" placeholder="Örn: 3D Türkiye Geneli 1">
+                    </div>
+                    <div class="form-field">
+                        <label for="examDate">Deneme Tarihi</label>
+                        <input type="date" id="examDate">
                     </div>
                     <div class="form-field">
                         <label for="examType">Sınav Türü</label>
@@ -403,25 +430,26 @@
                     </div>
                     <div id="tytFields">
                         <div class="exam-inputs-row">
-                            <div class="form-field"><label>TR Net</label><input type="number" step="0.25" id="netTR" value="0"></div>
-                            <div class="form-field"><label>Sos Net</label><input type="number" step="0.25" id="netSOS" value="0"></div>
+                            <div class="form-field"><label>TR Net (Max 40)</label><input type="number" step="0.25" min="0" max="40" id="netTR" value="0"></div>
+                            <div class="form-field"><label>Sos Net (Max 20)</label><input type="number" step="0.25" min="0" max="20" id="netSOS" value="0"></div>
                         </div>
                         <div class="exam-inputs-row">
-                            <div class="form-field"><label>Mat Net</label><input type="number" step="0.25" id="netMAT" value="0"></div>
-                            <div class="form-field"><label>Fen Net</label><input type="number" step="0.25" id="netFEN" value="0"></div>
+                            <div class="form-field"><label>Mat Net (Max 40)</label><input type="number" step="0.25" min="0" max="40" id="netMAT" value="0"></div>
+                            <div class="form-field"><label>Fen Net (Max 20)</label><input type="number" step="0.25" min="0" max="20" id="netFEN" value="0"></div>
                         </div>
                     </div>
                     <div id="aytFields" style="display:none;">
                         <div class="exam-inputs-row">
-                            <div class="form-field"><label>Mat Net</label><input type="number" step="0.25" id="netAytMAT" value="0"></div>
-                            <div class="form-field"><label>Fizik Net</label><input type="number" step="0.25" id="netAytFIZ" value="0"></div>
+                            <div class="form-field"><label>Mat Net (Max 40)</label><input type="number" step="0.25" min="0" max="40" id="netAytMAT" value="0"></div>
+                            <div class="form-field"><label>Fizik Net (Max 14)</label><input type="number" step="0.25" min="0" max="14" id="netAytFIZ" value="0"></div>
                         </div>
                         <div class="exam-inputs-row">
-                            <div class="form-field"><label>Kimya Net</label><input type="number" step="0.25" id="netAytKIM" value="0"></div>
-                            <div class="form-field"><label>Biyo Net</label><input type="number" step="0.25" id="netAytBIO" value="0"></div>
+                            <div class="form-field"><label>Kimya Net (Max 13)</label><input type="number" step="0.25" min="0" max="13" id="netAytKIM" value="0"></div>
+                            <div class="form-field"><label>Biyo Net (Max 13)</label><input type="number" step="0.25" min="0" max="13" id="netAytBIO" value="0"></div>
                         </div>
                     </div>
-                    <button class="btn-add-error" onclick="addExamResult()">Denemeyi Kaydet</button>
+                    <button class="btn-add-error" id="btnSaveExam" onclick="addExamResult()">Denemeyi Kaydet</button>
+                    <button class="btn-icon" id="btnCancelEditExam" onclick="cancelExamEdit()" style="width:100%; margin-top:8px; display:none;">İptal Et</button>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:16px;">
                     <div class="chart-container">
@@ -487,10 +515,8 @@
         let isCloudLoading = false;
 
         function saveToCloudAndLocal(key, data) {
-            // Önce yerel depolamaya kaydet (hızlı erişim / offline yedek)
             localStorage.setItem(key, JSON.stringify(data));
 
-            // Eğer Firebase hazırsa buluta da gönder
             if (window.db && window.fsDoc && window.fsSetDoc && !isCloudLoading) {
                 const statusBadge = document.getElementById('cloudSyncStatus');
                 if(statusBadge) {
@@ -520,13 +546,11 @@
         }
 
         function initCloudSyncFor(key, renderCallback) {
-            // Başlangıçta localStorage'dan yükle
             let localVal = localStorage.getItem(key);
             if (localVal) {
                 renderCallback(JSON.parse(localVal));
             }
 
-            // Firestore bağlantısını kurana kadar periyodik kontrol
             const checkDbInterval = setInterval(() => {
                 if (window.db && window.fsDoc && window.fsOnSnapshot) {
                     clearInterval(checkDbInterval);
@@ -570,6 +594,30 @@
             const btn = document.getElementById('themeToggleBtn');
             if(btn) btn.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
             toggleExamFields();
+
+            const examDateInput = document.getElementById('examDate');
+            if (examDateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                examDateInput.value = today;
+            }
+
+            initCloudSyncFor('yks_drag_planner', (data) => { plannerData = data; renderPlanner(); });
+            initCloudSyncFor('yks_day_notes', (data) => { dayNotesData = data; renderPlanner(); });
+            initCloudSyncFor('yks_work_logs', (data) => { workLogsData = data; renderPlanner(); });
+            
+            initCurriculumData();
+            initCloudSyncFor('yks_curriculum_matrix', (data) => { 
+                mergeCurriculumProgress(data); 
+                renderCurriculum(); 
+            });
+            
+            initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
+            initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
+            initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
+            initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
+            initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
+            
+            updatePomoDisplay();
         });
 
         const yks2027Target = new Date('2027-06-19T10:15:00').getTime(); 
@@ -646,10 +694,11 @@
             }
         }
 
-        /* ================= HAFTALIK PLAN & GÜNLÜK NOTLAR LOGIC ================= */
+        /* ================= HAFTALIK PLAN & GÜNLÜK NOTLAR & ÇALIŞMA LOGLARI ================= */
         let currentWeekStart = getMonday(new Date());
         let plannerData = JSON.parse(localStorage.getItem('yks_drag_planner')) || { pool: {}, days: {} };
         let dayNotesData = JSON.parse(localStorage.getItem('yks_day_notes')) || {};
+        let workLogsData = JSON.parse(localStorage.getItem('yks_work_logs')) || {}; 
         const dayNames = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
         const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
@@ -664,9 +713,12 @@
 
         function toggleDayNoteDrawer(dateStr) {
             const drawer = document.getElementById(`drawer-${dateStr}`);
-            if (drawer) {
-                drawer.classList.toggle('open');
-            }
+            if (drawer) drawer.classList.toggle('open');
+        }
+
+        function toggleDayWorkDrawer(dateStr) {
+            const drawer = document.getElementById(`work-drawer-${dateStr}`);
+            if (drawer) drawer.classList.toggle('open');
         }
 
         function saveDayNote(dateStr) {
@@ -674,6 +726,44 @@
             if (textarea) {
                 dayNotesData[dateStr] = textarea.value;
                 saveToCloudAndLocal('yks_day_notes', dayNotesData);
+            }
+        }
+
+        function addWorkLog(dateStr) {
+            const subjectSelect = document.getElementById(`work-subj-${dateStr}`);
+            const hoursInput = document.getElementById(`work-hrs-${dateStr}`);
+            const minsInput = document.getElementById(`work-mins-${dateStr}`);
+
+            const subject = subjectSelect ? subjectSelect.value : 'Matematik';
+            const hours = parseFloat(hoursInput ? hoursInput.value : 0) || 0;
+            const mins = parseFloat(minsInput ? minsInput.value : 0) || 0;
+
+            const totalHours = hours + (mins / 60);
+            if (totalHours <= 0) {
+                alert("Lütfen geçerli bir çalışma süresi girin.");
+                return;
+            }
+
+            if (!workLogsData[dateStr]) workLogsData[dateStr] = [];
+            workLogsData[dateStr].push({
+                id: Date.now(),
+                subject: subject,
+                hours: parseFloat(totalHours.toFixed(2))
+            });
+
+            if (hoursInput) hoursInput.value = '';
+            if (minsInput) minsInput.value = '';
+
+            saveToCloudAndLocal('yks_work_logs', workLogsData);
+            renderPlanner();
+        }
+
+        function deleteWorkLog(dateStr, id) {
+            if (workLogsData[dateStr]) {
+                workLogsData[dateStr] = workLogsData[dateStr].filter(item => item.id !== id);
+                if (workLogsData[dateStr].length === 0) delete workLogsData[dateStr];
+                saveToCloudAndLocal('yks_work_logs', workLogsData);
+                renderPlanner();
             }
         }
 
@@ -763,16 +853,24 @@
 
         function renderPlanner() {
             let endOfWeek = new Date(currentWeekStart); endOfWeek.setDate(currentWeekStart.getDate() + 6);
-            document.getElementById('weekDisplay').innerText = `${currentWeekStart.getDate()} ${monthNames[currentWeekStart.getMonth()]} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+            const weekDispEl = document.getElementById('weekDisplay');
+            if (weekDispEl) {
+                weekDispEl.innerText = `${currentWeekStart.getDate()} ${monthNames[currentWeekStart.getMonth()]} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+            }
 
             const weekKey = formatDateString(currentWeekStart); const todayStr = formatDateString(new Date());
             const poolZone = document.getElementById('zone-pool'); let poolTasks = plannerData.pool[weekKey] || [];
-            document.getElementById('poolCount').innerText = poolTasks.length;
+            const poolCountEl = document.getElementById('poolCount');
+            if (poolCountEl) poolCountEl.innerText = poolTasks.length;
             
-            if(poolTasks.length === 0) { poolZone.innerHTML = '<div class="empty-text">Bu hafta için havuza görev ekle.</div>'; } 
-            else { poolZone.innerHTML = poolTasks.map(t => createTaskElement(t, 'pool')).join(''); }
+            if (poolZone) {
+                if(poolTasks.length === 0) { poolZone.innerHTML = '<div class="empty-text">Bu hafta için havuza görev ekle.</div>'; } 
+                else { poolZone.innerHTML = poolTasks.map(t => createTaskElement(t, 'pool')).join(''); }
+            }
 
-            const grid = document.getElementById('weekGrid'); grid.innerHTML = ''; 
+            const grid = document.getElementById('weekGrid'); 
+            if (!grid) return;
+            grid.innerHTML = ''; 
 
             for(let i=0; i<7; i++) {
                 let dayDate = new Date(currentWeekStart); dayDate.setDate(currentWeekStart.getDate() + i);
@@ -782,6 +880,15 @@
                 let currentNoteText = dayNotesData[dateStr] || '';
                 let hasNote = currentNoteText.trim().length > 0;
 
+                let dayLogs = workLogsData[dateStr] || [];
+                let totalWorkHours = dayLogs.reduce((sum, item) => sum + item.hours, 0);
+                let workPillsHTML = dayLogs.map(item => `
+                    <div class="work-pill">
+                        <span>${escapeHtml(item.subject)}: <b>${item.hours} sa</b></span>
+                        <span class="work-pill-delete" onclick="deleteWorkLog('${dateStr}', ${item.id})">✕</span>
+                    </div>
+                `).join('');
+
                 let dayCol = document.createElement('div');
                 dayCol.className = `day-column ${isToday ? 'today' : ''}`;
                 dayCol.innerHTML = `
@@ -790,11 +897,44 @@
                             <div class="day-name">${dayNames[i]}</div>
                             <div class="day-date">${dayDate.getDate()} ${monthNames[dayDate.getMonth()].substring(0,3)}</div>
                         </div>
-                        <button class="day-note-btn" onclick="toggleDayNoteDrawer('${dateStr}')">${hasNote ? '📝 Not Var' : '📝 Not'}</button>
+                        <div class="day-action-btns">
+                            <button class="day-note-btn" onclick="toggleDayWorkDrawer('${dateStr}')">⏱️ Çalışma</button>
+                            <button class="day-note-btn" onclick="toggleDayNoteDrawer('${dateStr}')">${hasNote ? '📝 Not Var' : '📝 Not'}</button>
+                        </div>
                     </div>
+                    
+                    <div class="day-work-drawer" id="work-drawer-${dateStr}">
+                        <select id="work-subj-${dateStr}" style="padding: 4px; border-radius: 6px; font-size: 11px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color);">
+                            <option value="Matematik">Matematik</option>
+                            <option value="Geometri">Geometri</option>
+                            <option value="Fizik">Fizik</option>
+                            <option value="Kimya">Kimya</option>
+                            <option value="Biyoloji">Biyoloji</option>
+                            <option value="Türkçe">Türkçe</option>
+                            <option value="Sosyal">Sosyal</option>
+                            <option value="Genel">Genel</option>
+                        </select>
+                        <div style="display: flex; gap: 4px;">
+                            <input type="number" id="work-hrs-${dateStr}" placeholder="Saat" min="0" max="24" style="width: 50%; padding: 4px; border-radius: 6px; font-size: 11px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color);">
+                            <input type="number" id="work-mins-${dateStr}" placeholder="Dk" min="0" max="59" style="width: 50%; padding: 4px; border-radius: 6px; font-size: 11px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color);">
+                        </div>
+                        <button onclick="addWorkLog('${dateStr}')" style="padding: 4px; border-radius: 6px; background: var(--accent-color); color: white; font-weight: bold; border: none; font-size: 11px; cursor: pointer;">Kaydet</button>
+                    </div>
+
                     <div class="day-note-drawer" id="drawer-${dateStr}">
                         <textarea class="day-note-textarea" id="note-input-${dateStr}" placeholder="Bugünün özeti / notu..." oninput="saveDayNote('${dateStr}')">${escapeHtml(currentNoteText)}</textarea>
                     </div>
+
+                    ${dayLogs.length > 0 ? `
+                        <div class="work-summary-container">
+                            <div class="work-summary-title">
+                                <span>⚡ ÇALIŞILAN SÜRE</span>
+                                <span style="font-weight: 800;">${totalWorkHours.toFixed(1)} Sa</span>
+                            </div>
+                            <div class="work-pills">${workPillsHTML}</div>
+                        </div>
+                    ` : ''}
+
                     <div class="drop-zone" id="zone-${dateStr}" ondrop="drop(event, '${dateStr}')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         ${tasksHTML}
                     </div>`;
@@ -802,28 +942,147 @@
             }
         }
 
-        /* ================= MÜFREDAT LOGIC ================= */
-        const defaultCurriculum = {
-            "TYT Matematik": ["Temel Kavramlar", "Sayı Basamakları", "EBOB - EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü İfadeler", "Köklü İfadeler", "Çarpanlara Ayırma", "Oran - Orantı", "Problemler", "Mantık & Kümeler", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Olasılık"],
-            "AYT Matematik": ["Polinomlar", "2. Dereceden Denklemler", "Parabol", "Eşitsizlikler", "Trigonometri", "Logaritma", "Diziler", "Limit ve Süreklilik", "Türev", "İntegral"],
-            "TYT - AYT Geometri": ["Üçgenler", "Çokgenler ve Dörtgenler", "Çamber ve Daire", "Analitik Geometri", "Katı Cisimler"],
-            "TYT Türkçe": ["Sözcükte ve Cümlede Anlam", "Paragraf", "Ses Bilgisi", "Yazım Kuralları", "Noktalama", "Dil Bilgisi"],
-            "TYT Fen Bilimleri": ["Fizik: Madde ve Kuvvet", "Fizik: Isı ve Enerji", "Fizik: Elektrik & Optik", "Kimya: Atom & Periyodik Sistem", "Kimya: Karışımlar & Asitler", "Biyoloji: Hücre & Canlılar", "Biyoloji: Kalıtım"],
-            "AYT Fizik": ["Vektörler & Bağıl Hareket", "Newton Yasaları", "Atışlar & Enerji", "Elektrik ve Manyetizma", "Çembersel Hareket", "Modern Fizik"],
-            "AYT Kimya": ["Modern Atom Teorisi", "Gazlar", "Çözeltiler", "Kimyasal Tepkimelerde Enerji & Hız", "Denge & Asit-Baz", "Organik Kimya"],
-            "AYT Biyoloji": ["İnsan Fizyolojisi", "Komünite ve Popülasyon Ekolojisi", "Genişletilmiş Hücresel Solunum & Fotosentez", "Bitki Biyolojisi"]
-        };
+        /* ================= MÜFREDAT MATRİSİ (SABİT SIRALAMA KORUMALI) ================= */
+        const orderedCurriculumStructure = [
+            {
+                category: "TYT Türkçe",
+                topics: [
+                    "Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Paragrafta Yapı", 
+                    "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", 
+                    "Sözcük Türleri (İsim, Sıfat, Zamir, Zarf, Edat, Bağlaç, Ünlem)", 
+                    "Fiiller ve Ek Fiil", "Fiilimsiler", "Sözcükte Yapı ve Ekler", 
+                    "Cümlenin Ögeleri", "Cümle Türleri", "Anlatım Bozuklukları"
+                ]
+            },
+            {
+                category: "TYT Matematik",
+                topics: [
+                    "Temel Kavramlar", "Tek - Çift ve Ardışık Sayılar", "Sayı Basamakları", 
+                    "Bölme ve Bölünebilme", "EBOB - EKOK", "Rasyonel ve Ondalık Sayılar", 
+                    "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", 
+                    "Çarpanlara Ayırma", "Oran ve Orantı", "Sayı ve Kesir Problemleri", 
+                    "Yaş Problemleri", "İşçi Problemleri", "Hareket Problemleri", 
+                    "Yüzde, Kar ve Zarar Problemleri", "Karışım Problemleri", 
+                    "Mantık", "Kümeler", "Fonksiyonlar", "Polinomlar", 
+                    "2. Dereceden Denklemler", "Permütasyon, Kombinasyon, Binom", 
+                    "Olasılık", "İstatistik (Veri)"
+                ]
+            },
+            {
+                category: "TYT - AYT Geometri",
+                topics: [
+                    "Doğruda Açı", "Üçgende Açı", "Dik Üçgen", "İkizkenar ve Eşkenar Üçgen", 
+                    "Üçgende Açıortay", "Üçgende Kenarortay", "Üçgende Eşlik ve Benzerlik", 
+                    "Üçgende Alan", "Çokgenler", "Dörtgenler ve Deltoid", 
+                    "Paralelkenar ve Eşkenar Dörtgen", "Dikdörtgen ve Kare", "Yamuk", 
+                    "Çemberde Açı", "Çemberde Uzunluk", "Dairede Çevre ve Alan", 
+                    "Nokta ve Doğru Analitiği", "Çemberin Analitik İncelenmesi (AYT)", 
+                    "Katı Cisimler (Prizma, Piramit, Silindir, Koni, Küre)", "Dönüşüm Geometrisi"
+                ]
+            },
+            {
+                category: "TYT Fizik",
+                topics: [
+                    "Fizik Bilimine Giriş", "Madde ve Özellikleri", "Hareket ve Kuvvet", 
+                    "İş, Güç ve Enerji", "Isı, Sıcaklık ve Genleşme", "Basınç", 
+                    "Kaldırma Kuvveti", "Elektrostatik", "Elektrik Akımı ve Devreler", 
+                    "Manyetizma", "Dalgalar", "Optik (Yansıma ve Aynalar)", "Optik (Kırılma, Mercekler, Renk)"
+                ]
+            },
+            {
+                category: "TYT Kimya",
+                topics: [
+                    "Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", 
+                    "Maddenin Hâlleri", "Doğa ve Kimya", "Kimyanın Temel Kanunları", 
+                    "Kimyasal Hesaplamalar", "Karışımlar", "Asitler, Bazlar ve Tuzlar", "Kimya Her Yerde"
+                ]
+            },
+            {
+                category: "TYT Biyoloji",
+                topics: [
+                    "Yaşam Bilimi Biyoloji", "Canlıların Ortak Özellikleri", "Canlıların Temel Bileşenleri", 
+                    "Hücre ve Organelleri", "Hücre Zarından Madde Geçişleri", 
+                    "Canlıların Sınıflandırılması", "Hücre Bölünmeleri (Mitoz ve Mayoz)", 
+                    "Üreme Çeşitleri", "Kalıtım", "Ekosistem Ekolojisi"
+                ]
+            },
+            {
+                category: "TYT Sosyal Bilimler",
+                topics: [
+                    "Tarih: İlk Çağ Uygarlıkları", "Tarih: Türklerin İslamiyet'i Kabulü", "Tarih: Osmanlı Devleti", "Tarih: İnkılap Tarihi",
+                    "Coğrafya: Doğa ve İnsan", "Coğrafya: Dünya'nın Şekli ve Hareketleri", "Coğrafya: İklim Bilgisi", "Coğrafya: Harita Bilgisi", "Coğrafya: Nüfus ve Göç",
+                    "Felsefe: Felsefeye Giriş", "Felsefe: Bilgi, Varlık, Ahlak, Siyaset",
+                    "Din Kültürü: İnanç, İbadet, Ahlak"
+                ]
+            },
+            {
+                category: "AYT Matematik",
+                topics: [
+                    "Fonksiyonlarda Uygulamalar", "İkinci Dereceden Denklemler", "Karmaşık Sayılar", 
+                    "Parabol", "İkinci Dereceden Eşitsizlikler", "Logaritma (Özellikler)", 
+                    "Logaritma (Denklem ve Eşitsizlikler)", "Dizi ve Seriler", 
+                    "Trigonometri 1", "Trigonometri 2 (Toplam-Fark, Yarım Açı, Denklemler)", 
+                    "Limit ve Süreklilik", "Türev Alma Kuralları", "Türevin Geometrik Yorumu", 
+                    "Türevin Fiziksel Yorumu ve Maksimum-Minimum", "Belirsiz İntegral", 
+                    "Belirli İntegral", "İntegralde Alan"
+                ]
+            },
+            {
+                category: "AYT Fizik",
+                topics: [
+                    "Vektörler ve Bağıl Hareket", "Newton'ın Hareket Yasaları", "Bir Boyutta Sabit İvmeli Hareket (Atışlar)", 
+                    "İki Boyutta Hareket", "İş, Güç ve Enerji", "İtme ve Çizgisel Momentum", 
+                    "Tork, Denge ve Kütle Merkezi", "Basit Makineler", "Elektriksel Kuvvet, Alan ve Potansiyel", 
+                    "Düzgün Elektrik Alan ve Sığa", "Manyetizma ve Elektromanyetik İndüklenme", 
+                    "Alternatif Akım ve Transformatörler", "Çembersel Hareket", "Basit Harmonik Hareket", 
+                    "Dalga Mekaniği", "Atom Fiziğine Giriş ve Radyoaktivite", "Modern Fizik ve Uygulamaları"
+                ]
+            },
+            {
+                category: "AYT Kimya",
+                topics: [
+                    "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler ve Çözünürlük", 
+                    "Kimyasal Tepkimelerde Enerji", "Kimyasal Tepkimelerde Hız", "Kimyasal Tepkimelerde Denge", 
+                    "Asit-Baz Dengesi", "Çözünürlük Dengesi (Kçç)", "Kimya ve Elektrik (Elektrokimya)", 
+                    "Karbon Kimyasına Giriş", "Organik Bileşikler"
+                ]
+            },
+            {
+                category: "AYT Biyoloji",
+                topics: [
+                    "Sinir Sistemi", "Endokrin Sistem", "Duyu Organları", "Destek ve Hareket Sistemi", 
+                    "Sindirim Sistemi", "Dolaşım ve Lenf Sistemi", "Bağışıklık Sistemi", 
+                    "Solunum Sistemi", "Üriner Sistem (Boşaltım)", "Üreme Sistemi ve Embriyonik Gelişim", 
+                    "Komünite ve Popülasyon Ekolojisi", "Nükleik Asitler ve Protein Sentezi", 
+                    "Fotosentez ve Kemosentez", "Hücresel Solunum", "Bitkisel Dokular ve Organlar", 
+                    "Bitkilerde Taşıma ve Beslenme", "Bitkilerde Eşeyli Üreme ve Çimlenme"
+                ]
+            }
+        ];
 
-        let curriculumData = JSON.parse(localStorage.getItem('yks_curriculum_matrix'));
+        let curriculumData = {};
 
         function initCurriculumData() {
-            if (!curriculumData) {
-                curriculumData = {};
-                for (let course in defaultCurriculum) {
-                    curriculumData[course] = {};
-                    defaultCurriculum[course].forEach(topic => { curriculumData[course][topic] = { konu: false, soru: false, tekrar: false }; });
+            curriculumData = {};
+            orderedCurriculumStructure.forEach(item => {
+                curriculumData[item.category] = {};
+                item.topics.forEach(topic => {
+                    curriculumData[item.category][topic] = { konu: false, soru: false, tekrar: false };
+                });
+            });
+        }
+
+        function mergeCurriculumProgress(savedData) {
+            initCurriculumData();
+            if (!savedData) return;
+            for (let course in savedData) {
+                if (curriculumData[course]) {
+                    for (let topic in savedData[course]) {
+                        if (curriculumData[course][topic]) {
+                            curriculumData[course][topic] = savedData[course][topic];
+                        }
+                    }
                 }
-                saveCurriculum();
             }
         }
 
@@ -840,6 +1099,7 @@
 
         function calculateCourseProgress(course) {
             const topics = curriculumData[course];
+            if (!topics) return 0;
             const topicKeys = Object.keys(topics);
             if (topicKeys.length === 0) return 0;
             let totalStages = topicKeys.length * 3;
@@ -854,17 +1114,20 @@
 
         function renderCurriculum() {
             const grid = document.getElementById('curriculumGrid');
-            const filter = document.getElementById('curriculumSearch').value.toLowerCase().trim();
+            const searchEl = document.getElementById('curriculumSearch');
+            if (!grid || !searchEl) return;
+            const filter = searchEl.value.toLowerCase().trim();
             grid.innerHTML = '';
 
-            for (let course in curriculumData) {
+            orderedCurriculumStructure.forEach(courseObj => {
+                const course = courseObj.category;
                 const percent = calculateCourseProgress(course);
                 const topics = curriculumData[course];
                 let topicsHTML = '';
 
-                for (let topic in topics) {
-                    if (filter !== '' && !topic.toLowerCase().includes(filter) && !course.toLowerCase().includes(filter)) continue;
-                    const st = topics[topic];
+                courseObj.topics.forEach(topic => {
+                    if (filter !== '' && !topic.toLowerCase().includes(filter) && !course.toLowerCase().includes(filter)) return;
+                    const st = topics[topic] || { konu: false, soru: false, tekrar: false };
                     topicsHTML += `
                         <div class="topic-item">
                             <div style="font-size: 13px; font-weight: 600;">${escapeHtml(topic)}</div>
@@ -874,24 +1137,27 @@
                                 <label class="stage-label"><input type="checkbox" ${st.tekrar ? 'checked' : ''} onchange="toggleStage('${course}', '${escapeHtml(topic)}', 'tekrar')"> 🔄 Tekrar</label>
                             </div>
                         </div>`;
-                }
+                });
 
-                grid.innerHTML += `
-                    <div class="course-card">
-                        <div class="course-header">
-                            <span style="font-weight: 700;">${escapeHtml(course)}</span>
-                            <span class="course-badge">%${percent}</span>
-                        </div>
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
-                        <div class="topic-list">${topicsHTML}</div>
-                    </div>`;
-            }
+                if (topicsHTML !== '' || filter === '') {
+                    grid.innerHTML += `
+                        <div class="course-card">
+                            <div class="course-header">
+                                <span style="font-weight: 700;">${escapeHtml(course)}</span>
+                                <span class="course-badge">%${percent}</span>
+                            </div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+                            <div class="topic-list">${topicsHTML}</div>
+                        </div>`;
+                }
+            });
         }
 
         function resetCurriculumConfirm() {
-            if (confirm("Müfredat matrisini sıfırlamak istediğine emin misin?")) {
-                localStorage.removeItem('yks_curriculum_matrix');
-                curriculumData = null; initCurriculumData(); renderCurriculum();
+            if (confirm("İşaretlediğiniz tüm çalışma durumlarını sıfırlamak istediğinize emin misiniz? (Ders ve konu sıralamanız sabit kalacaktır)")) {
+                initCurriculumData();
+                saveCurriculum(); 
+                renderCurriculum();
             }
         }
 
@@ -943,6 +1209,7 @@
         function renderSpaced() {
             const dueGrid = document.getElementById('spacedDueGrid');
             const upcomingGrid = document.getElementById('spacedUpcomingGrid');
+            if (!dueGrid || !upcomingGrid) return;
             dueGrid.innerHTML = ''; upcomingGrid.innerHTML = '';
             const today = new Date(); today.setHours(0,0,0,0);
             let dueCount = 0;
@@ -971,13 +1238,15 @@
                 if (isDue) dueGrid.innerHTML += cardHTML; else upcomingGrid.innerHTML += cardHTML;
             });
 
-            document.getElementById('spacedDueCount').innerText = dueCount;
+            const dueCountEl = document.getElementById('spacedDueCount');
+            if (dueCountEl) dueCountEl.innerText = dueCount;
             if (dueGrid.innerHTML === '') dueGrid.innerHTML = '<div class="empty-text">Tekrar edilecek konu kalmadı.</div>';
             if (upcomingGrid.innerHTML === '') upcomingGrid.innerHTML = '<div class="empty-text">Gelecek tekrar yok.</div>';
         }
 
         /* ================= FOTOĞRAFLI HATA DEFTERİ LOGIC ================= */
         let errorData = JSON.parse(localStorage.getItem('yks_error_data')) || [];
+        let selectedErrorSubjects = []; 
 
         function saveErrorData() { 
             saveToCloudAndLocal('yks_error_data', errorData); 
@@ -1031,14 +1300,50 @@
         function openImageModal(imgSrc) { document.getElementById('modalImg').src = imgSrc; document.getElementById('imageModal').style.display = 'flex'; }
         function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
+        function toggleErrorFilter(subject) {
+            if (subject === 'ALL') {
+                selectedErrorSubjects = [];
+            } else {
+                const index = selectedErrorSubjects.indexOf(subject);
+                if (index > -1) selectedErrorSubjects.splice(index, 1);
+                else selectedErrorSubjects.push(subject);
+            }
+            updateErrorFilterButtons();
+            renderErrorLog();
+        }
+
+        function updateErrorFilterButtons() {
+            const buttons = document.querySelectorAll('#errorFilterPanel .error-filter-btn');
+            buttons.forEach(btn => {
+                const subj = btn.getAttribute('data-subject');
+                if (subj === 'ALL') {
+                    if (selectedErrorSubjects.length === 0) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                } else {
+                    if (selectedErrorSubjects.includes(subj)) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+        }
+
         function renderErrorLog() {
             const grid = document.getElementById('errorGrid');
-            const filter = document.getElementById('errSearch').value.toLowerCase().trim();
+            const searchEl = document.getElementById('errSearch');
+            const countEl = document.getElementById('errCount');
+            if (!grid || !searchEl || !countEl) return;
+            
+            const filter = searchEl.value.toLowerCase().trim();
             grid.innerHTML = '';
-            const filtered = errorData.filter(i => filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter));
-            document.getElementById('errCount').innerText = errorData.length;
 
-            if (filtered.length === 0) { grid.innerHTML = '<div class="empty-text">Henüz hata eklenmedi.</div>'; return; }
+            const filtered = errorData.filter(i => {
+                const matchesSubject = selectedErrorSubjects.length === 0 || selectedErrorSubjects.includes(i.subject);
+                const matchesSearch = filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter) || (i.reason && i.reason.toLowerCase().includes(filter));
+                return matchesSubject && matchesSearch;
+            });
+
+            countEl.innerText = filtered.length;
+
+            if (filtered.length === 0) { grid.innerHTML = '<div class="empty-text">Filtreye uygun soru bulunamadı.</div>'; return; }
 
             filtered.forEach(item => {
                 grid.innerHTML += `
@@ -1079,7 +1384,9 @@
         }
 
         function renderCamps() {
-            const list = document.getElementById('campList'); list.innerHTML = '';
+            const list = document.getElementById('campList'); 
+            if (!list) return;
+            list.innerHTML = '';
             if (campsData.length === 0) { list.innerHTML = '<div class="empty-text">Takip edilecek kamp eklenmedi.</div>'; return; }
             campsData.forEach(camp => {
                 const percent = Math.round((camp.completed / camp.total) * 100);
@@ -1136,7 +1443,9 @@
         }
 
         function renderBooks() {
-            const list = document.getElementById('bookList'); list.innerHTML = '';
+            const list = document.getElementById('bookList'); 
+            if (!list) return;
+            list.innerHTML = '';
             if (bookData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz soru bankası eklenmedi.</div>'; return; }
 
             bookData.forEach(book => {
@@ -1145,7 +1454,7 @@
                     <div class="camp-card">
                         <div class="camp-header">
                             <div>
-                                <span style="font-size:11px; font-weight:700; color:var(--accent-color); font-block:block;">${escapeHtml(book.subject)}</span>
+                                <span style="font-size:11px; font-weight:700; color:var(--accent-color); display:block;">${escapeHtml(book.subject)}</span>
                                 <span style="font-weight:600;">${escapeHtml(book.title)}</span>
                             </div>
                             <button class="delete-btn" onclick="deleteBook(${book.id})">✕</button>
@@ -1166,6 +1475,7 @@
         let examData = JSON.parse(localStorage.getItem('yks_exam_data')) || [];
         let examChartInstance = null;
         let currentExamChartFilter = 'TYT';
+        let editingExamId = null;
 
         function setChartFilter(filterType) {
             currentExamChartFilter = filterType;
@@ -1177,23 +1487,108 @@
         }
 
         function toggleExamFields() {
-            const type = document.getElementById('examType').value;
+            const typeEl = document.getElementById('examType');
+            if (!typeEl) return;
+            const type = typeEl.value;
             document.getElementById('tytFields').style.display = type === 'TYT' ? 'block' : 'none';
             document.getElementById('aytFields').style.display = type === 'AYT' ? 'block' : 'none';
+        }
+
+        function formatDateForDisplay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            return dateStr;
+        }
+
+        function parseExamDetails(detailsStr, type) {
+            const res = {};
+            if (!detailsStr) return res;
+            const parts = detailsStr.split('|').map(s => s.trim());
+            parts.forEach(p => {
+                const kv = p.split(':').map(s => s.trim());
+                if (kv.length === 2) res[kv[0]] = parseFloat(kv[1]) || 0;
+            });
+            return res;
+        }
+
+        function editExam(id) {
+            const exam = examData.find(e => e.id === id);
+            if (!exam) return;
+
+            editingExamId = id;
+            document.getElementById('examFormTitle').innerText = 'Deneme Düzenle';
+            document.getElementById('btnSaveExam').innerText = 'Değişiklikleri Kaydet';
+            document.getElementById('btnCancelEditExam').style.display = 'block';
+
+            document.getElementById('examName').value = exam.name || '';
+            document.getElementById('examDate').value = exam.date || '';
+            document.getElementById('examType').value = exam.type || 'TYT';
+            toggleExamFields();
+
+            const details = parseExamDetails(exam.details, exam.type);
+            if (exam.type === 'TYT') {
+                document.getElementById('netTR').value = details['TR'] !== undefined ? details['TR'] : 0;
+                document.getElementById('netSOS').value = details['SOS'] !== undefined ? details['SOS'] : 0;
+                document.getElementById('netMAT').value = details['MAT'] !== undefined ? details['MAT'] : 0;
+                document.getElementById('netFEN').value = details['FEN'] !== undefined ? details['FEN'] : 0;
+            } else {
+                document.getElementById('netAytMAT').value = details['MAT'] !== undefined ? details['MAT'] : 0;
+                document.getElementById('netAytFIZ').value = details['FİZ'] !== undefined ? details['FİZ'] : 0;
+                document.getElementById('netAytKIM').value = details['KİM'] !== undefined ? details['KİM'] : 0;
+                document.getElementById('netAytBIO').value = details['BİO'] !== undefined ? details['BİO'] : 0;
+            }
+
+            document.getElementById('examName').focus();
+        }
+
+        function cancelExamEdit() {
+            editingExamId = null;
+            document.getElementById('examFormTitle').innerText = 'Yeni Deneme Kaydet';
+            document.getElementById('btnSaveExam').innerText = 'Denemeyi Kaydet';
+            document.getElementById('btnCancelEditExam').style.display = 'none';
+
+            document.getElementById('examName').value = '';
+            document.getElementById('examDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('examType').value = 'TYT';
+            toggleExamFields();
+
+            document.getElementById('netTR').value = 0;
+            document.getElementById('netSOS').value = 0;
+            document.getElementById('netMAT').value = 0;
+            document.getElementById('netFEN').value = 0;
+            document.getElementById('netAytMAT').value = 0;
+            document.getElementById('netAytFIZ').value = 0;
+            document.getElementById('netAytKIM').value = 0;
+            document.getElementById('netAytBIO').value = 0;
         }
 
         function addExamResult() {
             const name = document.getElementById('examName').value.trim();
             const type = document.getElementById('examType').value;
-            if (!name) { alert('Lütfen deneme adını girin.'); return; }
+            const dateVal = document.getElementById('examDate').value;
 
-            let result = { id: Date.now(), name: name, type: type, date: new Date().toLocaleDateString('tr-TR') };
+            if (!name) { alert('Lütfen deneme adını girin.'); return; }
+            if (!dateVal) { alert('Lütfen deneme tarihini seçin.'); return; }
+
+            let result = { 
+                id: editingExamId ? editingExamId : Date.now(), 
+                name: name, 
+                type: type, 
+                date: dateVal 
+            };
 
             if (type === 'TYT') {
                 const tr = parseFloat(document.getElementById('netTR').value) || 0;
                 const sos = parseFloat(document.getElementById('netSOS').value) || 0;
                 const mat = parseFloat(document.getElementById('netMAT').value) || 0;
                 const fen = parseFloat(document.getElementById('netFEN').value) || 0;
+
+                if (tr < 0 || tr > 40 || sos < 0 || sos > 20 || mat < 0 || mat > 40 || fen < 0 || fen > 20) {
+                    alert('Lütfen derslerin soru sayılarına uygun geçerli bir net girin!\n(Türkçe: Max 40, Sosyal: Max 20, Mat: Max 40, Fen: Max 20)');
+                    return;
+                }
+
                 result.total = tr + sos + mat + fen;
                 result.details = `TR: ${tr} | SOS: ${sos} | MAT: ${mat} | FEN: ${fen}`;
             } else {
@@ -1201,225 +1596,225 @@
                 const fiz = parseFloat(document.getElementById('netAytFIZ').value) || 0;
                 const kim = parseFloat(document.getElementById('netAytKIM').value) || 0;
                 const bio = parseFloat(document.getElementById('netAytBIO').value) || 0;
+
+                if (mat < 0 || mat > 40 || fiz < 0 || fiz > 14 || kim < 0 || kim > 13 || bio < 0 || bio > 13) {
+                    alert('Lütfen AYT derslerinin soru sayılarına uygun geçerli bir net girin!\n(Mat: Max 40, Fizik: Max 14, Kimya: Max 13, Biyo: Max 13)');
+                    return;
+                }
+
                 result.total = mat + fiz + kim + bio;
                 result.details = `MAT: ${mat} | FİZ: ${fiz} | KİM: ${kim} | BİO: ${bio}`;
             }
 
-            examData.push(result);
-            saveToCloudAndLocal('yks_exam_data', examData);
-            document.getElementById('examName').value = '';
-            renderExams();
+            if (editingExamId) {
+                const idx = examData.findIndex(e => e.id === editingExamId);
+                if (idx > -1) examData[idx] = result;
+                cancelExamEdit();
+            } else {
+                examData.push(result);
+            }
+
+            examData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            saveAndRenderExams();
+            if(!editingExamId) triggerConfetti();
         }
 
         function deleteExam(id) {
             if (confirm('Bu deneme sonucunu silmek istediğine emin misin?')) {
                 examData = examData.filter(e => e.id !== id);
-                saveToCloudAndLocal('yks_exam_data', examData);
-                renderExams();
+                saveAndRenderExams();
             }
         }
 
+        function saveAndRenderExams() {
+            saveToCloudAndLocal('yks_exam_data', examData);
+            renderExams();
+        }
+
         function renderExams() {
-            const historyList = document.getElementById('examHistoryList');
-            historyList.innerHTML = '';
+            const list = document.getElementById('examHistoryList');
+            if (!list) return;
+            list.innerHTML = '';
 
             if (examData.length === 0) {
-                historyList.innerHTML = '<div class="empty-text">Henüz deneme kaydedilmedi.</div>';
-            } else {
-                [...examData].reverse().slice(0, 5).forEach(exam => {
-                    historyList.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size:12px; font-weight:700; color:var(--accent-color);">${exam.type} - ${escapeHtml(exam.name)}</div>
-                                <div style="font-size:11px; color:var(--subtext-color);">${exam.details}</div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-weight:800; font-size:16px;">${exam.total} Net</span>
-                                <button class="delete-btn" onclick="deleteExam(${exam.id})">✕</button>
-                            </div>
-                        </div>`;
-                });
+                list.innerHTML = '<div class="empty-text">Henüz kaydedilmiş deneme yok.</div>';
+                renderExamChart();
+                return;
             }
+
+            let sortedForList = [...examData].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedForList.forEach(item => {
+                list.innerHTML += `
+                    <div class="camp-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:12px;">
+                        <div>
+                            <div style="display:flex; gap:8px; align-items:center; margin-bottom:2px;">
+                                <span class="course-badge" style="font-size:10px; padding:2px 6px;">${escapeHtml(item.type)}</span>
+                                <span style="font-weight:700; font-size:14px;">${escapeHtml(item.name)}</span>
+                            </div>
+                            <div style="font-size:12px; color:var(--subtext-color);">${formatDateForDisplay(item.date)} | ${escapeHtml(item.details)}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="text-align:right;">
+                                <span style="font-size:11px; color:var(--subtext-color); display:block;">Toplam Net</span>
+                                <span style="font-size:16px; font-weight:800; color:var(--accent-color);">${item.total.toFixed(2)}</span>
+                            </div>
+                            <div style="display:flex; gap:4px;">
+                                <button class="delete-btn" onclick="editExam(${item.id})" style="padding:4px 8px; background:var(--input-bg); border:1px solid var(--border-color);">Düzenle</button>
+                                <button class="delete-btn" onclick="deleteExam(${item.id})">Sil</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
 
             renderExamChart();
         }
 
         function renderExamChart() {
-            const ctx = document.getElementById('examChart').getContext('2d');
-            
-            let filteredData = examData;
-            if (currentExamChartFilter !== 'ALL') {
-                filteredData = examData.filter(e => e.type === currentExamChartFilter);
+            const canvas = document.getElementById('examChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let filteredExams = examData.filter(e => {
+                if (currentExamChartFilter === 'ALL') return true;
+                return e.type === currentExamChartFilter;
+            });
+
+            const labels = filteredExams.map(e => `${e.name} (${formatDateForDisplay(e.date)})`);
+            const totals = filteredExams.map(e => e.total);
+
+            if (examChartInstance) {
+                examChartInstance.destroy();
             }
-
-            const labels = filteredData.map(e => `${e.name} (${e.type})`);
-            const totals = filteredData.map(e => e.total);
-
-            if (examChartInstance) examChartInstance.destroy();
 
             const isDark = document.body.getAttribute('data-theme') === 'dark';
-            let color = isDark ? '#34d399' : '#10b981';
-            let bgColor = isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(16, 185, 129, 0.1)';
-
-            if (currentExamChartFilter === 'AYT') {
-                color = isDark ? '#60a5fa' : '#3b82f6';
-                bgColor = isDark ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)';
-            }
+            const textColor = isDark ? '#f1f5f9' : '#2c3e50';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
 
             examChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: currentExamChartFilter === 'ALL' ? 'Toplam Net' : `${currentExamChartFilter} Net`,
+                        label: `${currentExamChartFilter === 'ALL' ? 'Tüm Denemeler' : currentExamChartFilter} Net Gelişimi`,
                         data: totals,
-                        borderColor: color,
-                        backgroundColor: bgColor,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#10b981',
+                        pointRadius: 5,
                         fill: true,
-                        tension: 0.3,
-                        borderWidth: 2
+                        tension: 0.2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { weight: 'bold' } } }
+                    },
                     scales: {
-                        y: { beginAtZero: false, grid: { color: isDark ? '#334155' : '#e2e8f0' } },
-                        x: { grid: { display: false } }
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: false }
                     }
                 }
             });
         }
 
-        /* ================= ÖZEL SAYAÇ LOGIC ================= */
-        let pomoTimeTotal = 25 * 60;
-        let pomoTimeRemaining = 25 * 60;
+        /* ================= SAYAÇ (POMODORO / ÖZEL SÜRE) ================= */
         let pomoTimer = null;
-        let pomoRunning = false;
-
-        function formatTimeDisplay(totalSeconds) {
-            const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-            const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-            const s = (totalSeconds % 60).toString().padStart(2, '0');
-            return `${h}:${m}:${s}`;
-        }
+        let pomoTotalSeconds = 25 * 60;
+        let pomoRemainingSeconds = 25 * 60;
+        let isPomoRunning = false;
 
         function updatePomoDisplay() {
-            document.getElementById('pomodoroDisplay').innerText = formatTimeDisplay(pomoTimeRemaining);
+            const h = Math.floor(pomoRemainingSeconds / 3600);
+            const m = Math.floor((pomoRemainingSeconds % 3600) / 60);
+            const s = pomoRemainingSeconds % 60;
+            const displayStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            
+            const dispEl = document.getElementById('pomodoroDisplay');
+            if (dispEl) dispEl.innerText = displayStr;
+            document.title = isPomoRunning ? `(${displayStr}) YKS Sistemim` : 'YKS Sistemim';
         }
 
         function togglePomodoro() {
-            const btn = document.getElementById('pomoStartBtn');
-            const hoursInput = document.getElementById('pomoHours');
-            const minsInput = document.getElementById('pomoMinutes');
-            const secsInput = document.getElementById('pomoSeconds');
+            const startBtn = document.getElementById('pomoStartBtn');
+            const configArea = document.getElementById('pomoConfigArea');
 
-            if (pomoRunning) {
-                clearInterval(pomoTimer);
-                pomoRunning = false;
-                btn.innerText = 'Devam Et';
-                hoursInput.disabled = false;
-                minsInput.disabled = false;
-                secsInput.disabled = false;
-            } else {
-                if (pomoTimeRemaining <= 0) {
-                    const h = parseInt(hoursInput.value) || 0;
-                    const m = parseInt(minsInput.value) || 0;
-                    const s = parseInt(secsInput.value) || 0;
-                    pomoTimeTotal = (h * 3600) + (m * 60) + s;
-                    pomoTimeRemaining = pomoTimeTotal;
+            if (!isPomoRunning) {
+                if (pomoRemainingSeconds === pomoTotalSeconds) {
+                    const h = parseInt(document.getElementById('pomoHours').value) || 0;
+                    const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
+                    const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
+                    pomoTotalSeconds = (h * 3600) + (m * 60) + s;
+                    pomoRemainingSeconds = pomoTotalSeconds;
+
+                    if (pomoTotalSeconds <= 0) {
+                        alert('Lütfen geçerli bir süre girin!');
+                        return;
+                    }
                 }
 
-                if (pomoTimeRemaining <= 0) {
-                    alert('Lütfen geçerli bir süre ayarlayın!');
-                    return;
-                }
-
-                pomoRunning = true;
-                btn.innerText = 'Durdur';
-                hoursInput.disabled = true;
-                minsInput.disabled = true;
-                secsInput.disabled = true;
+                if (configArea) configArea.style.display = 'none';
+                isPomoRunning = true;
+                startBtn.innerText = 'Duraklat';
+                startBtn.style.backgroundColor = '#ef4444';
 
                 pomoTimer = setInterval(() => {
-                    if (pomoTimeRemaining > 0) {
-                        pomoTimeRemaining--;
+                    if (pomoRemainingSeconds > 0) {
+                        pomoRemainingSeconds--;
                         updatePomoDisplay();
                     } else {
                         clearInterval(pomoTimer);
-                        pomoRunning = false;
-                        btn.innerText = 'Başlat';
-                        hoursInput.disabled = false;
-                        minsInput.disabled = false;
-                        secsInput.disabled = false;
-                        alert('Süre tamamlandı!');
+                        isPomoRunning = false;
+                        startBtn.innerText = 'Başlat';
+                        startBtn.style.backgroundColor = 'var(--accent-color)';
+                        if (configArea) configArea.style.display = 'flex';
                         triggerConfetti();
+                        alert('Süre bitti, tebrikler!');
                     }
                 }, 1000);
+            } else {
+                clearInterval(pomoTimer);
+                isPomoRunning = false;
+                startBtn.innerText = 'Devam Et';
+                startBtn.style.backgroundColor = 'var(--accent-color)';
             }
         }
 
         function resetPomodoro() {
             clearInterval(pomoTimer);
-            pomoRunning = false;
-            document.getElementById('pomoStartBtn').innerText = 'Başlat';
-            
-            const hoursInput = document.getElementById('pomoHours');
-            const minsInput = document.getElementById('pomoMinutes');
-            const secsInput = document.getElementById('pomoSeconds');
-            
-            hoursInput.disabled = false;
-            minsInput.disabled = false;
-            secsInput.disabled = false;
+            isPomoRunning = false;
+            const startBtn = document.getElementById('pomoStartBtn');
+            if (startBtn) {
+                startBtn.innerText = 'Başlat';
+                startBtn.style.backgroundColor = 'var(--accent-color)';
+            }
+            const configArea = document.getElementById('pomoConfigArea');
+            if (configArea) configArea.style.display = 'flex';
 
-            const h = parseInt(hoursInput.value) || 0;
-            const m = parseInt(minsInput.value) || 0;
-            const s = parseInt(secsInput.value) || 0;
-            pomoTimeTotal = (h * 3600) + (m * 60) + s;
-            pomoTimeRemaining = pomoTimeTotal;
+            const h = parseInt(document.getElementById('pomoHours').value) || 0;
+            const m = parseInt(document.getElementById('pomoMinutes').value) || 25;
+            const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
+            pomoTotalSeconds = (h * 3600) + (m * 60) + s;
+            pomoRemainingSeconds = pomoTotalSeconds;
             updatePomoDisplay();
         }
 
-        document.getElementById('pomoHours').addEventListener('input', syncInputToDisplay);
-        document.getElementById('pomoMinutes').addEventListener('input', syncInputToDisplay);
-        document.getElementById('pomoSeconds').addEventListener('input', syncInputToDisplay);
+        document.getElementById('pomoHours').addEventListener('input', updatePomoInputValues);
+        document.getElementById('pomoMinutes').addEventListener('input', updatePomoInputValues);
+        document.getElementById('pomoSeconds').addEventListener('input', updatePomoInputValues);
 
-        function syncInputToDisplay() {
-            if (!pomoRunning) {
-                const h = parseInt(document.getElementById('pomoHours').value) || 0;
-                const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
-                const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-                pomoTimeTotal = (h * 3600) + (m * 60) + s;
-                pomoTimeRemaining = pomoTimeTotal;
-                updatePomoDisplay();
-            }
+        function updatePomoInputValues() {
+            if (isPomoRunning) return;
+            const h = parseInt(document.getElementById('pomoHours').value) || 0;
+            const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
+            const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
+            pomoTotalSeconds = (h * 3600) + (m * 60) + s;
+            pomoRemainingSeconds = pomoTotalSeconds;
+            updatePomoDisplay();
         }
-
-        // ================= BAŞLANGIÇ ÇALIŞTIRICILARI VE CLOUD SYNC BAĞLANTILARI =================
-        updateMotivationPanel();
-        
-        // Her modülü hem yerel hem bulut senkronizasyonu ile başlatıyoruz
-        initCloudSyncFor('yks_drag_planner', (data) => { plannerData = data; renderPlanner(); });
-        initCloudSyncFor('yks_day_notes', (data) => { dayNotesData = data; renderPlanner(); });
-        
-        initCurriculumData();
-        initCloudSyncFor('yks_curriculum_matrix', (data) => { curriculumData = data; renderCurriculum(); });
-        
-        initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
-        initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
-        initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
-        initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
-        initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
-
-        renderPlanner();
-        renderCurriculum();
-        renderSpaced();
-        renderErrorLog();
-        renderCamps();
-        renderBooks();
-        renderExams();
-        toggleExamFields();
-        syncInputToDisplay();
     </script>
 </body>
 </html>
