@@ -8,10 +8,11 @@
     <!-- Grafik Takibi için Chart.js Entegrasyonu -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDK Entegrasyonu -->
+    <!-- Firebase SDK Entegrasyonu (Firestore Eklendi) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+      import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBueJUyBtCForsQZcnIqcJ-0jLy5wLMDoQ",
@@ -25,6 +26,13 @@
 
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+
+      // Global olarak Firestore nesnesini ve fonksiyonları erişilebilir yapıyoruz
+      window.db = db;
+      window.fsDoc = doc;
+      window.fsSetDoc = setDoc;
+      window.fsOnSnapshot = onSnapshot;
     </script>
 
     <style>
@@ -71,6 +79,8 @@
         .container { width: 100%; max-width: 1300px; background-color: var(--container-bg); padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header h1 { font-size: 22px; font-weight: 700; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .sync-badge { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; background-color: rgba(16, 185, 129, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); }
         .btn-icon { background-color: var(--input-bg); border: none; cursor: pointer; font-size: 14px; padding: 8px 12px; border-radius: 8px; color: var(--text-color); font-weight: 600; }
 
         .motivation-card { background-color: var(--motivation-bg); border: 1px solid var(--motivation-border); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
@@ -197,7 +207,10 @@
     <div class="container">
         <div class="header">
             <h1>YKS Sistemim</h1>
-            <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <div class="header-right">
+                <span id="cloudSyncStatus" class="sync-badge">Bulut: Bağlanıyor...</span>
+                <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            </div>
         </div>
 
         <div class="motivation-card">
@@ -470,6 +483,87 @@
     </div>
 
     <script>
+        // ================= FIREBASE CLOUD SYNC ENTEGRASYONU =================
+        let isCloudLoading = false;
+
+        function saveToCloudAndLocal(key, data) {
+            // Önce yerel depolamaya kaydet (hızlı erişim / offline yedek)
+            localStorage.setItem(key, JSON.stringify(data));
+
+            // Eğer Firebase hazırsa buluta da gönder
+            if (window.db && window.fsDoc && window.fsSetDoc && !isCloudLoading) {
+                const statusBadge = document.getElementById('cloudSyncStatus');
+                if(statusBadge) {
+                    statusBadge.innerText = "Bulut: Kaydediliyor...";
+                    statusBadge.style.color = "#f59e0b";
+                    statusBadge.style.borderColor = "#f59e0b";
+                }
+
+                window.fsSetDoc(window.fsDoc(window.db, "yks_sistemim", key), {
+                    payload: data,
+                    updatedAt: new Date().toISOString()
+                }).then(() => {
+                    if(statusBadge) {
+                        statusBadge.innerText = "Bulut: Senkronize";
+                        statusBadge.style.color = "var(--accent-color)";
+                        statusBadge.style.borderColor = "var(--accent-color)";
+                    }
+                }).catch(err => {
+                    console.error("Bulut kayıt hatası:", err);
+                    if(statusBadge) {
+                        statusBadge.innerText = "Bulut: Hata!";
+                        statusBadge.style.color = "#ef4444";
+                        statusBadge.style.borderColor = "#ef4444";
+                    }
+                });
+            }
+        }
+
+        function initCloudSyncFor(key, renderCallback) {
+            // Başlangıçta localStorage'dan yükle
+            let localVal = localStorage.getItem(key);
+            if (localVal) {
+                renderCallback(JSON.parse(localVal));
+            }
+
+            // Firestore bağlantısını kurana kadar periyodik kontrol
+            const checkDbInterval = setInterval(() => {
+                if (window.db && window.fsDoc && window.fsOnSnapshot) {
+                    clearInterval(checkDbInterval);
+                    const statusBadge = document.getElementById('cloudSyncStatus');
+                    if(statusBadge) {
+                        statusBadge.innerText = "Bulut: Bağlandı";
+                    }
+
+                    window.fsOnSnapshot(window.fsDoc(window.db, "yks_sistemim", key), (docSnap) => {
+                        if (docSnap.exists()) {
+                            const cloudData = docSnap.data().payload;
+                            if (cloudData) {
+                                isCloudLoading = true;
+                                localStorage.setItem(key, JSON.stringify(cloudData));
+                                renderCallback(cloudData);
+                                isCloudLoading = false;
+                                
+                                if(statusBadge) {
+                                    statusBadge.innerText = "Bulut: Güncel";
+                                    statusBadge.style.color = "var(--accent-color)";
+                                    statusBadge.style.borderColor = "var(--accent-color)";
+                                }
+                            }
+                        }
+                    }, (error) => {
+                        console.error("Bulut dinleme hatası:", error);
+                        if(statusBadge) {
+                            statusBadge.innerText = "Bulut: Bağlantı Yok";
+                            statusBadge.style.color = "#ef4444";
+                            statusBadge.style.borderColor = "#ef4444";
+                        }
+                    });
+                }
+            }, 500);
+        }
+
+        // ================= TEMEL UYGULAMA MANTIĞI =================
         const savedTheme = localStorage.getItem('yks_theme') || 'light';
         document.body.setAttribute('data-theme', savedTheme);
         document.addEventListener('DOMContentLoaded', () => {
@@ -506,7 +600,9 @@
         setInterval(updateMotivationPanel, 1000);
         updateMotivationPanel();
 
-        function saveGoal() { localStorage.setItem('yks_target_goal', document.getElementById('targetGoal').value); }
+        function saveGoal() { 
+            saveToCloudAndLocal('yks_target_goal', document.getElementById('targetGoal').value); 
+        }
 
         function toggleTheme() {
             const body = document.body; 
@@ -561,7 +657,10 @@
         function getMonday(d) { d = new Date(d); let day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); d.setDate(diff); d.setHours(0,0,0,0); return d; }
         function changeWeek(offset) { currentWeekStart.setDate(currentWeekStart.getDate() + (offset * 7)); renderPlanner(); }
         function goToCurrentWeek() { currentWeekStart = getMonday(new Date()); renderPlanner(); }
-        function savePlanner() { localStorage.setItem('yks_drag_planner', JSON.stringify(plannerData)); }
+        
+        function savePlanner() { 
+            saveToCloudAndLocal('yks_drag_planner', plannerData); 
+        }
 
         function toggleDayNoteDrawer(dateStr) {
             const drawer = document.getElementById(`drawer-${dateStr}`);
@@ -574,7 +673,7 @@
             const textarea = document.getElementById(`note-input-${dateStr}`);
             if (textarea) {
                 dayNotesData[dateStr] = textarea.value;
-                localStorage.setItem('yks_day_notes', JSON.stringify(dayNotesData));
+                saveToCloudAndLocal('yks_day_notes', dayNotesData);
             }
         }
 
@@ -728,7 +827,9 @@
             }
         }
 
-        function saveCurriculum() { localStorage.setItem('yks_curriculum_matrix', JSON.stringify(curriculumData)); }
+        function saveCurriculum() { 
+            saveToCloudAndLocal('yks_curriculum_matrix', curriculumData); 
+        }
 
         function toggleStage(course, topic, stage) {
             if (curriculumData[course] && curriculumData[course][topic]) {
@@ -798,7 +899,9 @@
         const spacedIntervals = [1, 3, 7, 14, 30];
         let spacedData = JSON.parse(localStorage.getItem('yks_spaced_data')) || [];
 
-        function saveSpacedData() { localStorage.setItem('yks_spaced_data', JSON.stringify(spacedData)); }
+        function saveSpacedData() { 
+            saveToCloudAndLocal('yks_spaced_data', spacedData); 
+        }
 
         function addSpacedItem() {
             const topicInput = document.getElementById('spacedTopicInput');
@@ -876,7 +979,9 @@
         /* ================= FOTOĞRAFLI HATA DEFTERİ LOGIC ================= */
         let errorData = JSON.parse(localStorage.getItem('yks_error_data')) || [];
 
-        function saveErrorData() { localStorage.setItem('yks_error_data', JSON.stringify(errorData)); }
+        function saveErrorData() { 
+            saveToCloudAndLocal('yks_error_data', errorData); 
+        }
 
         function compressImage(file) {
             return new Promise((resolve) => {
@@ -967,7 +1072,11 @@
             if (camp) { camp.completed += change; if (camp.completed < 0) camp.completed = 0; if (camp.completed > camp.total) camp.completed = camp.total; saveAndRenderCamps(); }
         }
         function deleteCamp(id) { if(confirm('Silmek istediğine emin misin?')) { campsData = campsData.filter(c => c.id !== id); saveAndRenderCamps(); } }
-        function saveAndRenderCamps() { localStorage.setItem('yks_camps_data', JSON.stringify(campsData)); renderCamps(); }
+        
+        function saveAndRenderCamps() { 
+            saveToCloudAndLocal('yks_camps_data', campsData); 
+            renderCamps(); 
+        }
 
         function renderCamps() {
             const list = document.getElementById('campList'); list.innerHTML = '';
@@ -992,7 +1101,10 @@
         /* ================= SORU BANKALARI / YAYIN TAKİBİ LOGIC ================= */
         let bookData = JSON.parse(localStorage.getItem('yks_books_data')) || [];
 
-        function saveAndRenderBooks() { localStorage.setItem('yks_books_data', JSON.stringify(bookData)); renderBooks(); }
+        function saveAndRenderBooks() { 
+            saveToCloudAndLocal('yks_books_data', bookData); 
+            renderBooks(); 
+        }
 
         function addBook() {
             const title = document.getElementById('bookTitle').value.trim();
@@ -1094,7 +1206,7 @@
             }
 
             examData.push(result);
-            localStorage.setItem('yks_exam_data', JSON.stringify(examData));
+            saveToCloudAndLocal('yks_exam_data', examData);
             document.getElementById('examName').value = '';
             renderExams();
         }
@@ -1102,7 +1214,7 @@
         function deleteExam(id) {
             if (confirm('Bu deneme sonucunu silmek istediğine emin misin?')) {
                 examData = examData.filter(e => e.id !== id);
-                localStorage.setItem('yks_exam_data', JSON.stringify(examData));
+                saveToCloudAndLocal('yks_exam_data', examData);
                 renderExams();
             }
         }
@@ -1283,9 +1395,23 @@
             }
         }
 
+        // ================= BAŞLANGIÇ ÇALIŞTIRICILARI VE CLOUD SYNC BAĞLANTILARI =================
         updateMotivationPanel();
-        renderPlanner();
+        
+        // Her modülü hem yerel hem bulut senkronizasyonu ile başlatıyoruz
+        initCloudSyncFor('yks_drag_planner', (data) => { plannerData = data; renderPlanner(); });
+        initCloudSyncFor('yks_day_notes', (data) => { dayNotesData = data; renderPlanner(); });
+        
         initCurriculumData();
+        initCloudSyncFor('yks_curriculum_matrix', (data) => { curriculumData = data; renderCurriculum(); });
+        
+        initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
+        initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
+        initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
+        initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
+        initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
+
+        renderPlanner();
         renderCurriculum();
         renderSpaced();
         renderErrorLog();
