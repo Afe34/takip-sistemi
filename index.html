@@ -475,6 +475,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('themeToggleBtn');
             if(btn) btn.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+            toggleExamFields();
         });
 
         const yks2027Target = new Date('2027-06-19T10:15:00').getTime(); 
@@ -706,7 +707,7 @@
         const defaultCurriculum = {
             "TYT Matematik": ["Temel Kavramlar", "Sayı Basamakları", "EBOB - EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü İfadeler", "Köklü İfadeler", "Çarpanlara Ayırma", "Oran - Orantı", "Problemler", "Mantık & Kümeler", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Olasılık"],
             "AYT Matematik": ["Polinomlar", "2. Dereceden Denklemler", "Parabol", "Eşitsizlikler", "Trigonometri", "Logaritma", "Diziler", "Limit ve Süreklilik", "Türev", "İntegral"],
-            "TYT - AYT Geometri": ["Üçgenler", "Çokgenler ve Dörtgenler", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler"],
+            "TYT - AYT Geometri": ["Üçgenler", "Çokgenler ve Dörtgenler", "Çamber ve Daire", "Analitik Geometri", "Katı Cisimler"],
             "TYT Türkçe": ["Sözcükte ve Cümlede Anlam", "Paragraf", "Ses Bilgisi", "Yazım Kuralları", "Noktalama", "Dil Bilgisi"],
             "TYT Fen Bilimleri": ["Fizik: Madde ve Kuvvet", "Fizik: Isı ve Enerji", "Fizik: Elektrik & Optik", "Kimya: Atom & Periyodik Sistem", "Kimya: Karışımlar & Asitler", "Biyoloji: Hücre & Canlılar", "Biyoloji: Kalıtım"],
             "AYT Fizik": ["Vektörler & Bağıl Hareket", "Newton Yasaları", "Atışlar & Enerji", "Elektrik ve Manyetizma", "Çembersel Hareket", "Modern Fizik"],
@@ -1291,6 +1292,7 @@
         renderCamps();
         renderBooks();
         renderExams();
+        toggleExamFields();
         syncInputToDisplay();
     </script>
 </body>
