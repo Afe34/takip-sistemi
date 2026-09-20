@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Sistemim</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Grafik Takibi için Chart.js Entegrasyonu -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDK Entegrasyonu -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBueJUyBtCForsQZcnIqcJ-0jLy5wLMDoQ",
+        authDomain: "takip-788b9.firebaseapp.com",
+        projectId: "takip-788b9",
+        storageBucket: "takip-788b9.firebasestorage.app",
+        messagingSenderId: "124800695899",
+        appId: "1:124800695899:web:df9dcadd795626ef33097e",
+        measurementId: "G-BPDN3RT6FC"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f7f9f6;
+            --container-bg: #ffffff;
+            --text-color: #2c3e50;
+            --subtext-color: #7f8c8d;
+            --input-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --item-hover: #f1f5f9;
+            --accent-color: #10b981;
+            --accent-hover: #059669;
+            --completed-color: #a0aec0;
+            --motivation-bg: #f0fdf4;
+            --motivation-border: #bbf7d0;
+            --drag-over-bg: #e2f0df;
+            --danger-color: #e74c3c;
+            --btn-green: #15803d;
+            --btn-green-hover: #166534;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121824;
+            --container-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --subtext-color: #94a3b8;
+            --input-bg: #0f172a;
+            --border-color: #334155;
+            --item-hover: #273548;
+            --accent-color: #10b981;
+            --accent-hover: #34d399;
+            --completed-color: #64748b;
+            --motivation-bg: #064e3b;
+            --motivation-border: #065f46;
+            --drag-over-bg: #1e3a2a;
+            --danger-color: #ef4444;
+            --btn-green: #15803d;
+            --btn-green-hover: #166534;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 1300px; background-color: var(--container-bg); padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { font-size: 22px; font-weight: 700; }
+        .btn-icon { background-color: var(--input-bg); border: none; cursor: pointer; font-size: 14px; padding: 8px 12px; border-radius: 8px; color: var(--text-color); font-weight: 600; }
+
+        .motivation-card { background-color: var(--motivation-bg); border: 1px solid var(--motivation-border); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .target-section { flex: 1; min-width: 200px; }
+        .target-label { font-size: 12px; text-transform: uppercase; font-weight: 700; color: var(--accent-color); margin-bottom: 4px; }
+        .target-input { background: transparent; border: none; width: 100%; font-size: 16px; font-weight: 600; color: var(--text-color); outline: none; border-bottom: 1px dashed transparent; }
+        .target-input:focus { border-bottom: 1px dashed var(--accent-color); }
+        .countdown-section { text-align: right; padding-left: 16px; border-left: 1px solid var(--motivation-border); }
+        .countdown-number { font-size: 20px; font-weight: 800; color: var(--accent-color); line-height: 1.2; margin-bottom: 2px; }
+        .countdown-label { font-size: 11px; font-weight: 600; color: var(--subtext-color); text-transform: uppercase; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; font-size: 14px; font-weight: 600; color: var(--subtext-color); cursor: pointer; padding: 8px 12px; position: relative; border-radius: 6px; white-space: nowrap; }
+        .tab-btn.active { color: var(--accent-color); background-color: var(--item-hover); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 3px; background-color: var(--accent-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .input-group { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .input-group input, .input-group select { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 14px; outline: none; flex: 1;}
+        .input-group button { padding: 0 16px; border: none; border-radius: 8px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; }
+
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--subtext-color); font-weight: 600; }
+        .calendar-nav button { background: none; border: none; color: var(--accent-color); font-size: 18px; cursor: pointer; }
+        .drag-planner-container { display: flex; flex-direction: column; gap: 20px; }
+        @media (min-width: 850px) { .drag-planner-container { flex-direction: row; } }
+        .task-pool-sidebar { background-color: var(--item-hover); padding: 15px; border-radius: 12px; border: 1px dashed var(--border-color); display: flex; flex-direction: column; }
+        @media (min-width: 850px) { .task-pool-sidebar { width: 320px; flex-shrink: 0; } }
+        .sidebar-title { font-size: 14px; font-weight: 700; color: var(--accent-color); margin-bottom: 15px; text-transform: uppercase; display: flex; justify-content: space-between;}
+        
+        .week-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .day-column { background-color: var(--input-bg); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
+        .day-column.today { border-color: var(--accent-color); }
+        .day-header { padding: 12px; background-color: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .day-title-area { text-align: left; }
+        .day-name { font-size: 13px; text-transform: uppercase; font-weight: 700; color: var(--subtext-color); }
+        .day-date { font-size: 16px; font-weight: 800; margin-top: 2px; }
+        .day-note-btn { background: var(--container-bg); border: 1px solid var(--border-color); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; color: var(--text-color); font-weight: 600; }
+        .day-note-btn:hover { background-color: var(--item-hover); color: var(--accent-color); }
+
+        .day-note-drawer { background-color: var(--container-bg); border-bottom: 1px solid var(--border-color); padding: 10px 12px; display: none; flex-direction: column; gap: 6px; }
+        .day-note-drawer.open { display: flex; }
+        .day-note-textarea { width: 100%; height: 60px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 12px; resize: none; outline: none; }
+        
+        .drop-zone { flex: 1; padding: 14px; min-height: 350px; display: flex; flex-direction: column; gap: 12px; }
+        .drop-zone.drag-over { background-color: var(--drag-over-bg); }
+        .pool-zone { min-height: 350px; }
+
+        .draggable-task { background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; font-size: 14px; cursor: grab; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .task-content { display: flex; align-items: flex-start; gap: 10px; word-break: break-word; }
+        .task-content input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-color); margin-top: 1px; cursor: pointer; flex-shrink: 0;}
+        .draggable-task.completed .task-text { text-decoration: line-through; color: var(--completed-color); }
+        .draggable-task.completed .task-subject-badge { opacity: 0.5; }
+        .task-text { flex: 1; line-height: 1.4; pointer-events: none; font-weight: 500; }
+        
+        .task-subject-badge { font-size: 11px; font-weight: 700; color: var(--accent-color); background: var(--motivation-bg); padding: 2px 6px; border-radius: 4px; width: fit-content; margin-bottom: 2px; }
+        
+        .task-actions { display: flex; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 2px; }
+        .delete-btn { background: none; border: none; color: var(--subtext-color); cursor: pointer; font-size: 13px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+        .delete-btn:hover { background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color); }
+        .empty-text { font-size: 13px; color: var(--subtext-color); text-align: center; font-style: italic; margin-top: 20px;}
+
+        .camp-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .camp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .progress-bar-bg { background-color: var(--border-color); border-radius: 8px; height: 10px; width: 100%; overflow: hidden; margin-bottom: 12px; }
+        .progress-bar-fill { background-color: var(--accent-color); height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
+        .camp-footer { display: flex; justify-content: space-between; align-items: center; color: var(--subtext-color); font-size: 13px; }
+        .camp-controls button { background-color: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .curriculum-toolbar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: space-between; align-items: center; }
+        .curriculum-search { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); outline: none; min-width: 250px; }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .course-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
+        .course-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .course-badge { background-color: var(--accent-color); color: white; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
+        .topic-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 420px; overflow-y: auto; }
+        .topic-item { background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .topic-stages { display: flex; gap: 12px; font-size: 12px; color: var(--subtext-color); }
+        .stage-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+        .spaced-container { display: flex; flex-direction: column; gap: 20px; }
+        .spaced-section-title { font-size: 16px; font-weight: 700; color: var(--accent-color); margin-bottom: 12px; display: flex; justify-content: space-between; }
+        .spaced-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .spaced-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
+        .spaced-card.due { border-color: var(--accent-color); background-color: var(--container-bg); }
+        .spaced-actions { display: flex; gap: 8px; margin-top: 5px; }
+        .btn-spaced-fail { flex: 1; background-color: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger-color); color: var(--danger-color); font-weight: 600; padding: 8px; border-radius: 8px; cursor: pointer; }
+        .btn-spaced-success { flex: 1.5; background-color: var(--accent-color); border: none; color: white; font-weight: 600; padding: 8px; border-radius: 8px; cursor: pointer; }
+
+        .error-layout { display: flex; flex-direction: column; gap: 24px; }
+        @media (min-width: 850px) { .error-layout { flex-direction: row; align-items: flex-start; } }
+        .error-form-card { width: 100%; max-width: 380px; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .error-form-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+        .form-field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+        .form-field label { font-size: 13px; font-weight: 600; color: var(--subtext-color); }
+        .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); font-size: 14px; outline: none; }
+        .btn-add-error { width: 100%; padding: 12px; background-color: var(--btn-green); color: white; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .btn-add-error:hover { background-color: var(--btn-green-hover); }
+        .error-list-card { flex: 1; width: 100%; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; min-height: 400px; }
+        .error-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .error-card-item { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+        .error-card-item.resolved { opacity: 0.6; border-style: dashed; }
+        .error-img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
+        
+        .image-modal { display: none; position: fixed; z-index: 10000; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; padding: 20px; }
+        .image-modal img { max-width: 90%; max-height: 90vh; border-radius: 8px; }
+        .image-modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; }
+
+        .exam-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 900px) { .exam-grid { grid-template-columns: 340px 1fr; } }
+        .exam-inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .chart-container { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; height: 380px; position: relative; display: flex; flex-direction: column; }
+        .chart-filter-btn { background-color: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .chart-filter-btn.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        
+        .pomodoro-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px; max-width: 500px; margin: 0 auto; text-align: center; }
+        .pomodoro-timer { font-size: 64px; font-weight: 800; color: var(--accent-color); margin: 20px 0; font-family: monospace; }
+        .pomodoro-btns { display: flex; gap: 12px; width: 100%; }
+        .pomodoro-btns button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <div class="header">
+            <h1>YKS Sistemim</h1>
+            <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+        </div>
+
+        <div class="motivation-card">
+            <div class="target-section">
+                <div class="target-label">Ana Hedefim</div>
+                <input type="text" class="target-input" id="targetGoal" onchange="saveGoal()" placeholder="Hedefini buraya yaz...">
+            </div>
+            <div class="countdown-section">
+                <div class="countdown-number" id="countdownDays">-- Gün -- Saat</div>
+                <div class="countdown-label">YKS 2027 (19 Haziran 2027)</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'planner')">🗓️ Haftalık Plan</button>
+            <button class="tab-btn" onclick="switchTab(this, 'curriculum')">📑 Müfredat Matrisi</button>
+            <button class="tab-btn" onclick="switchTab(this, 'spaced')">🧠 Aralıklarla Tekrar</button>
+            <button class="tab-btn" onclick="switchTab(this, 'errors')">📌 Fotoğraflı Hata Defteri</button>
+            <button class="tab-btn" onclick="switchTab(this, 'camps')">📚 Kaynak Takibi</button>
+            <button class="tab-btn" onclick="switchTab(this, 'books')">📖 Soru Bankaları</button>
+            <button class="tab-btn" onclick="switchTab(this, 'exams')">📊 Deneme Takibi</button>
+            <button class="tab-btn" onclick="switchTab(this, 'pomodoro')">⏱️ Sayaç</button>
+        </div>
+
+        <!-- HAFTALIK PLAN -->
+        <div id="plannerTab" class="tab-content active">
+            <div class="calendar-nav">
+                <button onclick="changeWeek(-1)">◀ Önceki</button>
+                <span id="weekDisplay" onclick="goToCurrentWeek()" style="cursor:pointer; color:var(--text-color);"></span>
+                <button onclick="changeWeek(1)">Sonraki ▶</button>
+            </div>
+            <div class="drag-planner-container">
+                <div class="task-pool-sidebar">
+                    <div class="sidebar-title">Haftalık Görev Havuzu <span id="poolCount">0</span></div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                        <select id="poolSubject" style="padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 14px; outline: none;">
+                            <option value="Matematik">Matematik</option>
+                            <option value="Geometri">Geometri</option>
+                            <option value="Fizik">Fizik</option>
+                            <option value="Kimya">Kimya</option>
+                            <option value="Biyoloji">Biyoloji</option>
+                            <option value="Türkçe">Türkçe</option>
+                            <option value="Sosyal">Sosyal</option>
+                            <option value="Genel">Genel / Diğer</option>
+                        </select>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <input type="text" id="poolInput" placeholder="Örn: 50 soru çözüm..." onkeypress="if(event.key === 'Enter') addPoolTask()">
+                            <input type="number" id="poolRepeat" value="1" min="1" max="14" style="width: 50px; text-align: center;" title="Tekrar Sayısı">
+                            <button onclick="addPoolTask()">+</button>
+                        </div>
+                    </div>
+
+                    <div class="drop-zone pool-zone" id="zone-pool" ondrop="drop(event, 'pool')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                </div>
+                <div class="week-grid" id="weekGrid"></div>
+            </div>
+        </div>
+
+        <!-- MÜFREDAT MATRİSİ -->
+        <div id="curriculumTab" class="tab-content">
+            <div class="curriculum-toolbar">
+                <input type="text" id="curriculumSearch" class="curriculum-search" placeholder="Konu ara..." oninput="renderCurriculum()">
+                <button class="btn-icon" onclick="resetCurriculumConfirm()">🔄 Varsayılana Dön</button>
+            </div>
+            <div class="course-grid" id="curriculumGrid"></div>
+        </div>
+
+        <!-- ARALIKLARLA TEKRAR -->
+        <div id="spacedTab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="spacedTopicInput" placeholder="Tekrar Edilecek Konu" onkeypress="if(event.key === 'Enter') addSpacedItem()">
+                <select id="spacedSubjectSelect">
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                    <option value="Türkçe">Türkçe</option>
+                    <option value="Sosyal">Sosyal</option>
+                </select>
+                <button onclick="addSpacedItem()">Ekle</button>
+            </div>
+            <div class="spaced-container">
+                <div>
+                    <div class="spaced-section-title">
+                        <span>🔔 Bugün Tekrar Edilmeli</span>
+                        <span id="spacedDueCount" style="background-color:var(--accent-color); color:white; font-size:12px; padding:2px 8px; border-radius:10px;">0</span>
+                    </div>
+                    <div class="spaced-grid" id="spacedDueGrid"></div>
+                </div>
+                <div>
+                    <div class="spaced-section-title" style="color: var(--subtext-color);"><span>⏳ Gelecek Tekrarlar</span></div>
+                    <div class="spaced-grid" id="spacedUpcomingGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOTOĞRAFLI HATA DEFTERİ -->
+        <div id="errorsTab" class="tab-content">
+            <div class="error-layout">
+                <div class="error-form-card">
+                    <div class="error-form-title">Yeni Hata / Soru Ekle</div>
+                    <div class="form-field">
+                        <label for="errSubject">Ders</label>
+                        <select id="errSubject">
+                            <option value="Matematik">Matematik</option>
+                            <option value="Geometri">Geometri</option>
+                            <option value="Fizik">Fizik</option>
+                            <option value="Kimya">Kimya</option>
+                            <option value="Biyoloji">Biyoloji</option>
+                            <option value="Türkçe">Türkçe</option>
+                            <option value="Sosyal">Sosyal</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="errTopic">Konu</label>
+                        <input type="text" id="errTopic" placeholder="Örn: İntegral">
+                    </div>
+                    <div class="form-field">
+                        <label for="errReason">Açıklama / Yanlış Nedeni</label>
+                        <textarea id="errReason" placeholder="Neden kaçtı?"></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label for="errImage">Soru Görseli</label>
+                        <input type="file" id="errImage" accept="image/*">
+                    </div>
+                    <button class="btn-add-error" onclick="addErrorItem()">Hatayı Deftere Ekle</button>
+                </div>
+
+                <div class="error-list-card">
+                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Hata Defterim (<span id="errCount">0</span> Soru)</span>
+                        <input type="text" id="errSearch" class="curriculum-search" placeholder="Ara..." oninput="renderErrorLog()" style="padding: 4px 10px; font-size: 12px; min-width: 150px;">
+                    </div>
+                    <div class="error-items-grid" id="errorGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KAYNAK TAKİBİ -->
+        <div id="campsTab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="campName" placeholder="Kitap/Kamp Adı">
+                <select id="campType">
+                    <option value="Video">Video</option>
+                    <option value="Sayfa">Sayfa</option>
+                    <option value="Test">Test</option>
+                    <option value="Konu">Konu</option>
+                </select>
+                <input type="number" id="campTotal" placeholder="Sayı" style="width: 80px;">
+                <button onclick="addCamp()">Ekle</button>
+            </div>
+            <div id="campList"></div>
+        </div>
+
+        <!-- SORU BANKALARI / YAYIN TAKİBİ -->
+        <div id="booksTab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="bookTitle" placeholder="Yayın / Kitap Adı (Örn: 3D AYT Mat)">
+                <select id="bookSubject">
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                    <option value="Türkçe">Türkçe</option>
+                </select>
+                <input type="number" id="bookTotalTests" placeholder="Toplam Test" style="width: 100px;">
+                <button onclick="addBook()">Kitap Ekle</button>
+            </div>
+            <div id="bookList"></div>
+        </div>
+
+        <!-- DENEME TAKİP SİSTEMİ -->
+        <div id="examsTab" class="tab-content">
+            <div class="exam-grid">
+                <div class="error-form-card">
+                    <div class="error-form-title">Yeni Deneme Kaydet</div>
+                    <div class="form-field">
+                        <label for="examName">Deneme Adı / Yayın</label>
+                        <input type="text" id="examName" placeholder="Örn: 3D Türkiye Geneli 1">
+                    </div>
+                    <div class="form-field">
+                        <label for="examType">Sınav Türü</label>
+                        <select id="examType" onchange="toggleExamFields()">
+                            <option value="TYT">TYT</option>
+                            <option value="AYT">AYT</option>
+                        </select>
+                    </div>
+                    <div id="tytFields">
+                        <div class="exam-inputs-row">
+                            <div class="form-field"><label>TR Net</label><input type="number" step="0.25" id="netTR" value="0"></div>
+                            <div class="form-field"><label>Sos Net</label><input type="number" step="0.25" id="netSOS" value="0"></div>
+                        </div>
+                        <div class="exam-inputs-row">
+                            <div class="form-field"><label>Mat Net</label><input type="number" step="0.25" id="netMAT" value="0"></div>
+                            <div class="form-field"><label>Fen Net</label><input type="number" step="0.25" id="netFEN" value="0"></div>
+                        </div>
+                    </div>
+                    <div id="aytFields" style="display:none;">
+                        <div class="exam-inputs-row">
+                            <div class="form-field"><label>Mat Net</label><input type="number" step="0.25" id="netAytMAT" value="0"></div>
+                            <div class="form-field"><label>Fizik Net</label><input type="number" step="0.25" id="netAytFIZ" value="0"></div>
+                        </div>
+                        <div class="exam-inputs-row">
+                            <div class="form-field"><label>Kimya Net</label><input type="number" step="0.25" id="netAytKIM" value="0"></div>
+                            <div class="form-field"><label>Biyo Net</label><input type="number" step="0.25" id="netAytBIO" value="0"></div>
+                        </div>
+                    </div>
+                    <button class="btn-add-error" onclick="addExamResult()">Denemeyi Kaydet</button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="chart-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-weight: 700; font-size: 14px; color: var(--text-color);">Net Gelişim Grafiği</span>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="chart-filter-btn active" id="chartFilterTYT" onclick="setChartFilter('TYT')">TYT</button>
+                                <button class="chart-filter-btn" id="chartFilterAYT" onclick="setChartFilter('AYT')">AYT</button>
+                                <button class="chart-filter-btn" id="chartFilterAll" onclick="setChartFilter('ALL')">Tümü</button>
+                            </div>
+                        </div>
+                        <div style="flex: 1; position: relative; width: 100%; height: 100%; min-height: 0;">
+                            <canvas id="examChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="error-list-card" style="min-height: auto;">
+                        <div class="error-form-title">Son Denemeler</div>
+                        <div id="examHistoryList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAYAÇ -->
+        <div id="pomodoroTab" class="tab-content">
+            <div class="pomodoro-box">
+                <div style="font-weight: 700; color: var(--subtext-color); margin-bottom: 10px;" id="pomodoroMode">Özel Süre / Sayaç</div>
+                
+                <div id="pomoConfigArea" style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 15px; width: 100%;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--subtext-color); margin-bottom: 2px;">Saat</label>
+                        <input type="number" id="pomoHours" min="0" max="23" value="0" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); text-align: center; font-size: 14px; outline: none;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--subtext-color); margin-bottom: 2px;">Dakika</label>
+                        <input type="number" id="pomoMinutes" min="0" max="59" value="25" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); text-align: center; font-size: 14px; outline: none;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--subtext-color); margin-bottom: 2px;">Saniye</label>
+                        <input type="number" id="pomoSeconds" min="0" max="59" value="0" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); text-align: center; font-size: 14px; outline: none;">
+                    </div>
+                </div>
+
+                <div class="pomodoro-timer" id="pomodoroDisplay">00:25:00</div>
+
+                <div class="pomodoro-btns">
+                    <button id="pomoStartBtn" style="background-color: var(--accent-color); color: white;" onclick="togglePomodoro()">Başlat</button>
+                    <button style="background-color: var(--input-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="resetPomodoro()">Sıfırla</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Fotoğraf Büyütme Modalı -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <span class="image-modal-close">&times;</span>
+        <img id="modalImg" src="" alt="Soru Görseli">
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('yks_theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('themeToggleBtn');
+            if(btn) btn.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        const yks2027Target = new Date('2027-06-19T10:15:00').getTime(); 
+        
+        function updateMotivationPanel() {
+            const now = new Date().getTime();
+            const timeDiff = yks2027Target - now;
+
+            if (timeDiff > 0) {
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownDays').innerText = `${days} gün ${hours} sa ${minutes} dk ${seconds} sn`;
+            } else {
+                document.getElementById('countdownDays').innerText = "Sınav Günü Geldi!";
+            }
+
+            const savedGoal = localStorage.getItem('yks_target_goal');
+            const targetInput = document.getElementById('targetGoal');
+            if (!targetInput.value) {
+                targetInput.value = savedGoal ? savedGoal : "İstanbul - Tıp veya İng. Endüstri Müh.";
+            }
+            if(!savedGoal && !localStorage.getItem('yks_target_goal')) saveGoal();
+        }
+
+        setInterval(updateMotivationPanel, 1000);
+        updateMotivationPanel();
+
+        function saveGoal() { localStorage.setItem('yks_target_goal', document.getElementById('targetGoal').value); }
+
+        function toggleTheme() {
+            const body = document.body; 
+            const btn = document.getElementById('themeToggleBtn');
+            let currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'light') { 
+                body.setAttribute('data-theme', 'dark'); 
+                localStorage.setItem('yks_theme', 'dark');
+                btn.innerText = '☀️'; 
+            } else { 
+                body.setAttribute('data-theme', 'light'); 
+                localStorage.setItem('yks_theme', 'light');
+                btn.innerText = '🌙'; 
+            }
+            updateChartTheme();
+        }
+
+        function updateChartTheme() {
+            if (!examChartInstance) return;
+            renderExamChart();
+        }
+
+        function switchTab(btnElement, tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId + 'Tab').classList.add('active');
+            btnElement.classList.add('active');
+            if(tabId === 'exams') renderExams();
+        }
+
+        function escapeHtml(text) {
+            if(!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+        }
+
+        /* ================= HAFTALIK PLAN & GÜNLÜK NOTLAR LOGIC ================= */
+        let currentWeekStart = getMonday(new Date());
+        let plannerData = JSON.parse(localStorage.getItem('yks_drag_planner')) || { pool: {}, days: {} };
+        let dayNotesData = JSON.parse(localStorage.getItem('yks_day_notes')) || {};
+        const dayNames = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+        const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+        function formatDateString(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
+        function getMonday(d) { d = new Date(d); let day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); d.setDate(diff); d.setHours(0,0,0,0); return d; }
+        function changeWeek(offset) { currentWeekStart.setDate(currentWeekStart.getDate() + (offset * 7)); renderPlanner(); }
+        function goToCurrentWeek() { currentWeekStart = getMonday(new Date()); renderPlanner(); }
+        function savePlanner() { localStorage.setItem('yks_drag_planner', JSON.stringify(plannerData)); }
+
+        function toggleDayNoteDrawer(dateStr) {
+            const drawer = document.getElementById(`drawer-${dateStr}`);
+            if (drawer) {
+                drawer.classList.toggle('open');
+            }
+        }
+
+        function saveDayNote(dateStr) {
+            const textarea = document.getElementById(`note-input-${dateStr}`);
+            if (textarea) {
+                dayNotesData[dateStr] = textarea.value;
+                localStorage.setItem('yks_day_notes', JSON.stringify(dayNotesData));
+            }
+        }
+
+        function addPoolTask() {
+            const input = document.getElementById('poolInput');
+            const subjectSelect = document.getElementById('poolSubject');
+            const repeatInput = document.getElementById('poolRepeat');
+            const text = input.value.trim();
+            if(text === '') return;
+            let subject = subjectSelect.value;
+            let repeatCount = parseInt(repeatInput.value) || 1;
+            const weekKey = formatDateString(currentWeekStart);
+            if(!plannerData.pool[weekKey]) plannerData.pool[weekKey] = [];
+            
+            for(let i = 0; i < repeatCount; i++) {
+                let taskText = repeatCount > 1 ? `${text} (${i + 1}/${repeatCount})` : text;
+                plannerData.pool[weekKey].push({ id: Date.now() + i, subject: subject, text: taskText, completed: false });
+            }
+            input.value = ''; repeatInput.value = 1; savePlanner(); renderPlanner();
+        }
+
+        function toggleTaskDrag(id, source) {
+            let taskList = source === 'pool' ? plannerData.pool[formatDateString(currentWeekStart)] : plannerData.days[source];
+            if(taskList) { 
+                const task = taskList.find(t => t.id == id); 
+                if(task) { 
+                    task.completed = !task.completed; 
+                    if(task.completed) triggerConfetti();
+                    savePlanner(); renderPlanner(); 
+                } 
+            }
+        }
+
+        function deleteTaskDrag(id, source) {
+            if(source === 'pool') { const weekKey = formatDateString(currentWeekStart); plannerData.pool[weekKey] = plannerData.pool[weekKey].filter(t => t.id != id); } 
+            else { plannerData.days[source] = plannerData.days[source].filter(t => t.id != id); }
+            savePlanner(); renderPlanner();
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+        function drag(ev, taskId, source) { ev.dataTransfer.setData("taskId", taskId); ev.dataTransfer.setData("source", source); }
+
+        function drop(ev, targetZone) {
+            ev.preventDefault();
+            document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drag-over'));
+            const taskId = ev.dataTransfer.getData("taskId"); const sourceZone = ev.dataTransfer.getData("source");
+            if(sourceZone === targetZone) return; 
+            let taskToMove = null; const weekKey = formatDateString(currentWeekStart);
+
+            if(sourceZone === 'pool') {
+                if(plannerData.pool[weekKey]) {
+                    const idx = plannerData.pool[weekKey].findIndex(t => t.id == taskId);
+                    if(idx > -1) taskToMove = plannerData.pool[weekKey].splice(idx, 1)[0];
+                }
+            } else {
+                if(plannerData.days[sourceZone]) {
+                    const idx = plannerData.days[sourceZone].findIndex(t => t.id == taskId);
+                    if(idx > -1) taskToMove = plannerData.days[sourceZone].splice(idx, 1)[0];
+                }
+            }
+            if(!taskToMove) return;
+
+            if(targetZone === 'pool') {
+                if(!plannerData.pool[weekKey]) plannerData.pool[weekKey] = [];
+                plannerData.pool[weekKey].push(taskToMove);
+            } else {
+                if(!plannerData.days[targetZone]) plannerData.days[targetZone] = [];
+                plannerData.days[targetZone].push(taskToMove);
+            }
+            savePlanner(); renderPlanner();
+        }
+
+        function createTaskElement(task, sourceStr) {
+            return `
+                <div class="draggable-task ${task.completed ? 'completed' : ''}" draggable="true" ondragstart="drag(event, ${task.id}, '${sourceStr}')">
+                    ${task.subject ? `<div class="task-subject-badge">${escapeHtml(task.subject)}</div>` : ''}
+                    <div class="task-content" onclick="toggleTaskDrag(${task.id}, '${sourceStr}')">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskDrag(${task.id}, '${sourceStr}')">
+                        <span class="task-text">${escapeHtml(task.text)}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTaskDrag(${task.id}, '${sourceStr}')">Sil</button>
+                    </div>
+                </div>`;
+        }
+
+        function renderPlanner() {
+            let endOfWeek = new Date(currentWeekStart); endOfWeek.setDate(currentWeekStart.getDate() + 6);
+            document.getElementById('weekDisplay').innerText = `${currentWeekStart.getDate()} ${monthNames[currentWeekStart.getMonth()]} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+
+            const weekKey = formatDateString(currentWeekStart); const todayStr = formatDateString(new Date());
+            const poolZone = document.getElementById('zone-pool'); let poolTasks = plannerData.pool[weekKey] || [];
+            document.getElementById('poolCount').innerText = poolTasks.length;
+            
+            if(poolTasks.length === 0) { poolZone.innerHTML = '<div class="empty-text">Bu hafta için havuza görev ekle.</div>'; } 
+            else { poolZone.innerHTML = poolTasks.map(t => createTaskElement(t, 'pool')).join(''); }
+
+            const grid = document.getElementById('weekGrid'); grid.innerHTML = ''; 
+
+            for(let i=0; i<7; i++) {
+                let dayDate = new Date(currentWeekStart); dayDate.setDate(currentWeekStart.getDate() + i);
+                let dateStr = formatDateString(dayDate); let isToday = dateStr === todayStr;
+                let dayTasks = plannerData.days[dateStr] || [];
+                let tasksHTML = dayTasks.map(t => createTaskElement(t, dateStr)).join('');
+                let currentNoteText = dayNotesData[dateStr] || '';
+                let hasNote = currentNoteText.trim().length > 0;
+
+                let dayCol = document.createElement('div');
+                dayCol.className = `day-column ${isToday ? 'today' : ''}`;
+                dayCol.innerHTML = `
+                    <div class="day-header">
+                        <div class="day-title-area">
+                            <div class="day-name">${dayNames[i]}</div>
+                            <div class="day-date">${dayDate.getDate()} ${monthNames[dayDate.getMonth()].substring(0,3)}</div>
+                        </div>
+                        <button class="day-note-btn" onclick="toggleDayNoteDrawer('${dateStr}')">${hasNote ? '📝 Not Var' : '📝 Not'}</button>
+                    </div>
+                    <div class="day-note-drawer" id="drawer-${dateStr}">
+                        <textarea class="day-note-textarea" id="note-input-${dateStr}" placeholder="Bugünün özeti / notu..." oninput="saveDayNote('${dateStr}')">${escapeHtml(currentNoteText)}</textarea>
+                    </div>
+                    <div class="drop-zone" id="zone-${dateStr}" ondrop="drop(event, '${dateStr}')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        ${tasksHTML}
+                    </div>`;
+                grid.appendChild(dayCol);
+            }
+        }
+
+        /* ================= MÜFREDAT LOGIC ================= */
+        const defaultCurriculum = {
+            "TYT Matematik": ["Temel Kavramlar", "Sayı Basamakları", "EBOB - EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü İfadeler", "Köklü İfadeler", "Çarpanlara Ayırma", "Oran - Orantı", "Problemler", "Mantık & Kümeler", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Olasılık"],
+            "AYT Matematik": ["Polinomlar", "2. Dereceden Denklemler", "Parabol", "Eşitsizlikler", "Trigonometri", "Logaritma", "Diziler", "Limit ve Süreklilik", "Türev", "İntegral"],
+            "TYT - AYT Geometri": ["Üçgenler", "Çokgenler ve Dörtgenler", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler"],
+            "TYT Türkçe": ["Sözcükte ve Cümlede Anlam", "Paragraf", "Ses Bilgisi", "Yazım Kuralları", "Noktalama", "Dil Bilgisi"],
+            "TYT Fen Bilimleri": ["Fizik: Madde ve Kuvvet", "Fizik: Isı ve Enerji", "Fizik: Elektrik & Optik", "Kimya: Atom & Periyodik Sistem", "Kimya: Karışımlar & Asitler", "Biyoloji: Hücre & Canlılar", "Biyoloji: Kalıtım"],
+            "AYT Fizik": ["Vektörler & Bağıl Hareket", "Newton Yasaları", "Atışlar & Enerji", "Elektrik ve Manyetizma", "Çembersel Hareket", "Modern Fizik"],
+            "AYT Kimya": ["Modern Atom Teorisi", "Gazlar", "Çözeltiler", "Kimyasal Tepkimelerde Enerji & Hız", "Denge & Asit-Baz", "Organik Kimya"],
+            "AYT Biyoloji": ["İnsan Fizyolojisi", "Komünite ve Popülasyon Ekolojisi", "Genişletilmiş Hücresel Solunum & Fotosentez", "Bitki Biyolojisi"]
+        };
+
+        let curriculumData = JSON.parse(localStorage.getItem('yks_curriculum_matrix'));
+
+        function initCurriculumData() {
+            if (!curriculumData) {
+                curriculumData = {};
+                for (let course in defaultCurriculum) {
+                    curriculumData[course] = {};
+                    defaultCurriculum[course].forEach(topic => { curriculumData[course][topic] = { konu: false, soru: false, tekrar: false }; });
+                }
+                saveCurriculum();
+            }
+        }
+
+        function saveCurriculum() { localStorage.setItem('yks_curriculum_matrix', JSON.stringify(curriculumData)); }
+
+        function toggleStage(course, topic, stage) {
+            if (curriculumData[course] && curriculumData[course][topic]) {
+                curriculumData[course][topic][stage] = !curriculumData[course][topic][stage];
+                saveCurriculum(); renderCurriculum();
+            }
+        }
+
+        function calculateCourseProgress(course) {
+            const topics = curriculumData[course];
+            const topicKeys = Object.keys(topics);
+            if (topicKeys.length === 0) return 0;
+            let totalStages = topicKeys.length * 3;
+            let completedStages = 0;
+            topicKeys.forEach(t => {
+                if (topics[t].konu) completedStages++;
+                if (topics[t].soru) completedStages++;
+                if (topics[t].tekrar) completedStages++;
+            });
+            return Math.round((completedStages / totalStages) * 100);
+        }
+
+        function renderCurriculum() {
+            const grid = document.getElementById('curriculumGrid');
+            const filter = document.getElementById('curriculumSearch').value.toLowerCase().trim();
+            grid.innerHTML = '';
+
+            for (let course in curriculumData) {
+                const percent = calculateCourseProgress(course);
+                const topics = curriculumData[course];
+                let topicsHTML = '';
+
+                for (let topic in topics) {
+                    if (filter !== '' && !topic.toLowerCase().includes(filter) && !course.toLowerCase().includes(filter)) continue;
+                    const st = topics[topic];
+                    topicsHTML += `
+                        <div class="topic-item">
+                            <div style="font-size: 13px; font-weight: 600;">${escapeHtml(topic)}</div>
+                            <div class="topic-stages">
+                                <label class="stage-label"><input type="checkbox" ${st.konu ? 'checked' : ''} onchange="toggleStage('${course}', '${escapeHtml(topic)}', 'konu')"> 📖 Konu</label>
+                                <label class="stage-label"><input type="checkbox" ${st.soru ? 'checked' : ''} onchange="toggleStage('${course}', '${escapeHtml(topic)}', 'soru')"> 📝 Soru</label>
+                                <label class="stage-label"><input type="checkbox" ${st.tekrar ? 'checked' : ''} onchange="toggleStage('${course}', '${escapeHtml(topic)}', 'tekrar')"> 🔄 Tekrar</label>
+                            </div>
+                        </div>`;
+                }
+
+                grid.innerHTML += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span style="font-weight: 700;">${escapeHtml(course)}</span>
+                            <span class="course-badge">%${percent}</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="topic-list">${topicsHTML}</div>
+                    </div>`;
+            }
+        }
+
+        function resetCurriculumConfirm() {
+            if (confirm("Müfredat matrisini sıfırlamak istediğine emin misin?")) {
+                localStorage.removeItem('yks_curriculum_matrix');
+                curriculumData = null; initCurriculumData(); renderCurriculum();
+            }
+        }
+
+        /* ================= ARALIKLARLA TEKRAR LOGIC ================= */
+        const spacedIntervals = [1, 3, 7, 14, 30];
+        let spacedData = JSON.parse(localStorage.getItem('yks_spaced_data')) || [];
+
+        function saveSpacedData() { localStorage.setItem('yks_spaced_data', JSON.stringify(spacedData)); }
+
+        function addSpacedItem() {
+            const topicInput = document.getElementById('spacedTopicInput');
+            const subjectSelect = document.getElementById('spacedSubjectSelect');
+            const topic = topicInput.value.trim();
+            if (topic === '') return;
+
+            const today = new Date(); today.setHours(0,0,0,0);
+            spacedData.push({ id: Date.now(), topic: topic, subject: subjectSelect.value, stage: 0, nextReviewDate: today.toISOString() });
+            saveSpacedData(); topicInput.value = ''; renderSpaced();
+        }
+
+        function reviewSpacedItem(id, remembered) {
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            if (remembered) {
+                if (item.stage < spacedIntervals.length - 1) item.stage++;
+                let addDays = spacedIntervals[Math.min(item.stage, spacedIntervals.length - 1)];
+                let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + addDays);
+                item.nextReviewDate = nextDate.toISOString();
+                triggerConfetti();
+            } else {
+                item.stage = 0;
+                let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + 1);
+                item.nextReviewDate = nextDate.toISOString();
+            }
+            saveSpacedData(); renderSpaced();
+        }
+
+        function deleteSpacedItem(id) {
+            if(confirm("Bu tekrar kartını silmek istediğine emin misin?")) {
+                spacedData = spacedData.filter(i => i.id !== id);
+                saveSpacedData(); renderSpaced();
+            }
+        }
+
+        function renderSpaced() {
+            const dueGrid = document.getElementById('spacedDueGrid');
+            const upcomingGrid = document.getElementById('spacedUpcomingGrid');
+            dueGrid.innerHTML = ''; upcomingGrid.innerHTML = '';
+            const today = new Date(); today.setHours(0,0,0,0);
+            let dueCount = 0;
+
+            spacedData.forEach(item => {
+                const reviewDate = new Date(item.nextReviewDate); reviewDate.setHours(0,0,0,0);
+                const isDue = reviewDate <= today;
+                if (isDue) dueCount++;
+
+                const cardHTML = `
+                    <div class="spaced-card ${isDue ? 'due' : ''}">
+                        <div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--subtext-color);">${escapeHtml(item.subject)}</div>
+                            <div style="font-weight: 700; font-size: 15px; margin: 4px 0;">${escapeHtml(item.topic)}</div>
+                            <div style="font-size: 12px; color: var(--subtext-color);">${isDue ? '⏰ Bugün Tekrar Edilmeli' : `📅 Gelecek Tekrar`}</div>
+                        </div>
+                        <div>
+                            ${isDue ? `
+                                <div class="spaced-actions">
+                                    <button class="btn-spaced-fail" onclick="reviewSpacedItem(${item.id}, false)">❌ Unuttum</button>
+                                    <button class="btn-spaced-success" onclick="reviewSpacedItem(${item.id}, true)">✅ Hatırladım</button>
+                                </div>
+                            ` : `<div style="text-align:right;"><button class="delete-btn" onclick="deleteSpacedItem(${item.id})">Sil</button></div>`}
+                        </div>
+                    </div>`;
+                if (isDue) dueGrid.innerHTML += cardHTML; else upcomingGrid.innerHTML += cardHTML;
+            });
+
+            document.getElementById('spacedDueCount').innerText = dueCount;
+            if (dueGrid.innerHTML === '') dueGrid.innerHTML = '<div class="empty-text">Tekrar edilecek konu kalmadı.</div>';
+            if (upcomingGrid.innerHTML === '') upcomingGrid.innerHTML = '<div class="empty-text">Gelecek tekrar yok.</div>';
+        }
+
+        /* ================= FOTOĞRAFLI HATA DEFTERİ LOGIC ================= */
+        let errorData = JSON.parse(localStorage.getItem('yks_error_data')) || [];
+
+        function saveErrorData() { localStorage.setItem('yks_error_data', JSON.stringify(errorData)); }
+
+        function compressImage(file) {
+            return new Promise((resolve) => {
+                if (!file) { resolve(null); return; }
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width, height = img.height;
+                        if (width > 800) { height = Math.round((height * 800) / width); width = 800; }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.65));
+                    };
+                };
+            });
+        }
+
+        async function addErrorItem() {
+            const subject = document.getElementById('errSubject').value;
+            const topic = document.getElementById('errTopic').value.trim();
+            const reason = document.getElementById('errReason').value.trim();
+            const file = document.getElementById('errImage').files[0];
+
+            if (topic === '') { alert('Lütfen konu başlığını girin.'); return; }
+            let imageData = await compressImage(file);
+
+            errorData.unshift({ id: Date.now(), subject: subject, topic: topic, reason: reason, image: imageData, resolved: false, date: new Date().toLocaleDateString('tr-TR') });
+            document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = ''; document.getElementById('errImage').value = '';
+            saveErrorData(); renderErrorLog();
+        }
+
+        function toggleErrorResolved(id) {
+            const item = errorData.find(e => e.id === id);
+            if (item) { item.resolved = !item.resolved; if (item.resolved) triggerConfetti(); saveErrorData(); renderErrorLog(); }
+        }
+
+        function deleteErrorItem(id) {
+            if (confirm('Bu hatayı defterden silmek istediğine emin misin?')) {
+                errorData = errorData.filter(e => e.id !== id); saveErrorData(); renderErrorLog();
+            }
+        }
+
+        function openImageModal(imgSrc) { document.getElementById('modalImg').src = imgSrc; document.getElementById('imageModal').style.display = 'flex'; }
+        function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
+
+        function renderErrorLog() {
+            const grid = document.getElementById('errorGrid');
+            const filter = document.getElementById('errSearch').value.toLowerCase().trim();
+            grid.innerHTML = '';
+            const filtered = errorData.filter(i => filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter));
+            document.getElementById('errCount').innerText = errorData.length;
+
+            if (filtered.length === 0) { grid.innerHTML = '<div class="empty-text">Henüz hata eklenmedi.</div>'; return; }
+
+            filtered.forEach(item => {
+                grid.innerHTML += `
+                    <div class="error-card-item ${item.resolved ? 'resolved' : ''}">
+                        ${item.image ? `<img src="${item.image}" class="error-img-preview" onclick="openImageModal('${item.image}')">` : ''}
+                        <div style="font-size: 11px; font-weight: 700; color: var(--accent-color);">${escapeHtml(item.subject)}</div>
+                        <div style="font-weight: 700; font-size: 14px;">${escapeHtml(item.topic)}</div>
+                        ${item.reason ? `<div style="font-size: 13px; color: var(--subtext-color);">${escapeHtml(item.reason)}</div>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                            <label class="stage-label"><input type="checkbox" ${item.resolved ? 'checked' : ''} onchange="toggleErrorResolved(${item.id})"> Çözüldü</label>
+                            <button class="delete-btn" onclick="deleteErrorItem(${item.id})">Sil</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        /* ================= KAYNAK TAKİBİ LOGIC ================= */
+        let campsData = JSON.parse(localStorage.getItem('yks_camps_data')) || [];
+
+        function addCamp() {
+            const name = document.getElementById('campName').value.trim();
+            const total = parseInt(document.getElementById('campTotal').value);
+            if (name === '' || isNaN(total) || total <= 0) return;
+            campsData.push({ id: Date.now(), name: name, type: document.getElementById('campType').value, total: total, completed: 0 });
+            document.getElementById('campName').value = ''; document.getElementById('campTotal').value = '';
+            saveAndRenderCamps();
+        }
+
+        function updateCamp(id, change) {
+            const camp = campsData.find(c => c.id === id);
+            if (camp) { camp.completed += change; if (camp.completed < 0) camp.completed = 0; if (camp.completed > camp.total) camp.completed = camp.total; saveAndRenderCamps(); }
+        }
+        function deleteCamp(id) { if(confirm('Silmek istediğine emin misin?')) { campsData = campsData.filter(c => c.id !== id); saveAndRenderCamps(); } }
+        function saveAndRenderCamps() { localStorage.setItem('yks_camps_data', JSON.stringify(campsData)); renderCamps(); }
+
+        function renderCamps() {
+            const list = document.getElementById('campList'); list.innerHTML = '';
+            if (campsData.length === 0) { list.innerHTML = '<div class="empty-text">Takip edilecek kamp eklenmedi.</div>'; return; }
+            campsData.forEach(camp => {
+                const percent = Math.round((camp.completed / camp.total) * 100);
+                list.innerHTML += `
+                    <div class="camp-card">
+                        <div class="camp-header">
+                            <span style="font-weight:600;">${escapeHtml(camp.name)}</span>
+                            <button class="delete-btn" onclick="deleteCamp(${camp.id})">✕</button>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="camp-footer">
+                            <span>%${percent} (${camp.completed} / ${camp.total} ${camp.type})</span>
+                            <div class="camp-controls"><button onclick="updateCamp(${camp.id}, -1)">-</button> <button onclick="updateCamp(${camp.id}, 1)">+</button></div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        /* ================= SORU BANKALARI / YAYIN TAKİBİ LOGIC ================= */
+        let bookData = JSON.parse(localStorage.getItem('yks_books_data')) || [];
+
+        function saveAndRenderBooks() { localStorage.setItem('yks_books_data', JSON.stringify(bookData)); renderBooks(); }
+
+        function addBook() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const subject = document.getElementById('bookSubject').value;
+            const total = parseInt(document.getElementById('bookTotalTests').value);
+
+            if (!title || isNaN(total) || total <= 0) return;
+
+            bookData.push({ id: Date.now(), title: title, subject: subject, total: total, completed: 0 });
+            document.getElementById('bookTitle').value = ''; document.getElementById('bookTotalTests').value = '';
+            saveAndRenderBooks();
+        }
+
+        function updateBook(id, change) {
+            const book = bookData.find(b => b.id === id);
+            if (book) {
+                book.completed += change;
+                if (book.completed < 0) book.completed = 0;
+                if (book.completed > book.total) book.completed = book.total;
+                saveAndRenderBooks();
+            }
+        }
+
+        function deleteBook(id) {
+            if (confirm('Bu soru bankasını silmek istediğine emin misin?')) {
+                bookData = bookData.filter(b => b.id !== id);
+                saveAndRenderBooks();
+            }
+        }
+
+        function renderBooks() {
+            const list = document.getElementById('bookList'); list.innerHTML = '';
+            if (bookData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz soru bankası eklenmedi.</div>'; return; }
+
+            bookData.forEach(book => {
+                const percent = Math.round((book.completed / book.total) * 100);
+                list.innerHTML += `
+                    <div class="camp-card">
+                        <div class="camp-header">
+                            <div>
+                                <span style="font-size:11px; font-weight:700; color:var(--accent-color); font-block:block;">${escapeHtml(book.subject)}</span>
+                                <span style="font-weight:600;">${escapeHtml(book.title)}</span>
+                            </div>
+                            <button class="delete-btn" onclick="deleteBook(${book.id})">✕</button>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="camp-footer">
+                            <span>%${percent} (${book.completed} / ${book.total} Test Bitti)</span>
+                            <div class="camp-controls">
+                                <button onclick="updateBook(${book.id}, -1)">-</button>
+                                <button onclick="updateBook(${book.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        /* ================= DENEME TAKİP LOGIC & CHART ================= */
+        let examData = JSON.parse(localStorage.getItem('yks_exam_data')) || [];
+        let examChartInstance = null;
+        let currentExamChartFilter = 'TYT';
+
+        function setChartFilter(filterType) {
+            currentExamChartFilter = filterType;
+            document.querySelectorAll('.chart-filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (filterType === 'TYT') document.getElementById('chartFilterTYT').classList.add('active');
+            if (filterType === 'AYT') document.getElementById('chartFilterAYT').classList.add('active');
+            if (filterType === 'ALL') document.getElementById('chartFilterAll').classList.add('active');
+            renderExamChart();
+        }
+
+        function toggleExamFields() {
+            const type = document.getElementById('examType').value;
+            document.getElementById('tytFields').style.display = type === 'TYT' ? 'block' : 'none';
+            document.getElementById('aytFields').style.display = type === 'AYT' ? 'block' : 'none';
+        }
+
+        function addExamResult() {
+            const name = document.getElementById('examName').value.trim();
+            const type = document.getElementById('examType').value;
+            if (!name) { alert('Lütfen deneme adını girin.'); return; }
+
+            let result = { id: Date.now(), name: name, type: type, date: new Date().toLocaleDateString('tr-TR') };
+
+            if (type === 'TYT') {
+                const tr = parseFloat(document.getElementById('netTR').value) || 0;
+                const sos = parseFloat(document.getElementById('netSOS').value) || 0;
+                const mat = parseFloat(document.getElementById('netMAT').value) || 0;
+                const fen = parseFloat(document.getElementById('netFEN').value) || 0;
+                result.total = tr + sos + mat + fen;
+                result.details = `TR: ${tr} | SOS: ${sos} | MAT: ${mat} | FEN: ${fen}`;
+            } else {
+                const mat = parseFloat(document.getElementById('netAytMAT').value) || 0;
+                const fiz = parseFloat(document.getElementById('netAytFIZ').value) || 0;
+                const kim = parseFloat(document.getElementById('netAytKIM').value) || 0;
+                const bio = parseFloat(document.getElementById('netAytBIO').value) || 0;
+                result.total = mat + fiz + kim + bio;
+                result.details = `MAT: ${mat} | FİZ: ${fiz} | KİM: ${kim} | BİO: ${bio}`;
+            }
+
+            examData.push(result);
+            localStorage.setItem('yks_exam_data', JSON.stringify(examData));
+            document.getElementById('examName').value = '';
+            renderExams();
+        }
+
+        function deleteExam(id) {
+            if (confirm('Bu deneme sonucunu silmek istediğine emin misin?')) {
+                examData = examData.filter(e => e.id !== id);
+                localStorage.setItem('yks_exam_data', JSON.stringify(examData));
+                renderExams();
+            }
+        }
+
+        function renderExams() {
+            const historyList = document.getElementById('examHistoryList');
+            historyList.innerHTML = '';
+
+            if (examData.length === 0) {
+                historyList.innerHTML = '<div class="empty-text">Henüz deneme kaydedilmedi.</div>';
+            } else {
+                [...examData].reverse().slice(0, 5).forEach(exam => {
+                    historyList.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size:12px; font-weight:700; color:var(--accent-color);">${exam.type} - ${escapeHtml(exam.name)}</div>
+                                <div style="font-size:11px; color:var(--subtext-color);">${exam.details}</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-weight:800; font-size:16px;">${exam.total} Net</span>
+                                <button class="delete-btn" onclick="deleteExam(${exam.id})">✕</button>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            renderExamChart();
+        }
+
+        function renderExamChart() {
+            const ctx = document.getElementById('examChart').getContext('2d');
+            
+            let filteredData = examData;
+            if (currentExamChartFilter !== 'ALL') {
+                filteredData = examData.filter(e => e.type === currentExamChartFilter);
+            }
+
+            const labels = filteredData.map(e => `${e.name} (${e.type})`);
+            const totals = filteredData.map(e => e.total);
+
+            if (examChartInstance) examChartInstance.destroy();
+
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            let color = isDark ? '#34d399' : '#10b981';
+            let bgColor = isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+
+            if (currentExamChartFilter === 'AYT') {
+                color = isDark ? '#60a5fa' : '#3b82f6';
+                bgColor = isDark ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)';
+            }
+
+            examChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: currentExamChartFilter === 'ALL' ? 'Toplam Net' : `${currentExamChartFilter} Net`,
+                        data: totals,
+                        borderColor: color,
+                        backgroundColor: bgColor,
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: false, grid: { color: isDark ? '#334155' : '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        /* ================= ÖZEL SAYAÇ LOGIC ================= */
+        let pomoTimeTotal = 25 * 60;
+        let pomoTimeRemaining = 25 * 60;
+        let pomoTimer = null;
+        let pomoRunning = false;
+
+        function formatTimeDisplay(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        function updatePomoDisplay() {
+            document.getElementById('pomodoroDisplay').innerText = formatTimeDisplay(pomoTimeRemaining);
+        }
+
+        function togglePomodoro() {
+            const btn = document.getElementById('pomoStartBtn');
+            const hoursInput = document.getElementById('pomoHours');
+            const minsInput = document.getElementById('pomoMinutes');
+            const secsInput = document.getElementById('pomoSeconds');
+
+            if (pomoRunning) {
+                clearInterval(pomoTimer);
+                pomoRunning = false;
+                btn.innerText = 'Devam Et';
+                hoursInput.disabled = false;
+                minsInput.disabled = false;
+                secsInput.disabled = false;
+            } else {
+                if (pomoTimeRemaining <= 0) {
+                    const h = parseInt(hoursInput.value) || 0;
+                    const m = parseInt(minsInput.value) || 0;
+                    const s = parseInt(secsInput.value) || 0;
+                    pomoTimeTotal = (h * 3600) + (m * 60) + s;
+                    pomoTimeRemaining = pomoTimeTotal;
+                }
+
+                if (pomoTimeRemaining <= 0) {
+                    alert('Lütfen geçerli bir süre ayarlayın!');
+                    return;
+                }
+
+                pomoRunning = true;
+                btn.innerText = 'Durdur';
+                hoursInput.disabled = true;
+                minsInput.disabled = true;
+                secsInput.disabled = true;
+
+                pomoTimer = setInterval(() => {
+                    if (pomoTimeRemaining > 0) {
+                        pomoTimeRemaining--;
+                        updatePomoDisplay();
+                    } else {
+                        clearInterval(pomoTimer);
+                        pomoRunning = false;
+                        btn.innerText = 'Başlat';
+                        hoursInput.disabled = false;
+                        minsInput.disabled = false;
+                        secsInput.disabled = false;
+                        alert('Süre tamamlandı!');
+                        triggerConfetti();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetPomodoro() {
+            clearInterval(pomoTimer);
+            pomoRunning = false;
+            document.getElementById('pomoStartBtn').innerText = 'Başlat';
+            
+            const hoursInput = document.getElementById('pomoHours');
+            const minsInput = document.getElementById('pomoMinutes');
+            const secsInput = document.getElementById('pomoSeconds');
+            
+            hoursInput.disabled = false;
+            minsInput.disabled = false;
+            secsInput.disabled = false;
+
+            const h = parseInt(hoursInput.value) || 0;
+            const m = parseInt(minsInput.value) || 0;
+            const s = parseInt(secsInput.value) || 0;
+            pomoTimeTotal = (h * 3600) + (m * 60) + s;
+            pomoTimeRemaining = pomoTimeTotal;
+            updatePomoDisplay();
+        }
+
+        document.getElementById('pomoHours').addEventListener('input', syncInputToDisplay);
+        document.getElementById('pomoMinutes').addEventListener('input', syncInputToDisplay);
+        document.getElementById('pomoSeconds').addEventListener('input', syncInputToDisplay);
+
+        function syncInputToDisplay() {
+            if (!pomoRunning) {
+                const h = parseInt(document.getElementById('pomoHours').value) || 0;
+                const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
+                const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
+                pomoTimeTotal = (h * 3600) + (m * 60) + s;
+                pomoTimeRemaining = pomoTimeTotal;
+                updatePomoDisplay();
+            }
+        }
+
+        updateMotivationPanel();
+        renderPlanner();
+        initCurriculumData();
+        renderCurriculum();
+        renderSpaced();
+        renderErrorLog();
+        renderCamps();
+        renderBooks();
+        renderExams();
+        syncInputToDisplay();
+    </script>
+</body>
+</html>
