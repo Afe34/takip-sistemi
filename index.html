@@ -147,6 +147,8 @@
         .task-actions { display: flex; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 2px; }
         .delete-btn { background: none; border: none; color: var(--subtext-color); cursor: pointer; font-size: 13px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
         .delete-btn:hover { background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color); }
+        .edit-btn { background: none; border: none; color: var(--subtext-color); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 4px; }
+        .edit-btn:hover { background-color: var(--item-hover); color: var(--accent-color); }
         .empty-text { font-size: 13px; color: var(--subtext-color); text-align: center; font-style: italic; margin-top: 20px;}
 
         .camp-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -240,6 +242,7 @@
             <button class="tab-btn" onclick="switchTab(this, 'curriculum')">📑 Müfredat Matrisi</button>
             <button class="tab-btn" onclick="switchTab(this, 'spaced')">🧠 Aralıklarla Tekrar</button>
             <button class="tab-btn" onclick="switchTab(this, 'errors')">📌 Fotoğraflı Hata Defteri</button>
+            <button class="tab-btn" onclick="switchTab(this, 'notes')">💡 Önemli Notlar</button>
             <button class="tab-btn" onclick="switchTab(this, 'camps')">📚 Kaynak Takibi</button>
             <button class="tab-btn" onclick="switchTab(this, 'books')">📖 Soru Bankaları</button>
             <button class="tab-btn" onclick="switchTab(this, 'exams')">📊 Deneme Takibi</button>
@@ -370,6 +373,62 @@
                     </div>
 
                     <div class="error-items-grid" id="errorGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÖNEMLİ NOTLAR -->
+        <div id="notesTab" class="tab-content">
+            <div class="error-layout">
+                <div class="error-form-card">
+                    <div class="error-form-title">Önemli Not / Taktik Ekle</div>
+                    <div class="form-field">
+                        <label for="noteSubject">Ders</label>
+                        <select id="noteSubject">
+                            <option value="Matematik">Matematik</option>
+                            <option value="Geometri">Geometri</option>
+                            <option value="Fizik">Fizik</option>
+                            <option value="Kimya">Kimya</option>
+                            <option value="Biyoloji">Biyoloji</option>
+                            <option value="Türkçe">Türkçe</option>
+                            <option value="Sosyal">Sosyal</option>
+                            <option value="Genel">Genel / Taktik</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="noteTopic">Konu / Başlık</label>
+                        <input type="text" id="noteTopic" placeholder="Örn: Logaritma Kritik Özellikler">
+                    </div>
+                    <div class="form-field">
+                        <label for="noteContent">Not Detayı / Püf Noktası</label>
+                        <textarea id="noteContent" placeholder="Unutulmaması gereken formül, detay veya soru çözme taktiği..." style="height: 100px; resize: vertical;"></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label for="noteImage">Görsel / Ek (Opsiyonel)</label>
+                        <input type="file" id="noteImage" accept="image/*">
+                    </div>
+                    <button class="btn-add-error" onclick="addNoteItem()">Notu Kaydet</button>
+                </div>
+
+                <div class="error-list-card">
+                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                        <span>Kritik Notlarım (<span id="noteCount">0</span> Not)</span>
+                        <input type="text" id="noteSearch" class="curriculum-search" placeholder="Notlarda ara..." oninput="renderNotesLog()" style="padding: 4px 10px; font-size: 12px; min-width: 150px;">
+                    </div>
+                    
+                    <div class="error-filter-panel" id="noteFilterPanel">
+                        <button class="error-filter-btn active" data-subject="ALL" onclick="toggleNoteFilter('ALL')">Tüm Dersler</button>
+                        <button class="error-filter-btn" data-subject="Matematik" onclick="toggleNoteFilter('Matematik')">Matematik</button>
+                        <button class="error-filter-btn" data-subject="Geometri" onclick="toggleNoteFilter('Geometri')">Geometri</button>
+                        <button class="error-filter-btn" data-subject="Fizik" onclick="toggleNoteFilter('Fizik')">Fizik</button>
+                        <button class="error-filter-btn" data-subject="Kimya" onclick="toggleNoteFilter('Kimya')">Kimya</button>
+                        <button class="error-filter-btn" data-subject="Biyoloji" onclick="toggleNoteFilter('Biyoloji')">Biyoloji</button>
+                        <button class="error-filter-btn" data-subject="Türkçe" onclick="toggleNoteFilter('Türkçe')">Türkçe</button>
+                        <button class="error-filter-btn" data-subject="Sosyal" onclick="toggleNoteFilter('Sosyal')">Sosyal</button>
+                        <button class="error-filter-btn" data-subject="Genel" onclick="toggleNoteFilter('Genel')">Genel</button>
+                    </div>
+
+                    <div class="error-items-grid" id="noteGrid"></div>
                 </div>
             </div>
         </div>
@@ -613,6 +672,7 @@
             
             initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
             initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
+            initCloudSyncFor('yks_notes_data', (data) => { notesData = data; renderNotesLog(); });
             initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
             initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
@@ -942,7 +1002,7 @@
             }
         }
 
-        /* ================= MÜFREDAT MATRİSİ (SABİT SIRALAMA KORUMALI) ================= */
+        /* ================= MÜFREDAT MATRİSİ ================= */
         const orderedCurriculumStructure = [
             {
                 category: "TYT Türkçe",
@@ -1360,6 +1420,113 @@
             });
         }
 
+        /* ================= ÖNEMLİ NOTLAR LOGIC ================= */
+        let notesData = JSON.parse(localStorage.getItem('yks_notes_data')) || [];
+        let selectedNoteSubjects = [];
+
+        function saveNotesData() {
+            saveToCloudAndLocal('yks_notes_data', notesData);
+        }
+
+        async function addNoteItem() {
+            const subject = document.getElementById('noteSubject').value;
+            const topic = document.getElementById('noteTopic').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+            const file = document.getElementById('noteImage').files[0];
+
+            if (topic === '' || content === '') { alert('Lütfen konu/başlık ve not detayını boş bırakmayın.'); return; }
+            let imageData = await compressImage(file);
+
+            notesData.unshift({
+                id: Date.now(),
+                subject: subject,
+                topic: topic,
+                content: content,
+                image: imageData,
+                date: new Date().toLocaleDateString('tr-TR')
+            });
+
+            document.getElementById('noteTopic').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteImage').value = '';
+            saveNotesData();
+            renderNotesLog();
+            triggerConfetti();
+        }
+
+        function deleteNoteItem(id) {
+            if (confirm('Bu notu silmek istediğine emin misin?')) {
+                notesData = notesData.filter(n => n.id !== id);
+                saveNotesData();
+                renderNotesLog();
+            }
+        }
+
+        function toggleNoteFilter(subject) {
+            if (subject === 'ALL') {
+                selectedNoteSubjects = [];
+            } else {
+                const index = selectedNoteSubjects.indexOf(subject);
+                if (index > -1) selectedNoteSubjects.splice(index, 1);
+                else selectedNoteSubjects.push(subject);
+            }
+            updateNoteFilterButtons();
+            renderNotesLog();
+        }
+
+        function updateNoteFilterButtons() {
+            const buttons = document.querySelectorAll('#noteFilterPanel .error-filter-btn');
+            buttons.forEach(btn => {
+                const subj = btn.getAttribute('data-subject');
+                if (subj === 'ALL') {
+                    if (selectedNoteSubjects.length === 0) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                } else {
+                    if (selectedNoteSubjects.includes(subj)) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+        }
+
+        function renderNotesLog() {
+            const grid = document.getElementById('noteGrid');
+            const searchEl = document.getElementById('noteSearch');
+            const countEl = document.getElementById('noteCount');
+            if (!grid || !searchEl || !countEl) return;
+
+            const filter = searchEl.value.toLowerCase().trim();
+            grid.innerHTML = '';
+
+            const filtered = notesData.filter(i => {
+                const matchesSubject = selectedNoteSubjects.length === 0 || selectedNoteSubjects.includes(i.subject);
+                const matchesSearch = filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter) || i.content.toLowerCase().includes(filter);
+                return matchesSubject && matchesSearch;
+            });
+
+            countEl.innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-text">Kriterlere uygun önemli not bulunamadı.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                grid.innerHTML += `
+                    <div class="error-card-item">
+                        ${item.image ? `<img src="${item.image}" class="error-img-preview" onclick="openImageModal('${item.image}')">` : ''}
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size: 11px; font-weight: 700; color: var(--accent-color);">${escapeHtml(item.subject)}</span>
+                            <span style="font-size: 11px; color: var(--subtext-color);">${escapeHtml(item.date)}</span>
+                        </div>
+                        <div style="font-weight: 700; font-size: 14px;">${escapeHtml(item.topic)}</div>
+                        <div style="font-size: 13px; color: var(--text-color); white-space: pre-wrap; line-height: 1.4;">${escapeHtml(item.content)}</div>
+                        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 4px;">
+                            <button class="delete-btn" onclick="deleteNoteItem(${item.id})">Sil</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
         /* ================= KAYNAK TAKİBİ LOGIC ================= */
         let campsData = JSON.parse(localStorage.getItem('yks_camps_data')) || [];
 
@@ -1644,24 +1811,21 @@
 
             let sortedForList = [...examData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            sortedForList.forEach(item => {
+            sortedForList.forEach(exam => {
                 list.innerHTML += `
-                    <div class="camp-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:12px;">
+                    <div class="error-card-item" style="flex-direction:row; justify-content:space-between; align-items:center; padding: 10px 14px;">
                         <div>
-                            <div style="display:flex; gap:8px; align-items:center; margin-bottom:2px;">
-                                <span class="course-badge" style="font-size:10px; padding:2px 6px;">${escapeHtml(item.type)}</span>
-                                <span style="font-weight:700; font-size:14px;">${escapeHtml(item.name)}</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:11px; font-weight:700; background:var(--motivation-bg); color:var(--accent-color); padding:2px 6px; border-radius:4px;">${escapeHtml(exam.type)}</span>
+                                <span style="font-weight:700; font-size:14px;">${escapeHtml(exam.name)}</span>
                             </div>
-                            <div style="font-size:12px; color:var(--subtext-color);">${formatDateForDisplay(item.date)} | ${escapeHtml(item.details)}</div>
+                            <div style="font-size:12px; color:var(--subtext-color); margin-top:2px;">${formatDateForDisplay(exam.date)} • ${escapeHtml(exam.details)}</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="text-align:right;">
-                                <span style="font-size:11px; color:var(--subtext-color); display:block;">Toplam Net</span>
-                                <span style="font-size:16px; font-weight:800; color:var(--accent-color);">${item.total.toFixed(2)}</span>
-                            </div>
+                            <div style="font-weight:800; font-size:16px; color:var(--accent-color);">${exam.total} Net</div>
                             <div style="display:flex; gap:4px;">
-                                <button class="delete-btn" onclick="editExam(${item.id})" style="padding:4px 8px; background:var(--input-bg); border:1px solid var(--border-color);">Düzenle</button>
-                                <button class="delete-btn" onclick="deleteExam(${item.id})">Sil</button>
+                                <button class="edit-btn" onclick="editExam(${exam.id})" title="Düzenle">✏️</button>
+                                <button class="delete-btn" onclick="deleteExam(${exam.id})">Sil</button>
                             </div>
                         </div>
                     </div>`;
@@ -1681,23 +1845,23 @@
             });
 
             const labels = filteredExams.map(e => `${e.name} (${formatDateForDisplay(e.date)})`);
-            const totals = filteredExams.map(e => e.total);
-
-            if (examChartInstance) {
-                examChartInstance.destroy();
-            }
+            const dataValues = filteredExams.map(e => e.total);
 
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const textColor = isDark ? '#f1f5f9' : '#2c3e50';
             const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+            if (examChartInstance) {
+                examChartInstance.destroy();
+            }
 
             examChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: `${currentExamChartFilter === 'ALL' ? 'Tüm Denemeler' : currentExamChartFilter} Net Gelişimi`,
-                        data: totals,
+                        label: 'Toplam Net',
+                        data: dataValues,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 3,
@@ -1711,108 +1875,110 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: textColor, font: { weight: 'bold' } } }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return `Net: ${context.parsed.y}`; }
+                            }
+                        }
                     },
                     scales: {
-                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
-                        y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: false }
+                        x: {
+                            ticks: { color: textColor, font: { size: 11 } },
+                            grid: { color: gridColor }
+                        },
+                        y: {
+                            ticks: { color: textColor, font: { size: 11 } },
+                            grid: { color: gridColor }
+                        }
                     }
                 }
             });
         }
 
-        /* ================= SAYAÇ (POMODORO / ÖZEL SÜRE) ================= */
-        let pomoTimer = null;
-        let pomoTotalSeconds = 25 * 60;
-        let pomoRemainingSeconds = 25 * 60;
-        let isPomoRunning = false;
+        /* ================= SAYAÇ (POMODORO) LOGIC ================= */
+        let pomoInterval = null;
+        let pomoTotalSecondsLeft = 25 * 60;
+        let pomoIsRunning = false;
 
         function updatePomoDisplay() {
-            const h = Math.floor(pomoRemainingSeconds / 3600);
-            const m = Math.floor((pomoRemainingSeconds % 3600) / 60);
-            const s = pomoRemainingSeconds % 60;
-            const displayStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            
-            const dispEl = document.getElementById('pomodoroDisplay');
-            if (dispEl) dispEl.innerText = displayStr;
-            document.title = isPomoRunning ? `(${displayStr}) YKS Sistemim` : 'YKS Sistemim';
+            const h = Math.floor(pomoTotalSecondsLeft / 3600);
+            const m = Math.floor((pomoTotalSecondsLeft % 3600) / 60);
+            const s = pomoTotalSecondsLeft % 60;
+            const displayStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            document.getElementById('pomodoroDisplay').innerText = displayStr;
+            document.title = pomoIsRunning ? `(${displayStr}) YKS Sistemim` : 'YKS Sistemim';
         }
 
         function togglePomodoro() {
             const startBtn = document.getElementById('pomoStartBtn');
             const configArea = document.getElementById('pomoConfigArea');
 
-            if (!isPomoRunning) {
-                if (pomoRemainingSeconds === pomoTotalSeconds) {
+            if (!pomoIsRunning) {
+                if (pomoTotalSecondsLeft <= 0) {
                     const h = parseInt(document.getElementById('pomoHours').value) || 0;
                     const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
                     const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-                    pomoTotalSeconds = (h * 3600) + (m * 60) + s;
-                    pomoRemainingSeconds = pomoTotalSeconds;
-
-                    if (pomoTotalSeconds <= 0) {
-                        alert('Lütfen geçerli bir süre girin!');
-                        return;
-                    }
+                    pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
+                    if (pomoTotalSecondsLeft <= 0) { alert("Lütfen geçerli bir süre girin!"); return; }
                 }
 
-                if (configArea) configArea.style.display = 'none';
-                isPomoRunning = true;
-                startBtn.innerText = 'Duraklat';
+                pomoIsRunning = true;
+                startBtn.innerText = 'Durdur';
                 startBtn.style.backgroundColor = '#ef4444';
+                configArea.style.opacity = '0.5';
+                document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = true);
 
-                pomoTimer = setInterval(() => {
-                    if (pomoRemainingSeconds > 0) {
-                        pomoRemainingSeconds--;
+                pomoInterval = setInterval(() => {
+                    if (pomoTotalSecondsLeft > 0) {
+                        pomoTotalSecondsLeft--;
                         updatePomoDisplay();
                     } else {
-                        clearInterval(pomoTimer);
-                        isPomoRunning = false;
+                        clearInterval(pomoInterval);
+                        pomoIsRunning = false;
                         startBtn.innerText = 'Başlat';
                         startBtn.style.backgroundColor = 'var(--accent-color)';
-                        if (configArea) configArea.style.display = 'flex';
+                        configArea.style.opacity = '1';
+                        document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = false);
                         triggerConfetti();
                         alert('Süre bitti, tebrikler!');
                     }
                 }, 1000);
             } else {
-                clearInterval(pomoTimer);
-                isPomoRunning = false;
+                clearInterval(pomoInterval);
+                pomoIsRunning = false;
                 startBtn.innerText = 'Devam Et';
                 startBtn.style.backgroundColor = 'var(--accent-color)';
             }
         }
 
         function resetPomodoro() {
-            clearInterval(pomoTimer);
-            isPomoRunning = false;
+            clearInterval(pomoInterval);
+            pomoIsRunning = false;
             const startBtn = document.getElementById('pomoStartBtn');
-            if (startBtn) {
-                startBtn.innerText = 'Başlat';
-                startBtn.style.backgroundColor = 'var(--accent-color)';
-            }
             const configArea = document.getElementById('pomoConfigArea');
-            if (configArea) configArea.style.display = 'flex';
+            startBtn.innerText = 'Başlat';
+            startBtn.style.backgroundColor = 'var(--accent-color)';
+            configArea.style.opacity = '1';
+            document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = false);
 
-            const h = parseInt(document.getElementById('pomoHours').value) || 0;
-            const m = parseInt(document.getElementById('pomoMinutes').value) || 25;
-            const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-            pomoTotalSeconds = (h * 3600) + (m * 60) + s;
-            pomoRemainingSeconds = pomoTotalSeconds;
-            updatePomoDisplay();
-        }
-
-        document.getElementById('pomoHours').addEventListener('input', updatePomoInputValues);
-        document.getElementById('pomoMinutes').addEventListener('input', updatePomoInputValues);
-        document.getElementById('pomoSeconds').addEventListener('input', updatePomoInputValues);
-
-        function updatePomoInputValues() {
-            if (isPomoRunning) return;
             const h = parseInt(document.getElementById('pomoHours').value) || 0;
             const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
             const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-            pomoTotalSeconds = (h * 3600) + (m * 60) + s;
-            pomoRemainingSeconds = pomoTotalSeconds;
+            pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
+            updatePomoDisplay();
+        }
+
+        document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFromInputs);
+        document.getElementById('pomoMinutes').addEventListener('input', updatePomoTimeFromInputs);
+        document.getElementById('pomoSeconds').addEventListener('input', updatePomoTimeFromInputs);
+
+        function updatePomoTimeFromInputs() {
+            if (pomoIsRunning) return;
+            const h = parseInt(document.getElementById('pomoHours').value) || 0;
+            const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
+            const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
+            pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
             updatePomoDisplay();
         }
     </script>
