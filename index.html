@@ -266,6 +266,70 @@
         #notesTab .error-form-title    { color: #f59e0b; }
         #pomodoroTab .pomodoro-timer   { color: #00d9b5; }
         #pomodoroTab .pomodoro-box     { border-color: rgba(0,217,181,0.2); }
+
+        /* ===== İSTATİSTİK SEKMESİ ===== */
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
+        .stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--subtext-color); margin-bottom: 6px; }
+        .stat-card .stat-value { font-size: 22px; font-weight: 800; color: var(--text-color); }
+        .stat-card .stat-sub { font-size: 11px; color: var(--subtext-color); margin-top: 4px; }
+        .goal-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .goal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+        .goal-edit { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--subtext-color); }
+        .goal-edit input { width: 64px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); text-align: center; outline: none; }
+        .goal-track { height: 12px; border-radius: 8px; background-color: var(--border-color); overflow: hidden; }
+        .goal-fill { height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, var(--accent-color), var(--accent-hover)); transition: width 0.5s ease; }
+        .stats-charts { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+        .stats-panel { background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .stats-panel-title { font-weight: 700; font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .heatmap-wrap { overflow-x: auto; padding-bottom: 6px; }
+        .heatmap { display: inline-grid; grid-auto-flow: column; grid-template-rows: repeat(7, 14px); grid-auto-columns: 14px; gap: 4px; }
+        .hm-cell { width: 14px; height: 14px; border-radius: 3px; background-color: var(--input-bg); border: 1px solid var(--border-color); }
+        .hm-cell.hm-future { visibility: hidden; }
+        .hm-cell.hm1 { background-color: rgba(0,217,181,0.25); border-color: transparent; }
+        .hm-cell.hm2 { background-color: rgba(0,217,181,0.5);  border-color: transparent; }
+        .hm-cell.hm3 { background-color: rgba(0,217,181,0.75); border-color: transparent; }
+        .hm-cell.hm4 { background-color: var(--accent-color);  border-color: transparent; }
+        .hm-legend { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--subtext-color); margin-top: 10px; }
+        .stat-insights { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px; }
+        .stat-insights b { color: var(--text-color); }
+        .session-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .session-row:last-child { border-bottom: none; }
+        .session-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .session-del { margin-left: auto; cursor: pointer; color: var(--subtext-color); padding: 2px 6px; }
+        .session-del:hover { color: var(--danger-color); }
+        .pomo-subject { width: 100%; margin-bottom: 12px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); font-size: 14px; outline: none; }
+        .pomo-pending { font-size: 13px; color: var(--subtext-color); min-height: 18px; margin-bottom: 14px; }
+        @media (min-width: 850px) { .stats-charts { grid-template-columns: 2fr 1fr; } }
+
+        /* ===== BİLDİRİMLER ===== */
+        .notif-wrap { position: relative; }
+        .notif-badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background-color: var(--danger-color); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
+        .notif-panel { display: none; position: absolute; right: 0; top: 46px; width: 380px; max-height: 80vh; overflow-y: auto; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); z-index: 100; }
+        .notif-panel.open { display: block; }
+        .notif-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+        .notif-link { background: none; border: none; color: var(--accent-color); font-size: 12px; font-weight: 600; cursor: pointer; padding: 2px 4px; }
+        .notif-item { display: block; width: 100%; text-align: left; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; color: var(--text-color); }
+        .notif-item:hover { border-color: var(--accent-color); }
+        .notif-item.unread { border-left: 3px solid var(--accent-color); }
+        .notif-item-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+        .notif-item-body { font-size: 12px; color: var(--subtext-color); line-height: 1.5; }
+        .notif-item-time { font-size: 11px; color: var(--subtext-color); margin-top: 4px; }
+        .notif-perm { font-size: 12px; color: var(--subtext-color); line-height: 1.5; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+        .notif-perm button { margin-top: 8px; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .notif-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--border-color); }
+        .notif-row:last-of-type { border-bottom: none; }
+        .notif-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .notif-row input[type="time"] { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); outline: none; }
+        .notif-test { width: 100%; margin-top: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-weight: 600; cursor: pointer; }
+        .notif-test:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .toast-stack { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 10px; z-index: 200; max-width: min(360px, calc(100vw - 32px)); }
+        .toast { background-color: var(--container-bg); border: 1px solid var(--accent-color); border-left-width: 4px; border-radius: 10px; padding: 12px 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); cursor: pointer; animation: toastIn 0.25s ease; }
+        .toast-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+        .toast-body { font-size: 12px; color: var(--subtext-color); line-height: 1.5; }
+        @keyframes toastIn { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+        @media (max-width: 600px) { .notif-panel { position: fixed; left: 12px; right: 12px; top: 70px; width: auto; } }
+        @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
     </style>
 </head>
 <body data-theme="light">
@@ -275,6 +339,22 @@
             <h1>YKS Sistemim</h1>
             <div class="header-right">
                 <span id="cloudSyncStatus" class="sync-badge">Bulut: Bağlanıyor...</span>
+                <div class="notif-wrap">
+                    <button class="btn-icon" id="notifBell" onclick="toggleNotifPanel(event)" title="Bildirimler" aria-label="Bildirimler">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
+                    <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
+                        <div class="notif-title-row"><span>Bildirimler</span><button class="notif-link" onclick="markAllNotifRead()">Tümünü okundu yap</button></div>
+                        <div id="notifList"></div>
+
+                        <div class="notif-title-row" style="margin-top:16px;"><span>Ayarlar</span></div>
+                        <div class="notif-perm" id="notifPermRow"></div>
+                        <div class="notif-row"><label><input type="checkbox" id="nsSpaced" onchange="onNotifSettingChange()"> 🧠 Tekrar kartları</label></div>
+                        <div class="notif-row"><label><input type="checkbox" id="nsTasks" onchange="onNotifSettingChange()"> 📋 Bugünkü ve kaçırılan görevler</label></div>
+                        <div class="notif-row"><label><input type="checkbox" id="nsGoal" onchange="onNotifSettingChange()"> ⏱️ Günlük hedef ve seri</label></div>
+                        <div class="notif-row"><label><input type="checkbox" id="nsMorningOn" onchange="onNotifSettingChange()"> Sabah özeti</label><input type="time" id="nsMorningTime" onchange="onNotifSettingChange()"></div>
+                        <div class="notif-row"><label><input type="checkbox" id="nsEveningOn" onchange="onNotifSettingChange()"> Akşam kontrolü</label><input type="time" id="nsEveningTime" onchange="onNotifSettingChange()"></div>
+                        <button class="notif-test" onclick="sendTestNotif()">Test bildirimi gönder</button>
+                    </div>
+                </div>
                 <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
             </div>
         </div>
@@ -299,6 +379,7 @@
             <button class="tab-btn" onclick="switchTab(this, 'camps')">📚 Kaynak Takibi</button>
             <button class="tab-btn" onclick="switchTab(this, 'books')">📖 Soru Bankaları</button>
             <button class="tab-btn" onclick="switchTab(this, 'exams')">📊 Deneme Takibi</button>
+            <button class="tab-btn" onclick="switchTab(this, 'stats')">📈 İstatistik</button>
             <button class="tab-btn" onclick="switchTab(this, 'pomodoro')">⏱️ Sayaç</button>
         </div>
 
@@ -585,10 +666,80 @@
             </div>
         </div>
 
+        <!-- İSTATİSTİK -->
+        <div id="statsTab" class="tab-content">
+            <div class="stat-cards">
+                <div class="stat-card"><div class="stat-label">Bugün</div><div class="stat-value" id="statToday">0 dk</div><div class="stat-sub" id="statTodaySub"></div></div>
+                <div class="stat-card"><div class="stat-label">Bu hafta</div><div class="stat-value" id="statWeek">0 dk</div><div class="stat-sub" id="statWeekSub"></div></div>
+                <div class="stat-card"><div class="stat-label">Bu ay</div><div class="stat-value" id="statMonth">0 dk</div><div class="stat-sub" id="statMonthSub"></div></div>
+                <div class="stat-card"><div class="stat-label">Toplam</div><div class="stat-value" id="statTotal">0 dk</div><div class="stat-sub" id="statTotalSub"></div></div>
+                <div class="stat-card"><div class="stat-label">Seri</div><div class="stat-value" id="statStreak">0 gün</div><div class="stat-sub" id="statStreakSub">Günde en az 15 dk çalışılan ardışık günler</div></div>
+            </div>
+
+            <div class="goal-card">
+                <div class="goal-head">
+                    <span id="goalText">Günlük hedef</span>
+                    <label class="goal-edit">Hedef (saat) <input type="number" id="goalInput" min="0.5" max="16" step="0.5" onchange="setStudyGoal(this.value)"></label>
+                </div>
+                <div class="goal-track"><div class="goal-fill" id="goalFill"></div></div>
+            </div>
+
+            <div class="stat-insights" id="statInsights"></div>
+
+            <div class="stats-charts">
+                <div class="chart-container" style="height: 340px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <span style="font-weight:700; font-size:14px;">Ders bazında çalışma süresi</span>
+                        <div style="display:flex; gap:6px;">
+                            <button class="chart-filter-btn active" id="statsRange7" onclick="setStatsRange(7)">7 Gün</button>
+                            <button class="chart-filter-btn" id="statsRange30" onclick="setStatsRange(30)">30 Gün</button>
+                            <button class="chart-filter-btn" id="statsRange90" onclick="setStatsRange(90)">90 Gün</button>
+                        </div>
+                    </div>
+                    <div style="flex:1; position:relative; min-height:0;"><canvas id="statsBarChart"></canvas></div>
+                </div>
+                <div class="chart-container" style="height: 340px;">
+                    <span style="font-weight:700; font-size:14px; margin-bottom:12px;">Ders dağılımı</span>
+                    <div style="flex:1; position:relative; min-height:0;"><canvas id="statsPieChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stats-panel-title">Son 20 hafta</div>
+                <div class="heatmap-wrap"><div class="heatmap" id="statsHeatmap"></div></div>
+                <div class="hm-legend">Az <span class="hm-cell"></span><span class="hm-cell hm1"></span><span class="hm-cell hm2"></span><span class="hm-cell hm3"></span><span class="hm-cell hm4"></span> Hedef ve üstü</div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stats-panel-title">Süre ekle</div>
+                <div class="input-group" style="margin-bottom:0;">
+                    <input type="date" id="manualDate">
+                    <select id="manualSubject"></select>
+                    <input type="number" id="manualMinutes" min="1" max="1440" placeholder="Dakika" style="max-width:120px;" onkeypress="if(event.key === 'Enter') addManualStudy()">
+                    <button onclick="addManualStudy()">Ekle</button>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stats-panel-title">Son kayıtlar</div>
+                <div id="statsSessions"></div>
+            </div>
+        </div>
+
         <!-- SAYAÇ -->
         <div id="pomodoroTab" class="tab-content">
             <div class="pomodoro-box">
                 <div style="font-weight: 700; color: var(--subtext-color); margin-bottom: 10px;" id="pomodoroMode">Özel Süre / Sayaç</div>
+                <select id="pomoSubject" class="pomo-subject" title="Çalışılan ders">
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                    <option value="Türkçe">Türkçe</option>
+                    <option value="Sosyal">Sosyal</option>
+                    <option value="Genel">Genel / Diğer</option>
+                </select>
                 
                 <div id="pomoConfigArea" style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 15px; width: 100%;">
                     <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
@@ -606,15 +757,19 @@
                 </div>
 
                 <div class="pomodoro-timer" id="pomodoroDisplay">00:25:00</div>
+                <div class="pomo-pending" id="pomoPendingInfo"></div>
 
                 <div class="pomodoro-btns">
                     <button id="pomoStartBtn" style="background-color: var(--accent-color); color: white;" onclick="togglePomodoro()">Başlat</button>
+                    <button id="pomoFinishBtn" style="background-color: var(--input-bg); border:1px solid var(--accent-color); color:var(--accent-color);" onclick="finishPomodoro()">Bitir ve Kaydet</button>
                     <button style="background-color: var(--input-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="resetPomodoro()">Sıfırla</button>
                 </div>
             </div>
         </div>
 
     </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
     <!-- Fotoğraf Büyütme Modalı -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()">
@@ -715,7 +870,7 @@
 
             initCloudSyncFor('yks_drag_planner', (data) => { plannerData = data; renderPlanner(); });
             initCloudSyncFor('yks_day_notes', (data) => { dayNotesData = data; renderPlanner(); });
-            initCloudSyncFor('yks_work_logs', (data) => { workLogsData = data; renderPlanner(); });
+            initCloudSyncFor('yks_work_logs', (data) => { workLogsData = data; renderPlanner(); renderStats(); });
             
             initCurriculumData();
             initCloudSyncFor('yks_curriculum_matrix', (data) => { 
@@ -729,6 +884,8 @@
             initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
             initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
+            initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
+            initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); });
             
             updatePomoDisplay();
         });
@@ -783,8 +940,8 @@
         }
 
         function updateChartTheme() {
-            if (!examChartInstance) return;
-            renderExamChart();
+            if (examChartInstance) renderExamChart();
+            renderStats();
         }
 
         function switchTab(btnElement, tabId) {
@@ -793,6 +950,7 @@
             document.getElementById(tabId + 'Tab').classList.add('active');
             btnElement.classList.add('active');
             if(tabId === 'exams') renderExams();
+            if(tabId === 'stats') renderStats();
         }
 
         function escapeHtml(text) {
@@ -903,6 +1061,7 @@
 
             saveToCloudAndLocal('yks_work_logs', workLogsData);
             renderPlanner();
+            renderStats();
         }
 
         function deleteWorkLog(dateStr, id) {
@@ -911,6 +1070,7 @@
                 if (workLogsData[dateStr].length === 0) delete workLogsData[dateStr];
                 saveToCloudAndLocal('yks_work_logs', workLogsData);
                 renderPlanner();
+                renderStats();
             }
         }
 
@@ -1053,7 +1213,7 @@
                 let totalWorkHours = dayLogs.reduce((sum, item) => sum + item.hours, 0);
                 let workPillsHTML = dayLogs.map(item => `
                     <div class="work-pill">
-                        <span>${escapeHtml(item.subject)}: <b>${item.hours} sa</b></span>
+                        <span>${escapeHtml(item.subject)}: <b>${fmtDur(item.hours)}</b></span>
                         <span class="work-pill-delete" onclick="deleteWorkLog('${dateStr}', ${item.id})">✕</span>
                     </div>
                 `).join('');
@@ -1383,10 +1543,12 @@
                 let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + addDays);
                 item.nextReviewDate = nextDate.toISOString();
                 triggerConfetti();
+                showToast({ title: `Sonraki tekrar: ${addDays} gün sonra`, body: `${item.topic} · ${nextDate.getDate()} ${monthNames[nextDate.getMonth()]} ${dayNames[(nextDate.getDay() + 6) % 7]}` });
             } else {
                 item.stage = 0;
                 let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + 1);
                 item.nextReviewDate = nextDate.toISOString();
+                showToast({ title: 'Yarın tekrar', body: `${item.topic} · tekrar döngüsü başa döndü` });
             }
             saveSpacedData(); renderSpaced();
         }
@@ -2032,6 +2194,480 @@
             });
         }
 
+        /* ================= ÇALIŞMA İSTATİSTİKLERİ ================= */
+        // Veri kaynağı: mevcut workLogsData  { 'YYYY-MM-DD': [ {id, subject, hours} ] }
+        const STAT_SUBJECTS = ['Matematik','Geometri','Fizik','Kimya','Biyoloji','Türkçe','Sosyal','Genel'];
+        const STUDY_DAY_MIN_HOURS = 0.25; // seri için: günde en az 15 dk
+        let studyGoal = parseFloat(JSON.parse(localStorage.getItem('yks_study_goal') || 'null')) || 4;
+        let statsRange = 7;
+        let statsBarChart = null, statsPieChart = null;
+
+        function fmtDur(hours) {
+            const total = Math.round((hours || 0) * 60);
+            const h = Math.floor(total / 60), m = total % 60;
+            if (h === 0) return `${m} dk`;
+            return m === 0 ? `${h} sa` : `${h} sa ${m} dk`;
+        }
+        function parseDateStr(str) { const [y, m, d] = str.split('-').map(Number); return new Date(y, m - 1, d); }
+        function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
+        function dayHours(dateStr) { return (workLogsData[dateStr] || []).reduce((s, l) => s + (l.hours || 0), 0); }
+        function sumRange(fromDate, toDate) {
+            let sum = 0;
+            for (let d = new Date(fromDate); d <= toDate; d = addDays(d, 1)) sum += dayHours(formatDateString(d));
+            return sum;
+        }
+
+        function logStudy(subject, seconds) {
+            const dateStr = formatDateString(new Date());
+            const before = dayHours(dateStr);
+            if (!workLogsData[dateStr]) workLogsData[dateStr] = [];
+            workLogsData[dateStr].push({ id: Date.now(), subject: subject, hours: parseFloat((seconds / 3600).toFixed(3)) });
+            saveToCloudAndLocal('yks_work_logs', workLogsData);
+            renderPlanner();
+            renderStats();
+            if (before < studyGoal && before + seconds / 3600 >= studyGoal) triggerConfetti();
+        }
+
+        function addManualStudy() {
+            const dateStr = document.getElementById('manualDate').value;
+            const subject = document.getElementById('manualSubject').value;
+            const minutes = parseFloat(document.getElementById('manualMinutes').value) || 0;
+            if (!dateStr) { alert('Lütfen bir tarih seç.'); return; }
+            if (minutes <= 0) { alert('Lütfen geçerli bir süre (dakika) gir.'); return; }
+            if (!workLogsData[dateStr]) workLogsData[dateStr] = [];
+            workLogsData[dateStr].push({ id: Date.now(), subject: subject, hours: parseFloat((minutes / 60).toFixed(3)) });
+            document.getElementById('manualMinutes').value = '';
+            saveToCloudAndLocal('yks_work_logs', workLogsData);
+            renderPlanner();
+            renderStats();
+        }
+
+        function setStudyGoal(val) {
+            let g = parseFloat(val);
+            if (!g || g < 0.5) g = 0.5;
+            if (g > 16) g = 16;
+            studyGoal = g;
+            saveToCloudAndLocal('yks_study_goal', studyGoal);
+            renderStats();
+        }
+
+        function setStatsRange(days) {
+            statsRange = days;
+            [7, 30, 90].forEach(n => document.getElementById('statsRange' + n).classList.toggle('active', n === days));
+            renderStats();
+        }
+
+        function computeStreaks() {
+            const studied = Object.keys(workLogsData).filter(k => dayHours(k) >= STUDY_DAY_MIN_HOURS).sort();
+            // en uzun seri
+            let longest = 0, run = 0, prev = null;
+            studied.forEach(k => {
+                const d = parseDateStr(k);
+                run = (prev && Math.round((d - prev) / 86400000) === 1) ? run + 1 : 1;
+                longest = Math.max(longest, run);
+                prev = d;
+            });
+            // güncel seri: bugün henüz çalışılmadıysa dünden geriye say
+            const set = new Set(studied);
+            let cursor = new Date(); cursor.setHours(0, 0, 0, 0);
+            if (!set.has(formatDateString(cursor))) cursor = addDays(cursor, -1);
+            let current = 0;
+            while (set.has(formatDateString(cursor))) { current++; cursor = addDays(cursor, -1); }
+            return { current, longest };
+        }
+
+        function renderStats() {
+            const tab = document.getElementById('statsTab');
+            if (!tab || !tab.classList.contains('active')) return;
+
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const todayStr = formatDateString(today);
+            const weekStart = getMonday(today);
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            // Özet kartları
+            const todayH = dayHours(todayStr);
+            const weekH = sumRange(weekStart, today);
+            const monthH = sumRange(monthStart, today);
+            const allDates = Object.keys(workLogsData);
+            const totalH = allDates.reduce((s, k) => s + dayHours(k), 0);
+            const last7 = sumRange(addDays(today, -6), today);
+            const activeDays = allDates.filter(k => dayHours(k) >= STUDY_DAY_MIN_HOURS).length;
+
+            document.getElementById('statToday').innerText = fmtDur(todayH);
+            document.getElementById('statTodaySub').innerText = `Hedef: ${fmtDur(studyGoal)}`;
+            document.getElementById('statWeek').innerText = fmtDur(weekH);
+            document.getElementById('statWeekSub').innerText = `Günlük ort. ${fmtDur(last7 / 7)} (son 7 gün)`;
+            document.getElementById('statMonth').innerText = fmtDur(monthH);
+            document.getElementById('statMonthSub').innerText = `${monthNames[today.getMonth()]} ayı`;
+            document.getElementById('statTotal').innerText = fmtDur(totalH);
+            document.getElementById('statTotalSub').innerText = `${activeDays} gün çalışıldı`;
+            const streak = computeStreaks();
+            document.getElementById('statStreak').innerText = `${streak.current} gün`;
+            document.getElementById('statStreakSub').innerText = `En uzun: ${streak.longest} gün · günde en az 15 dk`;
+
+            // Günlük hedef
+            const goalInput = document.getElementById('goalInput');
+            if (document.activeElement !== goalInput) goalInput.value = studyGoal;
+            const pct = Math.min(100, (todayH / studyGoal) * 100);
+            document.getElementById('goalFill').style.width = pct + '%';
+            document.getElementById('goalText').innerText = todayH >= studyGoal
+                ? `Günlük hedef tamamlandı · ${fmtDur(todayH)}`
+                : `Bugün ${fmtDur(todayH)} / ${fmtDur(studyGoal)} · kalan ${fmtDur(studyGoal - todayH)}`;
+
+            // Seçili aralık verisi
+            const days = [];
+            for (let i = statsRange - 1; i >= 0; i--) days.push(addDays(today, -i));
+            const subjectSet = new Set(STAT_SUBJECTS);
+            days.forEach(d => (workLogsData[formatDateString(d)] || []).forEach(l => subjectSet.add(l.subject)));
+            const subjects = [...subjectSet];
+            const perSubject = {};
+            subjects.forEach(s => perSubject[s] = days.map(() => 0));
+            days.forEach((d, idx) => (workLogsData[formatDateString(d)] || []).forEach(l => { perSubject[l.subject][idx] += l.hours || 0; }));
+            const usedSubjects = subjects.filter(s => perSubject[s].some(v => v > 0));
+
+            // Grafik renkleri (koyu/açık tema)
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f1f5f9' : '#2c3e50';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+            // Çubuk grafik
+            const labels = days.map(d => statsRange === 7
+                ? `${dayNames[(d.getDay() + 6) % 7].substring(0, 3)} ${d.getDate()}`
+                : `${d.getDate()} ${monthNames[d.getMonth()].substring(0, 3)}`);
+            if (statsBarChart) statsBarChart.destroy();
+            statsBarChart = new Chart(document.getElementById('statsBarChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: usedSubjects.map(s => ({
+                        label: s,
+                        data: perSubject[s].map(v => parseFloat(v.toFixed(2))),
+                        backgroundColor: getSubjectColor(s).color,
+                        borderRadius: 3,
+                        stack: 'ders'
+                    }))
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor, boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmtDur(c.parsed.y)}` } }
+                    },
+                    scales: {
+                        x: { stacked: true, ticks: { color: textColor, font: { size: 11 }, autoSkip: true, maxRotation: 0 }, grid: { display: false } },
+                        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'saat', color: textColor }, ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } }
+                    }
+                }
+            });
+
+            // Halka grafik
+            const totals = usedSubjects.map(s => parseFloat(perSubject[s].reduce((a, b) => a + b, 0).toFixed(2)));
+            if (statsPieChart) statsPieChart.destroy();
+            statsPieChart = new Chart(document.getElementById('statsPieChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: usedSubjects.length ? usedSubjects : ['Kayıt yok'],
+                    datasets: [{
+                        data: usedSubjects.length ? totals : [1],
+                        backgroundColor: usedSubjects.length ? usedSubjects.map(s => getSubjectColor(s).color) : [gridColor],
+                        borderColor: isDark ? '#0d1626' : '#f3f6fc',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { enabled: usedSubjects.length > 0, callbacks: { label: c => `${c.label}: ${fmtDur(c.parsed)}` } }
+                    }
+                }
+            });
+
+            // Özet cümleleri
+            const insights = [];
+            const rangeTotal = totals.reduce((a, b) => a + b, 0);
+            if (usedSubjects.length) {
+                const top = usedSubjects[totals.indexOf(Math.max(...totals))];
+                const topShare = Math.round((Math.max(...totals) / rangeTotal) * 100);
+                insights.push(`Son ${statsRange} günde en çok çalıştığın ders: <b>${escapeHtml(top)}</b> (%${topShare}, ${fmtDur(Math.max(...totals))})`);
+                const weekdayTotals = [0, 0, 0, 0, 0, 0, 0];
+                for (let i = 0; i < 90; i++) { const d = addDays(today, -i); weekdayTotals[(d.getDay() + 6) % 7] += dayHours(formatDateString(d)); }
+                const bestIdx = weekdayTotals.indexOf(Math.max(...weekdayTotals));
+                if (weekdayTotals[bestIdx] > 0) insights.push(`Son 90 günde en yoğun günün: <b>${dayNames[bestIdx]}</b>`);
+                const zero = STAT_SUBJECTS.filter(s => s !== 'Genel' && !usedSubjects.includes(s));
+                if (zero.length) insights.push(`Son ${statsRange} günde hiç çalışma kaydı olmayan dersler: <b>${zero.map(escapeHtml).join(', ')}</b>`);
+            } else {
+                insights.push('Henüz çalışma kaydı yok. Sayaçtaki "Bitir ve Kaydet" ile ya da aşağıdaki "Süre ekle" formuyla başlayabilirsin.');
+            }
+            document.getElementById('statInsights').innerHTML = insights.map(t => `<div>${t}</div>`).join('');
+
+            // Isı haritası (20 hafta, Pzt-Paz satırları)
+            const hm = document.getElementById('statsHeatmap');
+            const firstDay = addDays(weekStart, -19 * 7);
+            let hmHTML = '';
+            for (let w = 0; w < 20; w++) {
+                for (let r = 0; r < 7; r++) {
+                    const d = addDays(firstDay, w * 7 + r);
+                    if (d > today) { hmHTML += '<div class="hm-cell hm-future"></div>'; continue; }
+                    const h = dayHours(formatDateString(d));
+                    const ratio = h / studyGoal;
+                    const lvl = h <= 0 ? 0 : ratio < 0.25 ? 1 : ratio < 0.6 ? 2 : ratio < 1 ? 3 : 4;
+                    hmHTML += `<div class="hm-cell hm${lvl}" title="${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}: ${fmtDur(h)}"></div>`;
+                }
+            }
+            hm.innerHTML = hmHTML;
+
+            // Manuel ekleme formu (ilk açılışta doldur)
+            const sel = document.getElementById('manualSubject');
+            if (!sel.options.length) sel.innerHTML = STAT_SUBJECTS.map(s => `<option value="${s}">${s === 'Genel' ? 'Genel / Diğer' : s}</option>`).join('');
+            const md = document.getElementById('manualDate');
+            if (!md.value) md.value = todayStr;
+
+            // Son kayıtlar
+            const rows = [];
+            allDates.forEach(k => workLogsData[k].forEach(l => rows.push({ date: k, id: l.id, subject: l.subject, hours: l.hours })));
+            rows.sort((a, b) => a.date === b.date ? b.id - a.id : (a.date < b.date ? 1 : -1));
+            const sessions = document.getElementById('statsSessions');
+            sessions.innerHTML = rows.length ? rows.slice(0, 10).map(r => {
+                const d = parseDateStr(r.date);
+                return `<div class="session-row">
+                    <span class="session-dot" style="background:${getSubjectColor(r.subject).color}"></span>
+                    <span style="font-weight:600;">${escapeHtml(r.subject)}</span>
+                    <span>${fmtDur(r.hours)}</span>
+                    <span style="color:var(--subtext-color);">${d.getDate()} ${monthNames[d.getMonth()].substring(0, 3)}</span>
+                    <span class="session-del" title="Sil" onclick="deleteWorkLog('${r.date}', ${r.id})">✕</span>
+                </div>`;
+            }).join('') : '<div class="empty-text">Kayıt bulunmuyor.</div>';
+        }
+
+        /* ================= BİLDİRİMLER ================= */
+        // Kurallar: sabah özeti + akşam kontrolü. Tekrar kartı, görev ve hedef satırları ayrı ayrı açılıp kapatılır.
+        // Bildirimler uygulama/sekme açıkken (veya tarayıcı arka planda çalışırken) tetiklenir.
+        const NOTIF_DEFAULTS = { spaced: true, tasks: true, goal: true, morningOn: true, morningTime: '09:00', eveningOn: true, eveningTime: '20:00' };
+        let notifSettings = Object.assign({}, NOTIF_DEFAULTS, JSON.parse(localStorage.getItem('yks_notif_settings') || 'null') || {});
+        let notifFired = JSON.parse(localStorage.getItem('yks_notif_fired') || '{}');      // cihaza özel: hangi kural bugün gösterildi
+        let notifHistory = JSON.parse(localStorage.getItem('yks_notif_history') || '[]');  // cihaza özel: bildirim geçmişi
+        let swReg = null;
+        const NOTIF_LOOKBACK_DAYS = 14;
+
+        if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+            navigator.serviceWorker.register('./sw.js').then(reg => { swReg = reg; }).catch(() => {});
+            navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'goto-tab') gotoTab(e.data.tab); });
+        }
+
+        function saveNotifFired() { localStorage.setItem('yks_notif_fired', JSON.stringify(notifFired)); }
+        function saveNotifHistory() { localStorage.setItem('yks_notif_history', JSON.stringify(notifHistory)); }
+
+        function gotoTab(tabId) {
+            const btn = document.querySelector(`.tab-btn[onclick*="'${tabId}'"]`);
+            if (btn) switchTab(btn, tabId);
+            closeNotifPanel();
+            window.focus();
+        }
+
+        /* --- Veri okuyucular --- */
+        function notifDueCards() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            return spacedData.filter(i => { const d = new Date(i.nextReviewDate); d.setHours(0, 0, 0, 0); return d <= today; });
+        }
+        function notifTaskCounts() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const openToday = ((plannerData.days || {})[formatDateString(today)] || []).filter(t => !t.completed).length;
+            let overdue = 0;
+            for (let i = 1; i <= NOTIF_LOOKBACK_DAYS; i++) {
+                overdue += (((plannerData.days || {})[formatDateString(addDays(today, -i))]) || []).filter(t => !t.completed).length;
+            }
+            return { openToday, overdue };
+        }
+        function topicList(items) {
+            const names = items.slice(0, 3).map(i => i.topic);
+            return names.join(', ') + (items.length > 3 ? ` +${items.length - 3}` : '');
+        }
+
+        /* --- Mesaj üreticileri (gösterilecek bir şey yoksa null) --- */
+        function buildMorning() {
+            const lines = []; let tab = null;
+            if (notifSettings.spaced) {
+                const due = notifDueCards();
+                if (due.length) { lines.push(`🧠 ${due.length} tekrar kartı bekliyor (${topicList(due)})`); tab = 'spaced'; }
+            }
+            if (notifSettings.tasks) {
+                const c = notifTaskCounts();
+                if (c.openToday) { lines.push(`📋 Bugün ${c.openToday} görevin var`); tab = tab || 'planner'; }
+                if (c.overdue) { lines.push(`⚠️ Önceki günlerden ${c.overdue} tamamlanmamış görev kaldı`); tab = tab || 'planner'; }
+            }
+            return lines.length ? { title: 'Günaydın, bugünün özeti', body: lines.join('\n'), tab, tag: 'yks-morning' } : null;
+        }
+        function buildEvening() {
+            const lines = []; let tab = null;
+            if (notifSettings.spaced) {
+                const due = notifDueCards();
+                if (due.length) { lines.push(`🧠 ${due.length} tekrar kartı hâlâ bekliyor (${topicList(due)})`); tab = 'spaced'; }
+            }
+            if (notifSettings.tasks) {
+                const c = notifTaskCounts();
+                if (c.openToday) { lines.push(`📋 Bugünkü ${c.openToday} görev tamamlanmadı`); tab = tab || 'planner'; }
+            }
+            if (notifSettings.goal) {
+                const todayH = dayHours(formatDateString(new Date()));
+                if (todayH < studyGoal) {
+                    lines.push(`⏱️ Bugün ${fmtDur(todayH)} / ${fmtDur(studyGoal)}, hedefe ${fmtDur(studyGoal - todayH)} kaldı`);
+                    tab = tab || 'stats';
+                    const streak = computeStreaks().current;
+                    if (streak > 0 && todayH < STUDY_DAY_MIN_HOURS) lines.push(`🔥 ${streak} günlük serin bugün çalışmazsan bozulacak`);
+                }
+            }
+            return lines.length ? { title: 'Akşam kontrolü', body: lines.join('\n'), tab, tag: 'yks-evening' } : null;
+        }
+
+        /* --- Gösterim --- */
+        function showToast(t) {
+            const stack = document.getElementById('toastStack');
+            if (!stack) return;
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.innerHTML = `<div class="toast-title">${escapeHtml(t.title)}</div>${t.body ? `<div class="toast-body">${escapeHtml(t.body).replace(/\n/g, '<br>')}</div>` : ''}`;
+            el.onclick = () => { if (t.tab) gotoTab(t.tab); el.remove(); };
+            stack.appendChild(el);
+            setTimeout(() => el.remove(), 8000);
+        }
+
+        function systemNotify(n) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            const opts = { body: n.body, tag: n.tag, data: { tab: n.tab || null } };
+            const fallback = () => {
+                try {
+                    const x = new Notification(n.title, opts);
+                    x.onclick = () => { window.focus(); if (n.tab) gotoTab(n.tab); x.close(); };
+                } catch (err) { /* bu tarayıcı yalnızca service worker ile destekliyor */ }
+            };
+            if (swReg && swReg.active) { swReg.showNotification(n.title, opts).catch(fallback); }
+            else fallback();
+        }
+
+        function pushNotif(n, forceSystem) {
+            notifHistory.unshift({ id: Date.now(), title: n.title, body: n.body, tab: n.tab || null, time: new Date().toISOString(), read: false });
+            notifHistory = notifHistory.slice(0, 30);
+            saveNotifHistory();
+            renderNotifPanel();
+            if (document.hidden || forceSystem) systemNotify(n);
+            if (!document.hidden) showToast(n);
+        }
+
+        function sendTestNotif() {
+            pushNotif({ title: 'Test bildirimi', body: 'Bildirimler çalışıyor.', tab: null, tag: 'yks-test' }, true);
+        }
+
+        /* --- Zamanlayıcı --- */
+        function timeToMin(t) { const [h, m] = (t || '').split(':').map(Number); return (h || 0) * 60 + (m || 0); }
+
+        function checkNotifSchedule() {
+            const now = new Date();
+            const todayStr = formatDateString(now);
+            const mins = now.getHours() * 60 + now.getMinutes();
+            const eveningMin = timeToMin(notifSettings.eveningTime);
+
+            // Sabah özeti: sabah saatinden akşam kontrolüne kadar olan pencerede
+            if (notifSettings.morningOn && notifFired.morning !== todayStr && mins >= timeToMin(notifSettings.morningTime)
+                && !(notifSettings.eveningOn && mins >= eveningMin)) {
+                const n = buildMorning();
+                if (n) { pushNotif(n); notifFired.morning = todayStr; saveNotifFired(); }
+            }
+            // Akşam kontrolü
+            if (notifSettings.eveningOn && notifFired.evening !== todayStr && mins >= eveningMin) {
+                const n = buildEvening();
+                if (n) { pushNotif(n); notifFired.evening = todayStr; saveNotifFired(); }
+            }
+        }
+
+        /* --- Panel --- */
+        function fmtNotifTime(iso) {
+            const d = new Date(iso), t = new Date(); t.setHours(0, 0, 0, 0);
+            const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            const day = new Date(d); day.setHours(0, 0, 0, 0);
+            const diff = Math.round((t - day) / 86400000);
+            return diff === 0 ? `Bugün ${hm}` : diff === 1 ? `Dün ${hm}` : `${d.getDate()} ${monthNames[d.getMonth()]} ${hm}`;
+        }
+
+        function renderNotifPanel() {
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            if (!list || !badge) return;
+            const unread = notifHistory.filter(n => !n.read).length;
+            badge.style.display = unread ? 'block' : 'none';
+            badge.innerText = unread > 9 ? '9+' : unread;
+            list.innerHTML = notifHistory.length ? notifHistory.slice(0, 8).map(n => `
+                <button class="notif-item ${n.read ? '' : 'unread'}" onclick="openNotifItem(${n.id})">
+                    <div class="notif-item-title">${escapeHtml(n.title)}</div>
+                    <div class="notif-item-body">${escapeHtml(n.body).replace(/\n/g, '<br>')}</div>
+                    <div class="notif-item-time">${fmtNotifTime(n.time)}</div>
+                </button>`).join('') : '<div class="empty-text" style="margin:8px 0 4px;">Henüz bildirim yok.</div>';
+        }
+
+        function openNotifItem(id) {
+            const n = notifHistory.find(x => x.id === id);
+            if (!n) return;
+            n.read = true; saveNotifHistory(); renderNotifPanel();
+            if (n.tab) gotoTab(n.tab);
+        }
+        function markAllNotifRead() { notifHistory.forEach(n => n.read = true); saveNotifHistory(); renderNotifPanel(); }
+
+        function renderNotifPermission() {
+            const el = document.getElementById('notifPermRow');
+            if (!el) return;
+            if (!('Notification' in window)) {
+                el.innerHTML = 'Bu tarayıcı sistem bildirimlerini desteklemiyor. Bildirimler yalnızca uygulama içinde (🔔 ve köşedeki kutular) görünür.';
+            } else if (Notification.permission === 'granted') {
+                el.innerHTML = '✅ Sistem bildirimleri açık. Sekme arka plandayken cihaz bildirimi gelir.';
+            } else if (Notification.permission === 'denied') {
+                el.innerHTML = '🚫 Sistem bildirimleri engellenmiş. Tarayıcının site ayarlarından izin vermelisin. O zamana kadar bildirimler uygulama içinde görünür.';
+            } else {
+                el.innerHTML = 'Sekme arka plandayken de haber alabilmek için sistem bildirimlerine izin ver.<br><button onclick="requestNotifPermission()">Bildirimlere izin ver</button>';
+            }
+        }
+        function requestNotifPermission() {
+            if (!('Notification' in window)) return;
+            const done = () => renderNotifPermission();
+            const r = Notification.requestPermission(done);
+            if (r && r.then) r.then(done);
+        }
+
+        function renderNotifSettings() {
+            const s = notifSettings, set = (id, v, prop) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el[prop || 'checked'] = v; };
+            set('nsSpaced', s.spaced); set('nsTasks', s.tasks); set('nsGoal', s.goal);
+            set('nsMorningOn', s.morningOn); set('nsEveningOn', s.eveningOn);
+            set('nsMorningTime', s.morningTime, 'value'); set('nsEveningTime', s.eveningTime, 'value');
+            renderNotifPermission();
+        }
+        function onNotifSettingChange() {
+            const v = id => document.getElementById(id);
+            notifSettings = {
+                spaced: v('nsSpaced').checked, tasks: v('nsTasks').checked, goal: v('nsGoal').checked,
+                morningOn: v('nsMorningOn').checked, eveningOn: v('nsEveningOn').checked,
+                morningTime: v('nsMorningTime').value || NOTIF_DEFAULTS.morningTime,
+                eveningTime: v('nsEveningTime').value || NOTIF_DEFAULTS.eveningTime
+            };
+            saveToCloudAndLocal('yks_notif_settings', notifSettings);
+        }
+
+        function toggleNotifPanel(e) {
+            e.stopPropagation();
+            const p = document.getElementById('notifPanel');
+            p.classList.toggle('open');
+            if (p.classList.contains('open')) { renderNotifSettings(); renderNotifPanel(); }
+        }
+        function closeNotifPanel() { const p = document.getElementById('notifPanel'); if (p) p.classList.remove('open'); }
+        document.addEventListener('click', closeNotifPanel);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNotifPanel(); });
+
+        renderNotifPanel();
+        renderNotifSettings();
+        // Bulut verisinin gelmesini bekleyip ilk kontrolü yap, sonra düzenli kontrol et
+        setTimeout(checkNotifSchedule, 4000);
+        setInterval(checkNotifSchedule, 30000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) checkNotifSchedule(); });
+
         /* ================= SAYAÇ (POMODORO) LOGIC ================= */
         let pomoInterval = null;
         let pomoTotalSecondsLeft = 25 * 60;
@@ -2046,66 +2682,120 @@
             document.title = pomoIsRunning ? `(${displayStr}) YKS Sistemim` : 'YKS Sistemim';
         }
 
-        function togglePomodoro() {
-            const startBtn = document.getElementById('pomoStartBtn');
-            const configArea = document.getElementById('pomoConfigArea');
+        /* ---- Sayaç: süre bitiş zamanına göre hesaplanır (arka plan sekmesinde kaymaz) ---- */
+        let pomoEndTime = 0;           // çalışırken bitiş zamanı (ms)
+        let pomoSegmentStart = 0;      // son başlat/devam et anı (ms)
+        let pomoPendingSeconds = 0;    // duraklatılan bölümlerde biriken, henüz kaydedilmemiş süre
 
-            if (!pomoIsRunning) {
-                if (pomoTotalSecondsLeft <= 0) {
-                    const h = parseInt(document.getElementById('pomoHours').value) || 0;
-                    const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
-                    const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-                    pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
-                    if (pomoTotalSecondsLeft <= 0) { alert("Lütfen geçerli bir süre girin!"); return; }
-                }
-
-                pomoIsRunning = true;
-                startBtn.innerText = 'Durdur';
-                startBtn.style.backgroundColor = '#ef4444';
-                configArea.style.opacity = '0.5';
-                document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = true);
-
-                pomoInterval = setInterval(() => {
-                    if (pomoTotalSecondsLeft > 0) {
-                        pomoTotalSecondsLeft--;
-                        updatePomoDisplay();
-                    } else {
-                        clearInterval(pomoInterval);
-                        pomoIsRunning = false;
-                        startBtn.innerText = 'Başlat';
-                        startBtn.style.backgroundColor = 'var(--accent-color)';
-                        configArea.style.opacity = '1';
-                        document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = false);
-                        triggerConfetti();
-                        alert('Süre bitti, tebrikler!');
-                    }
-                }, 1000);
-            } else {
-                clearInterval(pomoInterval);
-                pomoIsRunning = false;
-                startBtn.innerText = 'Devam Et';
-                startBtn.style.backgroundColor = 'var(--accent-color)';
-            }
+        function pomoSegmentSeconds() {
+            if (!pomoIsRunning) return 0;
+            return Math.max(0, Math.round((Math.min(Date.now(), pomoEndTime) - pomoSegmentStart) / 1000));
         }
-
-        function resetPomodoro() {
-            clearInterval(pomoInterval);
-            pomoIsRunning = false;
+        function pomoCommitSegment() {
+            pomoPendingSeconds += pomoSegmentSeconds();
+            pomoSegmentStart = 0;
+        }
+        function updatePomoPendingInfo() {
+            const el = document.getElementById('pomoPendingInfo');
+            if (!el) return;
+            const total = pomoPendingSeconds + pomoSegmentSeconds();
+            el.innerText = total >= 60 ? `Kaydedilecek süre: ${fmtDur(total / 3600)}` : '';
+        }
+        function pomoSetIdleUI(label) {
             const startBtn = document.getElementById('pomoStartBtn');
-            const configArea = document.getElementById('pomoConfigArea');
-            startBtn.innerText = 'Başlat';
+            startBtn.innerText = label;
             startBtn.style.backgroundColor = 'var(--accent-color)';
-            configArea.style.opacity = '1';
+            document.getElementById('pomoConfigArea').style.opacity = '1';
             document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = false);
-
+            document.getElementById('pomoSubject').disabled = false;
+        }
+        function pomoReadInputsSeconds() {
             const h = parseInt(document.getElementById('pomoHours').value) || 0;
             const m = parseInt(document.getElementById('pomoMinutes').value) || 0;
             const s = parseInt(document.getElementById('pomoSeconds').value) || 0;
-            pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
-            updatePomoDisplay();
+            return (h * 3600) + (m * 60) + s;
         }
 
-        document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFromInputs);
+        function togglePomodoro() {
+            const startBtn = document.getElementById('pomoStartBtn');
+
+            if (!pomoIsRunning) {
+                if (pomoTotalSecondsLeft <= 0) {
+                    pomoTotalSecondsLeft = pomoReadInputsSeconds();
+                    if (pomoTotalSecondsLeft <= 0) { alert("Lütfen geçerli bir süre girin!"); return; }
+                }
+                pomoIsRunning = true;
+                pomoSegmentStart = Date.now();
+                pomoEndTime = pomoSegmentStart + pomoTotalSecondsLeft * 1000;
+                startBtn.innerText = 'Durdur';
+                startBtn.style.backgroundColor = '#ef4444';
+                document.getElementById('pomoConfigArea').style.opacity = '0.5';
+                document.querySelectorAll('#pomoConfigArea input').forEach(el => el.disabled = true);
+                document.getElementById('pomoSubject').disabled = true;
+
+                pomoInterval = setInterval(() => {
+                    pomoTotalSecondsLeft = Math.max(0, Math.ceil((pomoEndTime - Date.now()) / 1000));
+                    updatePomoDisplay();
+                    updatePomoPendingInfo();
+                    if (pomoTotalSecondsLeft <= 0) completePomodoro();
+                }, 500);
+            } else {
+                clearInterval(pomoInterval);
+                pomoCommitSegment();
+                pomoIsRunning = false;
+                pomoSetIdleUI('Devam Et');
+                updatePomoDisplay();
+                updatePomoPendingInfo();
+            }
+        }
+
+        function completePomodoro() {
+            clearInterval(pomoInterval);
+            pomoCommitSegment();
+            pomoIsRunning = false;
+            pomoTotalSecondsLeft = 0;
+            const seconds = pomoPendingSeconds;
+            const subject = document.getElementById('pomoSubject').value;
+            pomoPendingSeconds = 0;
+            pomoSetIdleUI('Başlat');
+            updatePomoDisplay();
+            updatePomoPendingInfo();
+            if (seconds >= 60) logStudy(subject, seconds);
+            triggerConfetti();
+            alert(seconds >= 60 ? `Süre bitti! ${fmtDur(seconds / 3600)} ${subject} çalışması kaydedildi.` : 'Süre bitti, tebrikler!');
+        }
+
+        function finishPomodoro() {
+            if (pomoIsRunning) { clearInterval(pomoInterval); pomoCommitSegment(); pomoIsRunning = false; }
+            const seconds = pomoPendingSeconds;
+            if (seconds < 60) { alert('Kaydetmek için en az 1 dakika çalışmış olmalısın.'); if (seconds > 0) { pomoSetIdleUI('Devam Et'); } updatePomoPendingInfo(); return; }
+            const subject = document.getElementById('pomoSubject').value;
+            pomoPendingSeconds = 0;
+            logStudy(subject, seconds);
+            pomoTotalSecondsLeft = pomoReadInputsSeconds();
+            pomoSetIdleUI('Başlat');
+            updatePomoDisplay();
+            updatePomoPendingInfo();
+        }
+
+        function resetPomodoro() {
+            const pending = pomoPendingSeconds + pomoSegmentSeconds();
+            if (pending >= 60 && !confirm(`${fmtDur(pending / 3600)} kaydedilmemiş çalışma var. Kaydetmeden sıfırlansın mı?\n(Kaydetmek için "Bitir ve Kaydet"e bas.)`)) return;
+            clearInterval(pomoInterval);
+            pomoIsRunning = false;
+            pomoPendingSeconds = 0;
+            pomoSegmentStart = 0;
+            pomoSetIdleUI('Başlat');
+            pomoTotalSecondsLeft = pomoReadInputsSeconds();
+            updatePomoDisplay();
+            updatePomoPendingInfo();
+        }
+
+        window.addEventListener('beforeunload', (e) => {
+            if (pomoIsRunning || pomoPendingSeconds >= 60) { e.preventDefault(); e.returnValue = ''; }
+        });
+
+document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFromInputs);
         document.getElementById('pomoMinutes').addEventListener('input', updatePomoTimeFromInputs);
         document.getElementById('pomoSeconds').addEventListener('input', updatePomoTimeFromInputs);
 
