@@ -13,6 +13,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
       import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+      import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBueJUyBtCForsQZcnIqcJ-0jLy5wLMDoQ",
@@ -33,6 +34,28 @@
       window.fsDoc = doc;
       window.fsSetDoc = setDoc;
       window.fsOnSnapshot = onSnapshot;
+
+      // Giriş (Firebase Authentication - Google)
+      const auth = getAuth(app);
+      window.yksSignIn = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (err) {
+          // Açılır pencere engellenirse (bazı mobil tarayıcılar) yönlendirmeyle dene
+          if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
+            await signInWithRedirect(auth, provider);
+            return;
+          }
+          throw err;
+        }
+      };
+      window.yksSignOut = () => signOut(auth);
+      onAuthStateChanged(auth, (user) => {
+        window.dispatchEvent(new CustomEvent('yks-auth', {
+          detail: user ? { uid: user.uid, name: user.displayName || '', email: user.email || '' } : null
+        }));
+      });
     </script>
 
     <style>
@@ -330,15 +353,40 @@
         @keyframes toastIn { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
         @media (max-width: 600px) { .notif-panel { position: fixed; left: 12px; right: 12px; top: 70px; width: auto; } }
         @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+        /* ===== GİRİŞ EKRANI ===== */
+        .auth-gate { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; background-color: var(--bg-color); }
+        .auth-gate.hidden { display: none; }
+        .auth-card { width: 100%; max-width: 400px; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px 28px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.12); }
+        .auth-card h2 { font-size: 24px; font-weight: 800; color: var(--text-color); }
+        .auth-card p { font-size: 14px; line-height: 1.6; color: var(--subtext-color); margin: 10px 0 22px; }
+        .auth-loading { font-size: 13px; color: var(--subtext-color); padding: 8px 0; }
+        .auth-google-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .auth-local-btn { background: none; border: none; color: var(--subtext-color); font-size: 12px; margin-top: 14px; cursor: pointer; text-decoration: underline; }
+        .auth-error { color: var(--danger-color); font-size: 12px; line-height: 1.5; margin-top: 12px; }
     </style>
 </head>
 <body data-theme="light">
+
+    <div class="auth-gate" id="authGate">
+        <div class="auth-card">
+            <h2>YKS Sistemim</h2>
+            <p>Devam etmek için Google hesabınla giriş yap. Verilerin hesabına bağlı saklanır ve cihazlar arasında senkronize olur.</p>
+            <div class="auth-loading" id="authLoading">Oturum kontrol ediliyor…</div>
+            <div id="authActions" style="display:none;">
+                <button class="auth-google-btn" onclick="signInClick()">Google ile giriş yap</button>
+                <button class="auth-local-btn" onclick="continueLocalOnly()">Şimdilik yalnızca bu cihazda kullan</button>
+            </div>
+            <div class="auth-error" id="authError" role="alert"></div>
+        </div>
+    </div>
 
     <div class="container">
         <div class="header">
             <h1>YKS Sistemim</h1>
             <div class="header-right">
                 <span id="cloudSyncStatus" class="sync-badge">Bulut: Bağlanıyor...</span>
+                <button class="btn-icon" id="authBtn" onclick="onAuthButton()" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Giriş yap</button>
                 <div class="notif-wrap">
                     <button class="btn-icon" id="notifBell" onclick="toggleNotifPanel(event)" title="Bildirimler" aria-label="Bildirimler">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
                     <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
@@ -781,78 +829,161 @@
         // ================= FIREBASE CLOUD SYNC ENTEGRASYONU =================
         let isCloudLoading = false;
 
+        // Veriler kullanıcıya özel saklanır: users/{uid}/data/{anahtar}
+        let cloudUid = null;
+        let cloudUnsubs = [];
+        const cloudRegistry = [];   // { key, cb } - giriş yapılınca hepsi abone edilir
+
+        function cloudRef(key) {
+            return (window.db && window.fsDoc && cloudUid) ? window.fsDoc(window.db, 'users', cloudUid, 'data', key) : null;
+        }
+
+        function setSyncBadge(text, color) {
+            const b = document.getElementById('cloudSyncStatus');
+            if (!b) return;
+            b.innerText = text;
+            b.style.color = color || 'var(--accent-color)';
+            b.style.borderColor = color || 'var(--accent-color)';
+        }
+
         function saveToCloudAndLocal(key, data) {
             localStorage.setItem(key, JSON.stringify(data));
+            const ref = cloudRef(key);
+            if (!ref || !window.fsSetDoc || isCloudLoading) return;
 
-            if (window.db && window.fsDoc && window.fsSetDoc && !isCloudLoading) {
-                const statusBadge = document.getElementById('cloudSyncStatus');
-                if(statusBadge) {
-                    statusBadge.innerText = "Bulut: Kaydediliyor...";
-                    statusBadge.style.color = "#f59e0b";
-                    statusBadge.style.borderColor = "#f59e0b";
-                }
-
-                window.fsSetDoc(window.fsDoc(window.db, "yks_sistemim", key), {
-                    payload: data,
-                    updatedAt: new Date().toISOString()
-                }).then(() => {
-                    if(statusBadge) {
-                        statusBadge.innerText = "Bulut: Senkronize";
-                        statusBadge.style.color = "var(--accent-color)";
-                        statusBadge.style.borderColor = "var(--accent-color)";
-                    }
-                }).catch(err => {
-                    console.error("Bulut kayıt hatası:", err);
-                    if(statusBadge) {
-                        statusBadge.innerText = "Bulut: Hata!";
-                        statusBadge.style.color = "#ef4444";
-                        statusBadge.style.borderColor = "#ef4444";
-                    }
+            setSyncBadge('Bulut: Kaydediliyor...', '#f59e0b');
+            window.fsSetDoc(ref, { payload: data, updatedAt: new Date().toISOString() })
+                .then(() => setSyncBadge('Bulut: Senkronize'))
+                .catch(err => {
+                    console.error('Bulut kayıt hatası:', err);
+                    setSyncBadge(err && err.code === 'permission-denied' ? 'Bulut: Yetki yok' : 'Bulut: Hata!', '#ef4444');
                 });
-            }
+        }
+
+        function subscribeCloudKey(key, renderCallback) {
+            const ref = cloudRef(key);
+            if (!ref || !window.fsOnSnapshot) return;
+            const unsub = window.fsOnSnapshot(ref, (docSnap) => {
+                if (docSnap.exists()) {
+                    const cloudData = docSnap.data().payload;
+                    if (cloudData) {
+                        isCloudLoading = true;
+                        localStorage.setItem(key, JSON.stringify(cloudData));
+                        renderCallback(cloudData);
+                        isCloudLoading = false;
+                        setSyncBadge('Bulut: Güncel');
+                    }
+                } else if (!(docSnap.metadata && docSnap.metadata.fromCache)) {
+                    // Bulutta bu hesap için henüz veri yok: bu cihazdaki veriyi ilk kez yükle
+                    const localVal = localStorage.getItem(key);
+                    if (localVal) saveToCloudAndLocal(key, JSON.parse(localVal));
+                }
+            }, (error) => {
+                console.error('Bulut dinleme hatası:', error);
+                setSyncBadge(error && error.code === 'permission-denied' ? 'Bulut: Yetki yok' : 'Bulut: Bağlantı Yok', '#ef4444');
+            });
+            cloudUnsubs.push(unsub);
         }
 
         function initCloudSyncFor(key, renderCallback) {
-            let localVal = localStorage.getItem(key);
-            if (localVal) {
-                renderCallback(JSON.parse(localVal));
-            }
-
-            const checkDbInterval = setInterval(() => {
-                if (window.db && window.fsDoc && window.fsOnSnapshot) {
-                    clearInterval(checkDbInterval);
-                    const statusBadge = document.getElementById('cloudSyncStatus');
-                    if(statusBadge) {
-                        statusBadge.innerText = "Bulut: Bağlandı";
-                    }
-
-                    window.fsOnSnapshot(window.fsDoc(window.db, "yks_sistemim", key), (docSnap) => {
-                        if (docSnap.exists()) {
-                            const cloudData = docSnap.data().payload;
-                            if (cloudData) {
-                                isCloudLoading = true;
-                                localStorage.setItem(key, JSON.stringify(cloudData));
-                                renderCallback(cloudData);
-                                isCloudLoading = false;
-                                
-                                if(statusBadge) {
-                                    statusBadge.innerText = "Bulut: Güncel";
-                                    statusBadge.style.color = "var(--accent-color)";
-                                    statusBadge.style.borderColor = "var(--accent-color)";
-                                }
-                            }
-                        }
-                    }, (error) => {
-                        console.error("Bulut dinleme hatası:", error);
-                        if(statusBadge) {
-                            statusBadge.innerText = "Bulut: Bağlantı Yok";
-                            statusBadge.style.color = "#ef4444";
-                            statusBadge.style.borderColor = "#ef4444";
-                        }
-                    });
-                }
-            }, 500);
+            const localVal = localStorage.getItem(key);
+            if (localVal) renderCallback(JSON.parse(localVal));
+            cloudRegistry.push({ key: key, cb: renderCallback });
+            if (cloudUid) subscribeCloudKey(key, renderCallback);
         }
+
+        function stopCloudSync() {
+            cloudUnsubs.forEach(u => { try { u(); } catch (e) {} });
+            cloudUnsubs = [];
+            cloudUid = null;
+        }
+
+        function startCloudSync(uid) {
+            stopCloudSync();
+            cloudUid = uid;
+            setSyncBadge('Bulut: Bağlandı');
+            cloudRegistry.forEach(r => subscribeCloudKey(r.key, r.cb));
+        }
+
+        /* ================= GİRİŞ (Firebase Authentication) ================= */
+        let currentUser = null;
+        let authPending = true;
+
+        function wipeLocalData() {
+            Object.keys(localStorage).filter(k => k.indexOf('yks_') === 0 && k !== 'yks_theme').forEach(k => localStorage.removeItem(k));
+        }
+        function showAuthActions() {
+            document.getElementById('authLoading').style.display = 'none';
+            document.getElementById('authActions').style.display = 'block';
+        }
+        function updateAuthButton() {
+            const b = document.getElementById('authBtn');
+            if (!b) return;
+            if (currentUser) {
+                const label = (currentUser.name || currentUser.email || 'Hesap').split(' ')[0];
+                b.innerText = label; b.title = `${currentUser.email} · çıkış yapmak için tıkla`;
+            } else { b.innerText = 'Giriş yap'; b.title = 'Google ile giriş yap'; }
+        }
+        function authErrorText(err) {
+            const code = err && err.code;
+            if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return '';
+            if (code === 'auth/unauthorized-domain') return 'Bu sitenin alan adı Firebase\'de yetkili değil. Firebase konsolu → Authentication → Settings → Authorized domains bölümüne ekle.';
+            if (code === 'auth/operation-not-allowed') return 'Google girişi Firebase\'de açık değil. Authentication → Sign-in method bölümünden Google\'ı etkinleştir.';
+            if (code === 'auth/network-request-failed') return 'Bağlantı hatası. İnternetini kontrol edip tekrar dene.';
+            return `Giriş yapılamadı${code ? ' (' + code + ')' : ''}. Tekrar dene.`;
+        }
+        async function signInClick() {
+            const errEl = document.getElementById('authError');
+            errEl.innerText = '';
+            if (location.protocol === 'file:') { errEl.innerText = 'Giriş yalnızca https adresinde çalışır. GitHub\'a yüklediğin adreste dene.'; return; }
+            if (!window.yksSignIn) { errEl.innerText = 'Firebase yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.'; return; }
+            try { await window.yksSignIn(); } catch (err) { errEl.innerText = authErrorText(err); }
+        }
+        function continueLocalOnly() {
+            document.getElementById('authGate').classList.add('hidden');
+            setSyncBadge('Bulut: Giriş yok', 'var(--subtext-color)');
+        }
+        async function onAuthButton() {
+            if (!currentUser) {
+                document.getElementById('authGate').classList.remove('hidden');
+                showAuthActions();
+                return;
+            }
+            if (!confirm(`${currentUser.email} hesabından çıkış yapılsın mı?\n\nVerilerin hesabında durur. Bu cihazdaki kopya silinir; tekrar giriş yapınca geri gelir.`)) return;
+            try { await window.yksSignOut(); } catch (e) { console.error(e); }
+            wipeLocalData();
+            location.reload();
+        }
+
+        window.addEventListener('yks-auth', (e) => {
+            authPending = false;
+            const user = e.detail;
+            if (!user) {
+                currentUser = null;
+                stopCloudSync();
+                setSyncBadge('Bulut: Giriş yok', 'var(--subtext-color)');
+                document.getElementById('authGate').classList.remove('hidden');
+                showAuthActions();
+                updateAuthButton();
+                return;
+            }
+            // Bu cihazda başka bir hesabın verisi varsa temizle (hesaplar birbirinin verisini görmesin)
+            const storedUid = localStorage.getItem('yks_uid');
+            if (storedUid && storedUid !== user.uid) {
+                wipeLocalData();
+                localStorage.setItem('yks_uid', user.uid);
+                location.reload();
+                return;
+            }
+            localStorage.setItem('yks_uid', user.uid);
+            currentUser = user;
+            document.getElementById('authGate').classList.add('hidden');
+            document.getElementById('authError').innerText = '';
+            updateAuthButton();
+            startCloudSync(user.uid);
+        });
+        // Firebase yüklenemezse (çevrimdışı vb.) giriş seçenekleri yine de görünsün
+        setTimeout(() => { if (authPending) showAuthActions(); }, 8000);
 
         // ================= TEMEL UYGULAMA MANTIĞI =================
         const savedTheme = localStorage.getItem('yks_theme') || 'light';
@@ -886,6 +1017,7 @@
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
             initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); });
+            initCloudSyncFor('yks_target_goal', (data) => { const el = document.getElementById('targetGoal'); if (el && typeof data === 'string' && document.activeElement !== el) el.value = data; });
             
             updatePomoDisplay();
         });
@@ -1025,8 +1157,9 @@
             // Firestore'a son tuştan 1.5 saniye sonra kaydet (render tetiklenmez çünkü isCloudLoading bayrağı var)
             clearTimeout(_dayNoteTimers[dateStr]);
             _dayNoteTimers[dateStr] = setTimeout(() => {
-                if (window.db && window.fsDoc && window.fsSetDoc) {
-                    window.fsSetDoc(window.fsDoc(window.db, 'yks_sistemim', 'yks_day_notes'), {
+                const noteRef = cloudRef('yks_day_notes');
+                if (noteRef && window.fsSetDoc) {
+                    window.fsSetDoc(noteRef, {
                         payload: dayNotesData,
                         updatedAt: new Date().toISOString()
                     }).catch(err => console.error('Not bulut kayıt hatası:', err));
