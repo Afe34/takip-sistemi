@@ -409,6 +409,37 @@
         .subject-bar-label span:last-child { color: var(--subtext-color); }
         .subject-bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background-color: var(--border-color); }
         .img-loading { min-height: 120px; background-color: var(--input-bg); }
+
+        /* ===== YAPAY ZEKÂ ANALİZİ ===== */
+        .ai-modal { display: none; position: fixed; inset: 0; z-index: 150; background-color: rgba(0,0,0,0.55); align-items: center; justify-content: center; padding: 16px; }
+        .ai-modal.open { display: flex; }
+        .ai-panel { background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 16px 50px rgba(0,0,0,0.35); }
+        .ai-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 14px; }
+        .ai-head > div:first-child { flex: 1; min-width: 0; }
+        .ai-title { font-weight: 800; font-size: 16px; color: var(--text-color); }
+        .ai-sub { font-size: 12px; color: var(--subtext-color); margin-top: 2px; }
+        .ai-panel label { display: block; font-size: 12px; font-weight: 700; color: var(--subtext-color); margin: 12px 0 6px; }
+        .ai-panel textarea, .ai-panel input[type="password"], .ai-panel input[type="text"], .ai-panel select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 14px; outline: none; font-family: inherit; }
+        .ai-panel textarea { resize: vertical; }
+        .ai-panel textarea:focus, .ai-panel input:focus, .ai-panel select:focus { border-color: var(--accent-color); }
+        .ai-note, .ai-hint { font-size: 12px; color: var(--subtext-color); line-height: 1.6; margin: 8px 0; }
+        .ai-panel .auth-google-btn { margin-top: 14px; }
+        .ai-steps { font-size: 13px; color: var(--text-color); line-height: 1.7; padding-left: 18px; margin: 8px 0; }
+        .ai-steps a { color: var(--accent-color); }
+        .ai-error { color: var(--danger-color); font-size: 13px; line-height: 1.6; margin: 10px 0; }
+        .ai-error small { display: block; color: var(--subtext-color); margin-top: 4px; word-break: break-word; }
+        .ai-result h4 { font-size: 14px; margin: 16px 0 6px; color: var(--accent-color); }
+        .ai-result h4:first-child { margin-top: 0; }
+        .ai-result p, .ai-result li { font-size: 13px; line-height: 1.7; color: var(--text-color); }
+        .ai-result ol, .ai-result ul { padding-left: 20px; margin: 4px 0; }
+        .ai-result code { background-color: var(--input-bg); border-radius: 4px; padding: 1px 5px; }
+        .ai-topics { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 16px; font-size: 12px; color: var(--subtext-color); }
+        .ai-meta { font-size: 11px; color: var(--subtext-color); margin-top: 14px; }
+        .ai-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .ai-loading { display: flex; align-items: center; gap: 12px; padding: 28px 4px; font-size: 13px; color: var(--subtext-color); }
+        .ai-spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--border-color); border-top-color: var(--accent-color); animation: aiSpin 0.9s linear infinite; flex-shrink: 0; }
+        @keyframes aiSpin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .ai-spinner { animation-duration: 3s; } }
     </style>
 </head>
 <body data-theme="light">
@@ -866,6 +897,17 @@
 
     </div>
 
+    <div class="ai-modal" id="aiModal" onclick="if(event.target === this) closeAiModal()">
+        <div class="ai-panel" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+            <div class="ai-head">
+                <div><div class="ai-title" id="aiTitle"></div><div class="ai-sub" id="aiSub">Yapay zekâ ile çözüm ve hata analizi</div></div>
+                <button class="btn-icon" onclick="renderAiSetup()" title="Yapay zekâ ayarları" aria-label="Yapay zekâ ayarları">⚙️</button>
+                <button class="btn-icon" onclick="closeAiModal()" title="Kapat" aria-label="Kapat">✕</button>
+            </div>
+            <div id="aiBody"></div>
+        </div>
+    </div>
+
     <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
     <!-- Fotoğraf Büyütme Modalı -->
@@ -1123,6 +1165,11 @@
             let moved = 0, failed = 0;
             try {
                 for (const item of job.list().slice()) {
+                    if (job.kind === 'err' && item.ai && typeof item.ai === 'object') {
+                        if (uid !== cloudUid) return;
+                        try { await putAiDoc(item.id, item.ai); delete item.ai; item.hasAi = true; moved++; }
+                        catch (e) { failed++; console.error('Analiz taşınamadı:', e); }
+                    }
                     if (typeof item.image !== 'string' || item.image.indexOf('data:') !== 0) continue;
                     if (uid !== cloudUid) return;
                     try {
@@ -1131,8 +1178,8 @@
                     } catch (e) { failed++; console.error('Fotoğraf taşınamadı:', e); }
                 }
                 if (uid === cloudUid && (moved || forceSave)) { job.save(); job.render(); }
-                if (moved) showToast({ title: 'Fotoğraflar ayrı depoya taşındı', body: `${moved} fotoğraf taşındı, kayıt boyutu küçüldü.` });
-                if (failed) showToast({ title: 'Bazı fotoğraflar taşınamadı', body: `${failed} fotoğraf bir sonraki senkronda tekrar denenecek.` });
+                if (moved) showToast({ title: 'Fotoğraflar ve analizler ayrı depoya taşındı', body: `${moved} öğe taşındı, kayıt boyutu küçüldü.` });
+                if (failed) showToast({ title: 'Bazı öğeler taşınamadı', body: `${failed} öğe bir sonraki senkronda tekrar denenecek.` });
             } finally { imgMigrating[key] = false; }
         }
 
@@ -1954,6 +2001,7 @@
                 const gone = errorData.find(e => e.id === id);
                 errorData = errorData.filter(e => e.id !== id); saveErrorData(); renderErrorLog();
                 if (gone && gone.hasImage) deleteImageDoc('err', id);
+                if (gone && gone.hasAi) deleteAiDoc(id);
             }
         }
 
@@ -2021,7 +2069,7 @@
                         ${item.reason ? `<div style="font-size: 13px; color: var(--subtext-color);">${escapeHtml(item.reason)}</div>` : ''}
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                             <label class="stage-label"><input type="checkbox" ${item.resolved ? 'checked' : ''} onchange="toggleErrorResolved(${item.id})"> Çözüldü</label>
-                            <div style="display:flex; gap:6px; align-items:center;">${errorSpacedBtn(item, st)}<button class="delete-btn" onclick="deleteErrorItem(${item.id})">Sil</button></div>
+                            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">${aiBtn(item)}${errorSpacedBtn(item, st)}<button class="delete-btn" onclick="deleteErrorItem(${item.id})">Sil</button></div>
                         </div>
                     </div>`;
             });
@@ -3047,6 +3095,298 @@
                     <div class="subject-bar"><div style="width:${dp}%; background:var(--accent-color);"></div><div style="width:${wp}%; background:var(--danger-color);"></div></div>
                 </div>`;
             }).join('') : '<div class="empty-text">Doğru/yanlış girilmiş bir deneme eklediğinde ders bazında analiz burada görünür.</div>';
+        }
+
+        /* ================= YAPAY ZEKÂ: HATA ANALİZİ (Claude API) ================= */
+        // API anahtarı yalnızca bu tarayıcının localStorage'ında durur (buluta gitmez, çıkışta silinir).
+        const AI_MODELS = [
+            { id: 'claude-sonnet-5-5', label: 'Sonnet 5.5 · dengeli (önerilen)' },
+            { id: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5 · hızlı ve ucuz' },
+            { id: 'claude-opus-5-5', label: 'Opus 5.5 · en güçlü, daha pahalı' }
+        ];
+        const AI_SYSTEM = [
+            'Sen deneyimli bir YKS (TYT/AYT) öğretmenisin. Öğrenci hata defterine bir soru kaydetti; soruyu çözmesine ve neden hata yaptığını anlamasına yardım et.',
+            '',
+            'Kurallar:',
+            '- Türkçe yaz, sade ve kısa cümleler kullan. LaTeX kullanma; formülleri düz metin ve Unicode ile yaz (x², √, ∫, ≤).',
+            '- Soru fotoğrafı okunmuyorsa ya da soru eksikse bunu açıkça söyle ve tahmin yürütme. Emin olmadığın yeri belirt, sonucu uydurma.',
+            '- Öğrencinin neden yanlış yaptığını yalnızca ona söylediği bilgilerden çıkar. Bilgi yoksa "olası nedenler" başlığında bunların varsayım olduğunu belirt.',
+            '- Şu başlıkları aynen ve bu sırayla kullan:',
+            '## Soru',
+            '## Adım adım çözüm',
+            '## Olası hata nedeni',
+            '## Bir dahaki sefere',
+            '## Tekrar edilecek konular',
+            '- "Adım adım çözüm" altında numaralı adımlar yaz ve son satırda cevabı belirt.',
+            '- "Tekrar edilecek konular" altında en fazla 4 madde ver, her madde yalnızca konu adı olsun.',
+            '- Toplam en fazla yaklaşık 350 kelime yaz.'
+        ].join('\n');
+        let aiCurrentId = null;
+        let aiBusy = false;
+        const aiCache = {};
+
+        function getAiKey() { return localStorage.getItem('yks_ai_key') || ''; }
+        function getAiModel() {
+            const m = localStorage.getItem('yks_ai_model');
+            return AI_MODELS.some(x => x.id === m) ? m : AI_MODELS[0].id;
+        }
+        function aiModelLabel(id) { const m = AI_MODELS.find(x => x.id === id); return m ? m.label.split(' · ')[0] : id; }
+
+        /* --- Kayıtlı analizler: users/{uid}/ai/err_{id} --- */
+        function aiDocRef(id) {
+            return (window.db && window.fsDoc && cloudUid) ? window.fsDoc(window.db, 'users', cloudUid, 'ai', 'err_' + id) : null;
+        }
+        async function putAiDoc(id, obj) {
+            const ref = aiDocRef(id);
+            if (!ref || !window.fsSetDoc) throw new Error('bulut bağlantısı yok');
+            await window.fsSetDoc(ref, obj);
+            aiCache[id] = obj;
+        }
+        async function getAiDoc(id) {
+            if (aiCache[id]) return aiCache[id];
+            const ref = aiDocRef(id);
+            if (!ref || !window.fsGetDoc) return null;
+            try {
+                const snap = await window.fsGetDoc(ref);
+                if (snap.exists()) { aiCache[id] = snap.data(); return aiCache[id]; }
+            } catch (e) { console.error('Analiz okunamadı:', e); }
+            return null;
+        }
+        async function deleteAiDoc(id) {
+            delete aiCache[id];
+            const ref = aiDocRef(id);
+            if (ref && window.fsDeleteDoc) { try { await window.fsDeleteDoc(ref); } catch (e) { console.error('Analiz silinemedi:', e); } }
+        }
+        function aiBtn(item) {
+            const saved = item.ai || item.hasAi;
+            return `<button class="link-btn" onclick="openAiAnalysis(${item.id})">🤖 ${saved ? 'Analizi aç' : 'AI analizi'}</button>`;
+        }
+
+        /* --- Küçük ve güvenli markdown çevirici --- */
+        function renderMiniMarkdown(text) {
+            const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
+            let html = '', list = null;
+            const close = () => { if (list) { html += '</' + list + '>'; list = null; } };
+            escapeHtml(text).split('\n').forEach(raw => {
+                const line = raw.trimEnd();
+                let m;
+                if ((m = line.match(/^#{1,4}\s+(.*)$/))) { close(); html += '<h4>' + inline(m[1]) + '</h4>'; }
+                else if ((m = line.match(/^\s*\d+[.)]\s+(.*)$/))) { if (list !== 'ol') { close(); html += '<ol>'; list = 'ol'; } html += '<li>' + inline(m[1]) + '</li>'; }
+                else if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) { if (list !== 'ul') { close(); html += '<ul>'; list = 'ul'; } html += '<li>' + inline(m[1]) + '</li>'; }
+                else if (!line.trim()) { close(); }
+                else { close(); html += '<p>' + inline(line) + '</p>'; }
+            });
+            close();
+            return html;
+        }
+        function extractAiTopics(text) {
+            const idx = text.search(/^#{1,4}\s*Tekrar edilecek konular/mi);
+            if (idx < 0) return [];
+            const out = [];
+            for (const l of text.slice(idx).split('\n').slice(1)) {
+                if (/^#{1,4}\s/.test(l)) break;
+                const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+                if (m) {
+                    let t = m[1].replace(/\*\*/g, '').trim();
+                    const head = t.split(/\s*[:：–—]\s*/)[0].trim();
+                    if (head.length >= 3) t = head;
+                    if (t) out.push(t);
+                }
+            }
+            return out.slice(0, 4);
+        }
+
+        /* --- Pencere durumları --- */
+        function aiBody(html) { document.getElementById('aiBody').innerHTML = html; }
+        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAiModal(); });
+
+        async function openAiAnalysis(id) {
+            const item = errorData.find(e => e.id === id);
+            if (!item) return;
+            aiCurrentId = id;
+            document.getElementById('aiTitle').innerText = `${item.subject} · ${item.topic}`;
+            document.getElementById('aiModal').classList.add('open');
+            if (!getAiKey()) { renderAiSetup(); return; }
+            const saved = item.ai || (item.hasAi ? await getAiDoc(id) : null);
+            if (aiCurrentId !== id) return;
+            if (saved) renderAiResult(item, saved); else renderAiReady(item);
+        }
+
+        function renderAiSetup() {
+            const hasKey = !!getAiKey();
+            const cur = getAiModel();
+            aiBody(`
+                <p class="ai-note" style="margin-top:0;">Bu özellik Claude'u kullanır ve kendi API anahtarını gerektirir. Anahtar yalnızca bu tarayıcıda saklanır, buluta gönderilmez ve çıkış yapınca silinir.</p>
+                <ol class="ai-steps">
+                    <li><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> adresinde hesap aç ve Plans &amp; Billing bölümünden kredi yükle (API kullanımı ön ödemeli krediyle çalışır).</li>
+                    <li>Settings → API keys bölümünde <b>Create Key</b>'e bas ve anahtarı kopyala. Anahtar yalnızca bir kez gösterilir.</li>
+                    <li>Aşağıya yapıştır ve kaydet.</li>
+                </ol>
+                <label for="aiKeyInput">API anahtarı</label>
+                <input type="password" id="aiKeyInput" autocomplete="off" spellcheck="false" placeholder="${hasKey ? 'Kayıtlı anahtar var, değiştirmek için yenisini yapıştır' : 'sk-ant-...'}">
+                <label for="aiModelSelect">Model</label>
+                <select id="aiModelSelect">${AI_MODELS.map(m => `<option value="${m.id}" ${m.id === cur ? 'selected' : ''}>${m.label}</option>`).join('')}</select>
+                <div class="ai-error" id="aiSetupError" role="alert"></div>
+                <button class="auth-google-btn" onclick="saveAiSettings()">Kaydet</button>
+                ${hasKey ? '<div class="ai-actions"><button class="link-btn" onclick="removeAiKey()">Anahtarı sil</button></div>' : ''}
+                <p class="ai-hint">Bu cihazı başkalarıyla paylaşıyorsan anahtarı girme. Soru fotoğrafların ve notların analiz sırasında Anthropic API'sine gönderilir.</p>
+            `);
+        }
+        function saveAiSettings() {
+            const err = document.getElementById('aiSetupError');
+            const key = document.getElementById('aiKeyInput').value.trim();
+            if (key) {
+                if (key.indexOf('sk-ant-') !== 0) { err.innerText = 'Anahtar "sk-ant-" ile başlamalı. Doğru yerden kopyaladığından emin ol.'; return; }
+                localStorage.setItem('yks_ai_key', key);
+            } else if (!getAiKey()) { err.innerText = 'Lütfen API anahtarını yapıştır.'; return; }
+            localStorage.setItem('yks_ai_model', document.getElementById('aiModelSelect').value);
+            if (aiCurrentId) openAiAnalysis(aiCurrentId);
+        }
+        function removeAiKey() {
+            if (!confirm('API anahtarı bu tarayıcıdan silinsin mi?')) return;
+            localStorage.removeItem('yks_ai_key');
+            renderAiSetup();
+        }
+
+        function renderAiReady(item) {
+            const hasPhoto = !!(item.image || item.hasImage);
+            aiBody(`
+                <div class="ai-note" style="margin-top:0;">${hasPhoto ? '📷 Soru fotoğrafı analize gönderilecek.' : '⚠️ Bu kayıtta fotoğraf yok. Soruyu aşağıya yazarsan analiz çok daha doğru olur.'}</div>
+                ${item.reason ? `<div class="ai-note">Kart notun da eklenecek: “${escapeHtml(item.reason)}”</div>` : ''}
+                <label for="aiExtra">${hasPhoto ? 'Ek bilgi (isteğe bağlı)' : 'Soru ve ek bilgi'}</label>
+                <textarea id="aiExtra" rows="4" placeholder="Örn: Doğru cevap C'ymiş, ben B işaretledim. Türev alırken zincir kuralını unuttum."></textarea>
+                <button class="auth-google-btn" onclick="runAiAnalysis()">Analiz et</button>
+                <p class="ai-hint">Model: ${escapeHtml(aiModelLabel(getAiModel()))} · yaklaşık 20–40 saniye sürer.</p>
+            `);
+        }
+        function aiReanalyze() {
+            const item = errorData.find(e => e.id === aiCurrentId);
+            if (item) renderAiReady(item);
+        }
+
+        function renderAiResult(item, result) {
+            const topics = extractAiTopics(result.text);
+            const when = result.date ? new Date(result.date).toLocaleDateString('tr-TR') : '';
+            aiBody(`
+                <div class="ai-result">${renderMiniMarkdown(result.text)}</div>
+                ${topics.length ? `<div class="ai-topics"><span>Tekrara ekle:</span>${topics.map(t => `<button class="link-btn" ${attrs(item.subject, t)} onclick="topicAction(this, 'spaced')">🧠 ${escapeHtml(t)}</button>`).join('')}</div>` : ''}
+                <div class="ai-meta">${escapeHtml(aiModelLabel(result.model || ''))}${when ? ' · ' + when : ''}</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="aiReanalyze()">Yeniden analiz et</button>
+                    <button class="link-btn" onclick="deleteAiAnalysis()">Analizi sil</button>
+                </div>
+                <p class="ai-hint">Yapay zekâ hata yapabilir. Özellikle işlemleri ve sonucu kendi çözümünle karşılaştır.</p>
+            `);
+        }
+        function renderAiLoading() {
+            aiBody('<div class="ai-loading"><div class="ai-spinner"></div><div>Soru inceleniyor… Bu yaklaşık 20–40 saniye sürer.</div></div>');
+        }
+        function aiErrorText(err) {
+            if (err && err.name === 'AbortError') return 'İstek zaman aşımına uğradı. Tekrar dene.';
+            if (err instanceof TypeError) return 'Yapay zekâ servisine bağlanılamadı. İnternet bağlantını kontrol edip tekrar dene.';
+            const s = err && err.status, msg = (err && err.message) || '';
+            if (s === 401) return 'API anahtarı geçersiz ya da silinmiş. ⚙️ ayarlarından yenisini gir.';
+            if (s === 402 || /credit balance|billing/i.test(msg)) return 'Hesabında yeterli kredi yok. console.anthropic.com → Plans & Billing bölümünden kredi yükle.';
+            if (s === 403) return 'Bu anahtarın erişim izni yok. Başka bir anahtar dene.';
+            if (s === 404) return 'Seçili model bulunamadı. ⚙️ ayarlarından başka bir model seç.';
+            if (s === 413) return 'Fotoğraf çok büyük. Daha küçük bir fotoğrafla dene.';
+            if (s === 429) return 'Çok fazla istek gönderildi. Biraz bekleyip tekrar dene.';
+            if (s >= 500) return 'Servis şu an yoğun. Biraz sonra tekrar dene.';
+            return 'Analiz yapılamadı.';
+        }
+        function renderAiError(item, err) {
+            console.error('AI hatası:', err);
+            aiBody(`
+                <div class="ai-error">${escapeHtml(aiErrorText(err))}${err && err.message ? `<small>${escapeHtml(err.message)}</small>` : ''}</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="aiReanalyze()">Tekrar dene</button>
+                    <button class="link-btn" onclick="renderAiSetup()">⚙️ Ayarlar</button>
+                </div>
+            `);
+        }
+
+        async function callClaude(model, system, content) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 120000);
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    signal: ctrl.signal,
+                    headers: {
+                        'content-type': 'application/json',
+                        'x-api-key': getAiKey(),
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({ model: model, max_tokens: 1800, system: system, messages: [{ role: 'user', content: content }] })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    const err = new Error((data.error && data.error.message) || ('HTTP ' + res.status));
+                    err.status = res.status;
+                    throw err;
+                }
+                return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+            } finally { clearTimeout(timer); }
+        }
+
+        function buildAiPrompt(item, extra, usedPhoto) {
+            const lines = [`Ders: ${item.subject}`, `Konu: ${item.topic}`];
+            lines.push(`Öğrencinin kart notu: ${item.reason ? item.reason : 'yok'}`);
+            lines.push(`Öğrencinin ek bilgisi: ${extra ? extra : 'yok'}`);
+            lines.push(usedPhoto ? 'Soru fotoğrafı ektedir.' : 'Soru fotoğrafı yok; yalnızca yukarıdaki bilgilerden yararlan ve soru eksikse bunu belirt.');
+            return lines.join('\n');
+        }
+
+        async function saveAiResult(item, result) {
+            if (cloudUid) {
+                try { await putAiDoc(item.id, result); delete item.ai; item.hasAi = true; }
+                catch (e) { console.error('Analiz kaydedilemedi:', e); item.ai = result; }
+            } else { item.ai = result; }
+            saveErrorData();
+            renderErrorLog();
+        }
+
+        async function runAiAnalysis() {
+            if (aiBusy) return;
+            const id = aiCurrentId;
+            const item = errorData.find(e => e.id === id);
+            if (!item) return;
+            const extraEl = document.getElementById('aiExtra');
+            const extra = extraEl ? extraEl.value.trim() : '';
+            aiBusy = true;
+            renderAiLoading();
+            try {
+                const content = [];
+                let usedPhoto = false;
+                if (item.image || item.hasImage) {
+                    const dataUrl = item.image || await getImageData('err_' + id);
+                    if (dataUrl && dataUrl.indexOf('data:image/') === 0 && dataUrl.indexOf(';base64,') > 0) {
+                        content.push({ type: 'image', source: { type: 'base64', media_type: dataUrl.slice(5, dataUrl.indexOf(';')), data: dataUrl.slice(dataUrl.indexOf(',') + 1) } });
+                        usedPhoto = true;
+                    }
+                }
+                content.push({ type: 'text', text: buildAiPrompt(item, extra, usedPhoto) });
+                const model = getAiModel();
+                const text = await callClaude(model, AI_SYSTEM, content);
+                if (!text) throw new Error('Boş yanıt alındı');
+                const result = { text: text, model: model, date: new Date().toISOString() };
+                await saveAiResult(item, result);
+                if (aiCurrentId === id) renderAiResult(item, result);
+            } catch (err) {
+                if (aiCurrentId === id) renderAiError(item, err);
+            } finally { aiBusy = false; }
+        }
+
+        async function deleteAiAnalysis() {
+            const id = aiCurrentId;
+            const item = errorData.find(e => e.id === id);
+            if (!item || !confirm('Kayıtlı analiz silinsin mi?')) return;
+            await deleteAiDoc(id);
+            delete item.ai; item.hasAi = false;
+            saveErrorData(); renderErrorLog();
+            if (aiCurrentId === id) renderAiReady(item);
         }
 
         /* ================= BİLDİRİMLER ================= */
