@@ -440,6 +440,34 @@
         .ai-spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--border-color); border-top-color: var(--accent-color); animation: aiSpin 0.9s linear infinite; flex-shrink: 0; }
         @keyframes aiSpin { to { transform: rotate(360deg); } }
         @media (prefers-reduced-motion: reduce) { .ai-spinner { animation-duration: 3s; } }
+
+        /* ===== DOKUNMATİK EKRAN: GÖREVLERİ GÜNLERE DAĞITMA ===== */
+        .draggable-task { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .draggable-task.touch-dragging { opacity: 0.35; }
+        .touch-ghost { position: fixed; z-index: 400; pointer-events: none; margin: 0; transform: scale(1.03) rotate(1deg); box-shadow: 0 12px 30px rgba(0,0,0,0.35); opacity: 0.96; }
+        body.touch-drag-active .drop-zone { outline: 2px dashed var(--border-color); outline-offset: -4px; }
+        body.touch-drag-active .drop-zone.drag-over { outline-color: var(--accent-color); }
+        .task-actions { gap: 6px; }
+        .move-btn { background: none; border: none; color: var(--accent-color); cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 8px; border-radius: 4px; }
+        .move-btn:hover { background-color: var(--input-bg); }
+        .pool-hint { display: none; font-size: 12px; color: var(--subtext-color); line-height: 1.5; margin-bottom: 10px; }
+        @media (pointer: coarse) { .pool-hint { display: block; } .draggable-task:hover { transform: none; } .move-btn { padding: 8px 10px; } .delete-btn { padding: 8px 10px; } }
+        .move-sheet-backdrop { display: none; position: fixed; inset: 0; z-index: 160; background-color: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; }
+        .move-sheet-backdrop.open { display: flex; }
+        .move-sheet { width: 100%; max-width: 560px; max-height: 85vh; overflow-y: auto; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 16px 16px 0 0; padding: 18px; box-shadow: 0 -8px 40px rgba(0,0,0,0.3); }
+        @media (min-width: 700px) { .move-sheet-backdrop { align-items: center; padding: 16px; } .move-sheet { border-radius: 16px; } }
+        .move-sheet-head { display: flex; align-items: flex-start; gap: 8px; }
+        .move-sheet-head > div:first-child { flex: 1; min-width: 0; }
+        .move-sheet-title { font-weight: 800; font-size: 16px; color: var(--text-color); }
+        .move-sheet-task { font-size: 13px; color: var(--subtext-color); margin-top: 4px; word-break: break-word; }
+        .move-days { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+        .move-day-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 52px; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 14px; font-weight: 700; text-align: left; cursor: pointer; }
+        .move-day-btn small { font-weight: 400; font-size: 11px; color: var(--subtext-color); }
+        .move-day-btn:hover { border-color: var(--accent-color); }
+        .move-day-btn.today { border-color: var(--accent-color); }
+        .move-day-btn.current { opacity: 0.45; cursor: default; }
+        .move-pool-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 10px; border: 1px dashed var(--border-color); background: none; color: var(--text-color); font-size: 14px; font-weight: 600; cursor: pointer; }
+        .move-pool-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
     </style>
 </head>
 <body data-theme="light">
@@ -517,6 +545,7 @@
             <div class="drag-planner-container">
                 <div class="task-pool-sidebar">
                     <div class="sidebar-title">Haftalık Görev Havuzu <span id="poolCount">0</span></div>
+                    <div class="pool-hint">Dokunmatik ekranda bir görevi yaklaşık 0,3 saniye basılı tutup günlere sürükleyebilir ya da görevdeki <b>📅 Taşı</b> düğmesini kullanabilirsin.</div>
                     
                     <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
                         <select id="poolSubject" style="padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 14px; outline: none;">
@@ -536,7 +565,7 @@
                         </div>
                     </div>
 
-                    <div class="drop-zone pool-zone" id="zone-pool" ondrop="drop(event, 'pool')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                    <div class="drop-zone pool-zone" id="zone-pool" data-zone="pool" ondrop="drop(event, 'pool')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 </div>
                 <div class="week-grid" id="weekGrid"></div>
             </div>
@@ -905,6 +934,16 @@
                 <button class="btn-icon" onclick="closeAiModal()" title="Kapat" aria-label="Kapat">✕</button>
             </div>
             <div id="aiBody"></div>
+        </div>
+    </div>
+
+    <div class="move-sheet-backdrop" id="moveSheet" onclick="if(event.target === this) closeMoveSheet()">
+        <div class="move-sheet" role="dialog" aria-modal="true" aria-labelledby="moveSheetTitle">
+            <div class="move-sheet-head">
+                <div><div class="move-sheet-title" id="moveSheetTitle">Görevi taşı</div><div class="move-sheet-task" id="moveSheetTask"></div></div>
+                <button class="btn-icon" onclick="closeMoveSheet()" title="Kapat" aria-label="Kapat">✕</button>
+            </div>
+            <div id="moveSheetBody"></div>
         </div>
     </div>
 
@@ -1452,37 +1491,42 @@
         function drop(ev, targetZone) {
             ev.preventDefault();
             document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drag-over'));
-            const taskId = ev.dataTransfer.getData("taskId"); const sourceZone = ev.dataTransfer.getData("source");
-            if(sourceZone === targetZone) return; 
+            moveTaskTo(ev.dataTransfer.getData("taskId"), ev.dataTransfer.getData("source"), targetZone);
+        }
+
+        function moveTaskTo(taskId, sourceZone, targetZone) {
+            if (sourceZone === targetZone) return false;
             let taskToMove = null; const weekKey = formatDateString(currentWeekStart);
 
-            if(sourceZone === 'pool') {
-                if(plannerData.pool[weekKey]) {
+            if (sourceZone === 'pool') {
+                if (plannerData.pool[weekKey]) {
                     const idx = plannerData.pool[weekKey].findIndex(t => t.id == taskId);
-                    if(idx > -1) taskToMove = plannerData.pool[weekKey].splice(idx, 1)[0];
+                    if (idx > -1) taskToMove = plannerData.pool[weekKey].splice(idx, 1)[0];
                 }
             } else {
-                if(plannerData.days[sourceZone]) {
+                if (plannerData.days[sourceZone]) {
                     const idx = plannerData.days[sourceZone].findIndex(t => t.id == taskId);
-                    if(idx > -1) taskToMove = plannerData.days[sourceZone].splice(idx, 1)[0];
+                    if (idx > -1) taskToMove = plannerData.days[sourceZone].splice(idx, 1)[0];
                 }
             }
-            if(!taskToMove) return;
+            if (!taskToMove) return false;
 
-            if(targetZone === 'pool') {
-                if(!plannerData.pool[weekKey]) plannerData.pool[weekKey] = [];
+            if (targetZone === 'pool') {
+                if (!plannerData.pool[weekKey]) plannerData.pool[weekKey] = [];
                 plannerData.pool[weekKey].push(taskToMove);
             } else {
-                if(!plannerData.days[targetZone]) plannerData.days[targetZone] = [];
+                if (!plannerData.days[targetZone]) plannerData.days[targetZone] = [];
                 plannerData.days[targetZone].push(taskToMove);
             }
             savePlanner(); renderPlanner();
+            return true;
         }
 
         function createTaskElement(task, sourceStr) {
             const sc = getSubjectColor(task.subject);
             return `
                 <div class="draggable-task ${task.completed ? 'completed' : ''}" draggable="true"
+                     data-task-id="${task.id}" data-source="${sourceStr}"
                      ondragstart="drag(event, ${task.id}, '${sourceStr}')"
                      style="border-left: 3px solid ${sc.color};">
                     ${task.subject ? `<div class="task-subject-badge" style="color:${sc.color}; background:${sc.bg}; border-color:${sc.border};">${escapeHtml(task.subject)}</div>` : ''}
@@ -1491,6 +1535,7 @@
                         <span class="task-text">${escapeHtml(task.text)}</span>
                     </div>
                     <div class="task-actions">
+                        <button class="move-btn" onclick="event.stopPropagation(); openMoveSheet(${task.id}, '${sourceStr}')">📅 Taşı</button>
                         <button class="delete-btn" onclick="event.stopPropagation(); deleteTaskDrag(${task.id}, '${sourceStr}')">Sil</button>
                     </div>
                 </div>`;
@@ -1599,7 +1644,7 @@
                         </div>
                     ` : ''}
 
-                    <div class="drop-zone" id="zone-${dateStr}" ondrop="drop(event, '${dateStr}')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <div class="drop-zone" id="zone-${dateStr}" data-zone="${dateStr}" ondrop="drop(event, '${dateStr}')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         ${tasksHTML}
                     </div>`;
                 grid.appendChild(dayCol);
@@ -3388,6 +3433,154 @@
             saveErrorData(); renderErrorLog();
             if (aiCurrentId === id) renderAiReady(item);
         }
+
+        /* ================= DOKUNMATİK EKRAN: GÖREV TAŞIMA ================= */
+        // 1) "📅 Taşı" menüsü: fare, parmak ve kalem için çalışır.
+        // 2) Dokunmatik sürükleme: görevi ~0,3 sn basılı tutunca kalkar, parmakla günlere bırakılır (kenarlarda otomatik kayar).
+        // Fare kullanımı (HTML5 sürükle-bırak) aynen çalışmaya devam eder.
+        let moveCtx = null;
+
+        function findPlannerTask(id, source) {
+            const list = source === 'pool' ? (plannerData.pool[formatDateString(currentWeekStart)] || []) : (plannerData.days[source] || []);
+            return list.find(t => t.id == id) || null;
+        }
+
+        function openMoveSheet(taskId, source) {
+            const task = findPlannerTask(taskId, source);
+            if (!task) return;
+            moveCtx = { id: taskId, source: source };
+            document.getElementById('moveSheetTask').innerText = `${task.subject ? task.subject + ' · ' : ''}${task.text}`;
+            const todayStr = formatDateString(new Date());
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(currentWeekStart); d.setDate(currentWeekStart.getDate() + i);
+                const ds = formatDateString(d);
+                const count = (plannerData.days[ds] || []).length;
+                const isCurrent = ds === source;
+                days.push(`<button class="move-day-btn ${ds === todayStr ? 'today' : ''} ${isCurrent ? 'current' : ''}" ${isCurrent ? 'disabled' : ''} onclick="chooseMoveTarget('${ds}')">
+                    <span>${dayNames[i]}${ds === todayStr ? ' · bugün' : ''}</span>
+                    <small>${d.getDate()} ${monthNames[d.getMonth()]} · ${isCurrent ? 'şu an burada' : count + ' görev'}</small>
+                </button>`);
+            }
+            document.getElementById('moveSheetBody').innerHTML =
+                `<div class="move-days">${days.join('')}</div>` +
+                (source !== 'pool' ? '<button class="move-pool-btn" onclick="chooseMoveTarget(\'pool\')">↩ Havuza geri al</button>' : '');
+            document.getElementById('moveSheet').classList.add('open');
+        }
+        function closeMoveSheet() { document.getElementById('moveSheet').classList.remove('open'); moveCtx = null; }
+        function chooseMoveTarget(target) {
+            if (!moveCtx) return;
+            const ctx = moveCtx;
+            closeMoveSheet();
+            if (moveTaskTo(ctx.id, ctx.source, target)) {
+                let label = 'Havuza alındı';
+                if (target !== 'pool') {
+                    const d = parseDateStr(target);
+                    label = `${dayNames[(d.getDay() + 6) % 7]} gününe taşındı`;
+                }
+                showToast({ title: label });
+            }
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMoveSheet(); });
+
+        (function setupTouchDrag() {
+            const HOLD_MS = 280, MOVE_TOL = 10, EDGE = 80;
+            let st = null;
+
+            function zoneAt(x, y) {
+                const el = document.elementFromPoint(x, y);
+                return el && el.closest ? el.closest('.drop-zone[data-zone]') : null;
+            }
+            function highlight(x, y) {
+                document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+                const z = zoneAt(x, y);
+                if (z) z.classList.add('drag-over');
+            }
+            function placeGhost() {
+                if (!st || !st.ghost) return;
+                st.ghost.style.left = (st.lastX - st.offX) + 'px';
+                st.ghost.style.top = (st.lastY - st.offY) + 'px';
+            }
+            function startDrag() {
+                if (!st || st.active) return;
+                st.active = true;
+                const r = st.el.getBoundingClientRect();
+                st.offX = st.startX - r.left; st.offY = st.startY - r.top;
+                const g = st.el.cloneNode(true);
+                g.classList.add('touch-ghost');
+                g.removeAttribute('draggable');
+                g.style.width = r.width + 'px';
+                document.body.appendChild(g);
+                st.ghost = g;
+                st.el.classList.add('touch-dragging');
+                document.body.classList.add('touch-drag-active');
+                if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+                placeGhost(); highlight(st.lastX, st.lastY);
+                const loop = () => {
+                    if (!st || !st.active) return;
+                    let dy = 0;
+                    if (st.lastY < EDGE) dy = -Math.ceil((EDGE - st.lastY) / 5);
+                    else if (st.lastY > window.innerHeight - EDGE) dy = Math.ceil((st.lastY - (window.innerHeight - EDGE)) / 5);
+                    if (dy) { window.scrollBy(0, dy); highlight(st.lastX, st.lastY); }
+                    st.raf = requestAnimationFrame(loop);
+                };
+                st.raf = requestAnimationFrame(loop);
+            }
+            function cleanup() {
+                if (!st) return;
+                clearTimeout(st.timer);
+                if (st.raf) cancelAnimationFrame(st.raf);
+                if (st.ghost) st.ghost.remove();
+                if (st.el) { st.el.classList.remove('touch-dragging'); st.el.draggable = true; }
+                document.body.classList.remove('touch-drag-active');
+                document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+                st = null;
+            }
+
+            document.addEventListener('touchstart', e => {
+                if (st || e.touches.length !== 1) return;
+                const card = e.target.closest ? e.target.closest('.draggable-task') : null;
+                if (!card || e.target.closest('button, input, textarea, select, a')) return;
+                const t = e.touches[0];
+                card.draggable = false;   // tarayıcının kendi sürükleme girişimi çakışmasın
+                st = { el: card, id: card.dataset.taskId, source: card.dataset.source, startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, active: false };
+                st.timer = setTimeout(startDrag, HOLD_MS);
+            }, { passive: true });
+
+            document.addEventListener('touchmove', e => {
+                if (!st) return;
+                const t = e.touches[0];
+                st.lastX = t.clientX; st.lastY = t.clientY;
+                if (!st.active) {
+                    // Parmak basılı tutma süresi dolmadan kaydıysa bu bir kaydırma: sürüklemeyi iptal et
+                    if (Math.hypot(t.clientX - st.startX, t.clientY - st.startY) > MOVE_TOL) cleanup();
+                    return;
+                }
+                e.preventDefault();
+                placeGhost(); highlight(t.clientX, t.clientY);
+            }, { passive: false });
+
+            function finish(e, cancelled) {
+                if (!st) return;
+                if (!st.active) { cleanup(); return; }
+                if (e.cancelable) e.preventDefault();   // bırakma sonrası sahte tıklamayı (görevi tamamlama) engelle
+                const t = (e.changedTouches && e.changedTouches[0]) || { clientX: st.lastX, clientY: st.lastY };
+                const zone = cancelled ? null : zoneAt(t.clientX, t.clientY);
+                const { id, source } = st;
+                cleanup();
+                if (zone && zone.dataset.zone !== source) {
+                    if (moveTaskTo(id, source, zone.dataset.zone)) {
+                        const target = zone.dataset.zone;
+                        let label = 'Havuza alındı';
+                        if (target !== 'pool') { const d = parseDateStr(target); label = `${dayNames[(d.getDay() + 6) % 7]} gününe taşındı`; }
+                        showToast({ title: label });
+                    }
+                }
+            }
+            document.addEventListener('touchend', e => finish(e, false), { passive: false });
+            document.addEventListener('touchcancel', e => finish(e, true), { passive: false });
+            document.addEventListener('contextmenu', e => { if (st) e.preventDefault(); });
+        })();
 
         /* ================= BİLDİRİMLER ================= */
         // Kurallar: sabah özeti + akşam kontrolü. Tekrar kartı, görev ve hedef satırları ayrı ayrı açılıp kapatılır.
