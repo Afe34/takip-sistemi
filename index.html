@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YKS Sistemim</title>
+    <meta name="theme-color" content="#0b1120">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Grafik Takibi için Chart.js Entegrasyonu -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +17,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-      import { getFirestore, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+      import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
       import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
       const firebaseConfig = {
@@ -27,7 +32,12 @@
 
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
-      const db = getFirestore(app);
+      let db;
+      window.fsPersistent = false;
+      try {
+        db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+        window.fsPersistent = true;   // internet yokken yazılanlar cihazda kuyruğa alınır, bağlantı gelince buluta gider
+      } catch (e) { db = getFirestore(app); }
 
       // Global olarak Firestore nesnesini ve fonksiyonları erişilebilir yapıyoruz
       window.db = db;
@@ -263,24 +273,52 @@
         .spaced-card.colored-card, .error-card-item.colored-card { border-left-width: 3px; }
 
         /* ===== TAB AKSENLERİ — her sekme kendi rengiyle ===== */
-        .tabs .tab-btn:nth-child(1).active { color: #3b82f6 !important; background-color: rgba(59,130,246,0.1) !important; }
-        .tabs .tab-btn:nth-child(1).active::after { background: linear-gradient(90deg, transparent, #3b82f6, transparent) !important; }
-        .tabs .tab-btn:nth-child(2).active { color: #a855f7 !important; background-color: rgba(168,85,247,0.1) !important; }
-        .tabs .tab-btn:nth-child(2).active::after { background: linear-gradient(90deg, transparent, #a855f7, transparent) !important; }
-        .tabs .tab-btn:nth-child(3).active { color: #22c55e !important; background-color: rgba(34,197,94,0.1) !important; }
-        .tabs .tab-btn:nth-child(3).active::after { background: linear-gradient(90deg, transparent, #22c55e, transparent) !important; }
-        .tabs .tab-btn:nth-child(4).active { color: #ff4757 !important; background-color: rgba(255,71,87,0.1) !important; }
-        .tabs .tab-btn:nth-child(4).active::after { background: linear-gradient(90deg, transparent, #ff4757, transparent) !important; }
-        .tabs .tab-btn:nth-child(5).active { color: #f59e0b !important; background-color: rgba(245,158,11,0.1) !important; }
-        .tabs .tab-btn:nth-child(5).active::after { background: linear-gradient(90deg, transparent, #f59e0b, transparent) !important; }
-        .tabs .tab-btn:nth-child(6).active { color: #f97316 !important; background-color: rgba(249,115,22,0.1) !important; }
-        .tabs .tab-btn:nth-child(6).active::after { background: linear-gradient(90deg, transparent, #f97316, transparent) !important; }
-        .tabs .tab-btn:nth-child(7).active { color: #6366f1 !important; background-color: rgba(99,102,241,0.1) !important; }
-        .tabs .tab-btn:nth-child(7).active::after { background: linear-gradient(90deg, transparent, #6366f1, transparent) !important; }
-        .tabs .tab-btn:nth-child(8).active { color: #8b5cf6 !important; background-color: rgba(139,92,246,0.1) !important; }
-        .tabs .tab-btn:nth-child(8).active::after { background: linear-gradient(90deg, transparent, #8b5cf6, transparent) !important; }
-        .tabs .tab-btn:nth-child(9).active { color: #00d9b5 !important; background-color: rgba(0,217,181,0.1) !important; }
-        .tabs .tab-btn:nth-child(9).active::after { background: linear-gradient(90deg, transparent, #00d9b5, transparent) !important; }
+        .tabs .tab-btn:nth-child(2).active { color: #3b82f6 !important; background-color: rgba(59,130,246,0.1) !important; }
+        .tabs .tab-btn:nth-child(2).active::after { background: linear-gradient(90deg, transparent, #3b82f6, transparent) !important; }
+        .tabs .tab-btn:nth-child(3).active { color: #a855f7 !important; background-color: rgba(168,85,247,0.1) !important; }
+        .tabs .tab-btn:nth-child(3).active::after { background: linear-gradient(90deg, transparent, #a855f7, transparent) !important; }
+        .tabs .tab-btn:nth-child(4).active { color: #22c55e !important; background-color: rgba(34,197,94,0.1) !important; }
+        .tabs .tab-btn:nth-child(4).active::after { background: linear-gradient(90deg, transparent, #22c55e, transparent) !important; }
+        .tabs .tab-btn:nth-child(5).active { color: #ff4757 !important; background-color: rgba(255,71,87,0.1) !important; }
+        .tabs .tab-btn:nth-child(5).active::after { background: linear-gradient(90deg, transparent, #ff4757, transparent) !important; }
+        .tabs .tab-btn:nth-child(6).active { color: #f59e0b !important; background-color: rgba(245,158,11,0.1) !important; }
+        .tabs .tab-btn:nth-child(6).active::after { background: linear-gradient(90deg, transparent, #f59e0b, transparent) !important; }
+        .tabs .tab-btn:nth-child(7).active { color: #f97316 !important; background-color: rgba(249,115,22,0.1) !important; }
+        .tabs .tab-btn:nth-child(7).active::after { background: linear-gradient(90deg, transparent, #f97316, transparent) !important; }
+        .tabs .tab-btn:nth-child(8).active { color: #6366f1 !important; background-color: rgba(99,102,241,0.1) !important; }
+        .tabs .tab-btn:nth-child(8).active::after { background: linear-gradient(90deg, transparent, #6366f1, transparent) !important; }
+        .tabs .tab-btn:nth-child(9).active { color: #8b5cf6 !important; background-color: rgba(139,92,246,0.1) !important; }
+        .tabs .tab-btn:nth-child(9).active::after { background: linear-gradient(90deg, transparent, #8b5cf6, transparent) !important; }
+        .tabs .tab-btn:nth-child(10).active { color: #00d9b5 !important; background-color: rgba(0,217,181,0.1) !important; }
+        .tabs .tab-btn:nth-child(10).active::after { background: linear-gradient(90deg, transparent, #00d9b5, transparent) !important; }
+
+        .tabs .tab-btn:nth-child(1).active { color: #0abfa0 !important; background-color: rgba(10,191,160,0.1) !important; }
+        .tabs .tab-btn:nth-child(1).active::after { background: linear-gradient(90deg, transparent, #0abfa0, transparent) !important; }
+        /* ===== BUGÜN EKRANI, ŞABLONLAR, DEVİR ===== */
+        .today-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .today-title { font-size: 22px; font-weight: 800; } .today-date { font-size: 13px; color: var(--subtext-color); }
+        .today-btn { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+        .today-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .today-bar { height: 8px; border-radius: 6px; background: var(--border-color); margin-top: 8px; overflow: hidden; }
+        .today-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent-color), #3b82f6); border-radius: 6px; }
+        .today-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+        @media (min-width: 900px) { .today-grid { grid-template-columns: 3fr 2fr; } }
+        .today-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .today-sec { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--accent-color); display: flex; justify-content: space-between; margin-top: 6px; }
+        .today-sec.warn { color: #f59e0b; }
+        .today-list { display: flex; flex-direction: column; gap: 10px; }
+        .today-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; font-size: 13px; }
+        .today-row small { display: block; color: var(--subtext-color); font-size: 11px; margin-top: 2px; }
+        .today-row .btns { display: flex; gap: 6px; }
+        .task-spent { font-size: 11px; font-weight: 700; color: var(--accent-color); margin-left: auto; white-space: nowrap; }
+        .carry-btn { width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px dashed #f59e0b; background: rgba(245,158,11,.08); color: #f59e0b; font-weight: 700; font-size: 13px; cursor: pointer; display: none; }
+        .tpl-box { margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; background: var(--input-bg); font-size: 13px; }
+        .tpl-box summary { cursor: pointer; font-weight: 700; }
+        .tpl-form { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .tpl-form input[type=text], .tpl-form select { padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 13px; }
+        .tpl-days { display: flex; gap: 4px; flex-wrap: wrap; } .tpl-days label { font-size: 12px; display: flex; align-items: center; gap: 2px; padding: 4px 6px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; }
+        .tpl-form > button { padding: 8px; border: none; border-radius: 8px; background: var(--accent-color); color: #fff; font-weight: 700; cursor: pointer; }
+        .tpl-item { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border-color); font-size: 12px; }
 
         /* ===== TAB İÇERİK VURGU KESİMLERİ ===== */
         #plannerTab .sidebar-title     { color: #3b82f6; }
@@ -491,6 +529,7 @@
             <div class="header-right">
                 <span id="cloudSyncStatus" class="sync-badge">Bulut: Bağlanıyor...</span>
                 <button class="btn-icon" id="authBtn" onclick="onAuthButton()" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Giriş yap</button>
+                <button class="btn-icon" id="installBtn" onclick="installApp()" style="display:none;">📲 Yükle</button>
                 <div class="notif-wrap">
                     <button class="btn-icon" id="notifBell" onclick="toggleNotifPanel(event)" title="Bildirimler" aria-label="Bildirimler">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
                     <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
@@ -523,7 +562,8 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab(this, 'planner')">🗓️ Haftalık Plan</button>
+            <button class="tab-btn active" onclick="switchTab(this, 'today')">🏠 Bugün</button>
+            <button class="tab-btn" onclick="switchTab(this, 'planner')">🗓️ Haftalık Plan</button>
             <button class="tab-btn" onclick="switchTab(this, 'curriculum')">📑 Müfredat Matrisi</button>
             <button class="tab-btn" onclick="switchTab(this, 'spaced')">🧠 Aralıklarla Tekrar</button>
             <button class="tab-btn" onclick="switchTab(this, 'errors')">📌 Fotoğraflı Hata Defteri</button>
@@ -536,7 +576,9 @@
         </div>
 
         <!-- HAFTALIK PLAN -->
-        <div id="plannerTab" class="tab-content active">
+        <div id="todayTab" class="tab-content active"><div id="todayRoot"></div></div>
+
+        <div id="plannerTab" class="tab-content">
             <div class="calendar-nav">
                 <button onclick="changeWeek(-1)">◀ Önceki</button>
                 <span id="weekDisplay" onclick="goToCurrentWeek()" style="cursor:pointer; color:var(--text-color);"></span>
@@ -564,6 +606,17 @@
                             <button onclick="addPoolTask()">+</button>
                         </div>
                     </div>
+
+                    <button class="carry-btn" id="carryBtn" onclick="carryOverIncomplete()"></button>
+                    <details class="tpl-box"><summary>🔁 Tekrarlayan görevler <span id="tplCount">0</span></summary>
+                        <div id="tplList"></div>
+                        <div class="tpl-form">
+                            <input type="text" id="tplText" placeholder="Örn: 50 paragraf">
+                            <select id="tplSubject"></select>
+                            <div class="tpl-days" id="tplDays"></div>
+                            <button onclick="addTemplate()">+ Şablon ekle</button>
+                        </div>
+                    </details>
 
                     <div class="drop-zone pool-zone" id="zone-pool" data-zone="pool" ondrop="drop(event, 'pool')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 </div>
@@ -981,7 +1034,7 @@
             const ref = cloudRef(key);
             if (!ref || !window.fsSetDoc || isCloudLoading) return;
 
-            setSyncBadge('Bulut: Kaydediliyor...', '#f59e0b');
+            setSyncBadge(navigator.onLine === false ? 'Çevrimdışı · cihaza kaydedildi' : 'Bulut: Kaydediliyor...', '#f59e0b');
             window.fsSetDoc(ref, { payload: data, updatedAt: new Date().toISOString() })
                 .then(() => setSyncBadge('Bulut: Senkronize'))
                 .catch(err => {
@@ -1135,8 +1188,14 @@
         async function putImageDoc(k, dataUrl) {
             const ref = imageDocRef(k);
             if (!ref || !window.fsSetDoc) throw new Error('bulut bağlantısı yok');
-            await window.fsSetDoc(ref, { data: dataUrl, updatedAt: new Date().toISOString() });
             imageCache[k] = dataUrl;
+            if (navigator.onLine === false) {
+                // İnternet yok: kalıcı önbellek varsa yazma kuyruğa alınır ve bağlantı gelince yüklenir; yoksa kayıt içinde saklanır
+                if (!window.fsPersistent) throw new Error('çevrimdışı');
+                window.fsSetDoc(ref, { data: dataUrl, updatedAt: new Date().toISOString() }).catch(() => {});
+                return;
+            }
+            await window.fsSetDoc(ref, { data: dataUrl, updatedAt: new Date().toISOString() });
         }
         // Giriş yapılmışsa buluta yükler ({hasImage:true}); yerel modda/hata durumunda kayıt içinde tutar ({image}),
         // sonraki bulut senkronunda otomatik taşınır.
@@ -1319,6 +1378,7 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId + 'Tab').classList.add('active');
             btnElement.classList.add('active');
+            if(tabId === 'today') renderToday();
             if(tabId === 'exams') renderExams();
             if(tabId === 'stats') renderStats();
             if(tabId === 'spaced') renderSpaced();
@@ -1532,9 +1592,10 @@
                     ${task.subject ? `<div class="task-subject-badge" style="color:${sc.color}; background:${sc.bg}; border-color:${sc.border};">${escapeHtml(task.subject)}</div>` : ''}
                     <div class="task-content" onclick="toggleTaskDrag(${task.id}, '${sourceStr}')">
                         <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskDrag(${task.id}, '${sourceStr}')">
-                        <span class="task-text">${escapeHtml(task.text)}</span>
+                        <span class="task-text">${escapeHtml(task.text)}</span>${task.spentSec ? `<span class="task-spent">⏱ ${fmtDur(task.spentSec / 3600)}</span>` : ''}
                     </div>
                     <div class="task-actions">
+                        <button class="move-btn" onclick="event.stopPropagation(); startTaskTimer(${task.id})">▶ Başlat</button>
                         <button class="move-btn" onclick="event.stopPropagation(); openMoveSheet(${task.id}, '${sourceStr}')">📅 Taşı</button>
                         <button class="delete-btn" onclick="event.stopPropagation(); deleteTaskDrag(${task.id}, '${sourceStr}')">Sil</button>
                     </div>
@@ -1567,6 +1628,7 @@
             });
             // =====================================================
 
+            if (!isCloudLoading && applyTemplatesForWeek()) savePlanner();
             const weekKey = formatDateString(currentWeekStart); const todayStr = formatDateString(new Date());
             const poolZone = document.getElementById('zone-pool'); let poolTasks = plannerData.pool[weekKey] || [];
             const poolCountEl = document.getElementById('poolCount');
@@ -1593,7 +1655,7 @@
                 let totalWorkHours = dayLogs.reduce((sum, item) => sum + item.hours, 0);
                 let workPillsHTML = dayLogs.map(item => `
                     <div class="work-pill">
-                        <span>${escapeHtml(item.subject)}: <b>${fmtDur(item.hours)}</b></span>
+                        <span title="${escapeHtml(item.task || '')}">${escapeHtml(item.subject)}${item.task ? ' · ' + escapeHtml(item.task.slice(0, 16)) : ''}: <b>${fmtDur(item.hours)}</b></span>
                         <span class="work-pill-delete" onclick="deleteWorkLog('${dateStr}', ${item.id})">✕</span>
                     </div>
                 `).join('');
@@ -1671,6 +1733,137 @@
                 if (drawer) drawer.classList.add('open');
             });
             // =====================================================
+            renderTemplates(); updateCarryBtn(); renderToday();
+        }
+
+        /* ================= HAFTALIK KOLAYLIKLAR: DEVİR + TEKRARLAYAN ŞABLONLAR ================= */
+        function tplList() {
+            if (!plannerData.days) plannerData.days = {};
+            if (!plannerData.pool) plannerData.pool = {};
+            if (!plannerData.templates) plannerData.templates = [];
+            if (!plannerData.tplDone) plannerData.tplDone = {};
+            return plannerData.templates;
+        }
+        function findTaskAnywhere(id) {
+            tplList();
+            for (const l of Object.values(plannerData.pool)) { const t = l.find(x => x.id == id); if (t) return t; }
+            for (const l of Object.values(plannerData.days)) { const t = l.find(x => x.id == id); if (t) return t; }
+            return null;
+        }
+        function collectCarry() {
+            tplList();
+            const from = addDays(currentWeekStart, -7), pk = formatDateString(from), items = [];
+            (plannerData.pool[pk] || []).forEach(t => { if (!t.completed) items.push({ t, src: 'pool', pk }); });
+            for (let i = 0; i < 7; i++) { const ds = formatDateString(addDays(from, i)); (plannerData.days[ds] || []).forEach(t => { if (!t.completed) items.push({ t, src: ds, pk }); }); }
+            return items;
+        }
+        function updateCarryBtn() {
+            const b = document.getElementById('carryBtn'); if (!b) return;
+            const n = collectCarry().length;
+            b.style.display = n ? 'block' : 'none';
+            b.innerText = `↪ Geçen haftadan kalan ${n} görevi tek tuşla devral`;
+        }
+        function carryOverIncomplete() {
+            const items = collectCarry();
+            if (!items.length) { showToast({ title: 'Devredilecek görev yok' }); return; }
+            const wk = formatDateString(currentWeekStart);
+            if (!plannerData.pool[wk]) plannerData.pool[wk] = [];
+            items.forEach(({ t, src, pk }) => {
+                if (src === 'pool') plannerData.pool[pk] = plannerData.pool[pk].filter(x => x.id !== t.id);
+                else plannerData.days[src] = plannerData.days[src].filter(x => x.id !== t.id);
+                plannerData.pool[wk].push(t);
+            });
+            savePlanner(); renderPlanner();
+            showToast({ title: `${items.length} görev bu haftanın havuzuna devredildi` });
+        }
+        function applyTemplatesForWeek() {
+            const tpls = tplList(); if (!tpls.length) return false;
+            const todayStr = formatDateString(new Date()); let added = false;
+            for (let i = 0; i < 7; i++) {
+                const ds = formatDateString(addDays(currentWeekStart, i));
+                if (ds < todayStr) continue;   // geçmiş günlere görev üretme
+                tpls.forEach(tp => {
+                    const k = tp.id + '|' + ds;
+                    if (!tp.days.includes(i) || plannerData.tplDone[k]) return;
+                    plannerData.tplDone[k] = true;
+                    (plannerData.days[ds] = plannerData.days[ds] || []).push({ id: Date.now() + Math.floor(Math.random() * 1e6), subject: tp.subject, text: tp.text, completed: false, tplId: tp.id });
+                    added = true;
+                });
+            }
+            return added;
+        }
+        function addTemplate() {
+            const text = document.getElementById('tplText').value.trim();
+            const subject = document.getElementById('tplSubject').value;
+            const days = [...document.querySelectorAll('#tplDays input:checked')].map(i => +i.value);
+            if (!text || !days.length) { alert('Görev adını yaz ve en az bir gün seç.'); return; }
+            tplList().push({ id: Date.now(), subject, text, days });
+            document.getElementById('tplText').value = '';
+            document.querySelectorAll('#tplDays input').forEach(i => i.checked = false);
+            applyTemplatesForWeek(); savePlanner(); renderPlanner();
+        }
+        function deleteTemplate(id) { plannerData.templates = tplList().filter(t => t.id !== id); savePlanner(); renderTemplates(); }
+        function renderTemplates() {
+            const list = document.getElementById('tplList'); if (!list) return;
+            const days = document.getElementById('tplDays'), sel = document.getElementById('tplSubject');
+            if (!days.innerHTML) days.innerHTML = dayNames.map((n, i) => `<label><input type="checkbox" value="${i}">${n.substring(0, 3)}</label>`).join('');
+            if (!sel.innerHTML) sel.innerHTML = STAT_SUBJECTS.map(x => `<option value="${x}">${x}</option>`).join('');
+            const t = tplList();
+            document.getElementById('tplCount').innerText = t.length;
+            list.innerHTML = t.map(x => `<div class="tpl-item"><span>${escapeHtml(x.subject)} · ${escapeHtml(x.text)}<br><small>${x.days.map(d => dayNames[d].substring(0, 3)).join(', ')}</small></span><button class="delete-btn" onclick="deleteTemplate(${x.id})">Sil</button></div>`).join('');
+        }
+
+        /* ================= BUGÜN ANA EKRANI ================= */
+        function addTodayTask() {
+            const el = document.getElementById('todayInput'); const text = el.value.trim(); if (!text) return;
+            tplList();
+            const ds = formatDateString(new Date());
+            (plannerData.days[ds] = plannerData.days[ds] || []).push({ id: Date.now(), subject: document.getElementById('todaySubject').value, text, completed: false });
+            savePlanner(); renderPlanner();
+        }
+        function pullToToday(id, ds) { moveTaskTo(id, ds, formatDateString(new Date())); }
+        function pullAllToToday() {
+            const now = new Date(), today = formatDateString(now);
+            for (let i = 1; i <= NOTIF_LOOKBACK_DAYS; i++) { const ds = formatDateString(addDays(now, -i)); (plannerData.days[ds] || []).filter(t => !t.completed).forEach(t => moveTaskTo(t.id, ds, today)); }
+        }
+        function renderToday() {
+            const root = document.getElementById('todayRoot'); if (!root) return;
+            tplList();
+            const prev = document.getElementById('todayInput'), pv = prev ? prev.value : '', hadFocus = prev && document.activeElement === prev;
+            const psub = document.getElementById('todaySubject'), pSubVal = psub ? psub.value : 'Matematik';
+            const now = new Date(), todayStr = formatDateString(now);
+            const tasks = plannerData.days[todayStr] || [];
+            const hrs = dayHours(todayStr), pct = Math.min(100, Math.round(hrs / studyGoal * 100));
+            const due = notifDueCards();
+            const overdue = [];
+            for (let i = 1; i <= NOTIF_LOOKBACK_DAYS; i++) { const ds = formatDateString(addDays(now, -i)); (plannerData.days[ds] || []).filter(t => !t.completed).forEach(t => overdue.push({ t, ds })); }
+            const weak = Object.values(collectTopicStats()).map(o => Object.assign({ score: o.examMisses + o.openErrors }, o)).filter(o => o.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+            const empty = m => `<div class="empty-text">${m}</div>`;
+            root.innerHTML = `
+                <div class="today-head"><div><div class="today-title">Bugün</div><div class="today-date">${now.getDate()} ${monthNames[now.getMonth()]} ${dayNames[(now.getDay() + 6) % 7]}</div></div>
+                    <button class="today-btn" onclick="gotoTab('pomodoro')">⏱️ Sayaca git</button></div>
+                <div class="today-stats">
+                    <div class="stat-card"><div class="stat-label">Günlük hedef</div><div class="stat-value">${fmtDur(hrs)} / ${fmtDur(studyGoal)}</div><div class="today-bar"><div style="width:${pct}%"></div></div></div>
+                    <div class="stat-card"><div class="stat-label">Çalışma serisi</div><div class="stat-value">🔥 ${computeStreaks().current} gün</div></div>
+                    <div class="stat-card" style="cursor:pointer" onclick="gotoTab('spaced')"><div class="stat-label">Bekleyen tekrar kartı</div><div class="stat-value">${due.length}</div></div>
+                </div>
+                <div class="today-grid">
+                    <div class="today-col">
+                        <div class="today-sec"><span>📋 Bugünkü görevler</span><span>${tasks.filter(t => !t.completed).length} açık</span></div>
+                        <div class="input-group" style="margin-bottom:0"><select id="todaySubject" style="max-width:130px"></select><input type="text" id="todayInput" placeholder="Bugüne görev ekle..." onkeypress="if(event.key==='Enter') addTodayTask()"><button onclick="addTodayTask()">+</button></div>
+                        <div class="today-list">${tasks.length ? tasks.map(t => createTaskElement(t, todayStr)).join('') : empty('Bugün için görev yok. Haftalık plandan ya da yukarıdan ekleyebilirsin.')}</div>
+                        ${overdue.length ? `<div class="today-sec warn"><span>⚠️ Kaçırılan görevler (${overdue.length})</span><button class="link-btn" onclick="pullAllToToday()">Hepsini bugüne al</button></div>` +
+                            overdue.slice(0, 8).map(({ t, ds }) => { const d = parseDateStr(ds); return `<div class="today-row"><div><b>${escapeHtml(t.subject || '')}</b> ${escapeHtml(t.text)}<small>${d.getDate()} ${monthNames[d.getMonth()]} ${dayNames[(d.getDay() + 6) % 7]}</small></div><button class="link-btn" onclick="pullToToday(${t.id}, '${ds}')">Bugüne al</button></div>`; }).join('') : ''}
+                    </div>
+                    <div class="today-col">
+                        <div class="today-sec"><span>🧠 Bugünkü tekrar kartları</span></div>
+                        ${due.length ? due.slice(0, 5).map(i => `<div class="today-row"><div><b>${escapeHtml(i.topic)}</b><small>${escapeHtml(i.subject)}</small></div><div class="btns"><button class="link-btn" onclick="reviewSpacedItem(${i.id}, false)">❌</button><button class="link-btn" onclick="reviewSpacedItem(${i.id}, true)">✅</button></div></div>`).join('') + (due.length > 5 ? `<button class="link-btn" onclick="gotoTab('spaced')">+${due.length - 5} kart daha →</button>` : '') : empty('Tekrar edilecek kart yok.')}
+                        <div class="today-sec"><span>🎯 En zayıf 3 konu</span></div>
+                        ${weak.length ? weak.map(o => `<div class="today-row"><div><b>${escapeHtml(o.topic)}</b><small>${escapeHtml(o.subject)} · ${o.examMisses} denemede · ${o.openErrors} açık hata</small></div><div class="btns">${o.spaced ? '' : `<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'spaced')">🧠 Tekrara ekle</button>`}<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'newerror')">📓</button></div></div>`).join('') : empty('Deneme ve hata defteri doldukça en zayıf konuların burada görünür.')}
+                    </div>
+                </div>`;
+            const ts = document.getElementById('todaySubject'); ts.innerHTML = STAT_SUBJECTS.map(x => `<option value="${x}">${x}</option>`).join(''); ts.value = pSubVal;
+            const ti = document.getElementById('todayInput'); ti.value = pv; if (hadFocus) ti.focus();
         }
 
         /* ================= MÜFREDAT MATRİSİ ================= */
@@ -1983,6 +2176,7 @@
             if (dueCountEl) dueCountEl.innerText = dueCount;
             if (dueGrid.innerHTML === '') dueGrid.innerHTML = '<div class="empty-text">Tekrar edilecek konu kalmadı.</div>';
             if (upcomingGrid.innerHTML === '') upcomingGrid.innerHTML = '<div class="empty-text">Gelecek tekrar yok.</div>';
+            if (typeof renderToday === 'function') renderToday();
         }
 
         /* ================= FOTOĞRAFLI HATA DEFTERİ LOGIC ================= */
@@ -2629,12 +2823,14 @@
             return sum;
         }
 
-        function logStudy(subject, seconds) {
+        function logStudy(subject, seconds, taskId) {
             const dateStr = formatDateString(new Date());
             const before = dayHours(dateStr);
             if (!workLogsData[dateStr]) workLogsData[dateStr] = [];
-            workLogsData[dateStr].push({ id: Date.now(), subject: subject, hours: parseFloat((seconds / 3600).toFixed(3)) });
+            const tk = taskId ? findTaskAnywhere(taskId) : null;
+            workLogsData[dateStr].push(Object.assign({ id: Date.now(), subject: subject, hours: parseFloat((seconds / 3600).toFixed(3)) }, tk ? { task: tk.text } : {}));
             saveToCloudAndLocal('yks_work_logs', workLogsData);
+            if (tk) { tk.spentSec = (tk.spentSec || 0) + seconds; savePlanner(); }   // süre görevin ayrıntılarına işlenir
             renderPlanner();
             renderStats();
             if (before < studyGoal && before + seconds / 3600 >= studyGoal) triggerConfetti();
@@ -3811,6 +4007,22 @@
 
         /* ================= SAYAÇ (POMODORO) LOGIC ================= */
         let pomoInterval = null;
+        let pomoTaskId = null;   // sayacın bağlı olduğu görev
+        function pomoClearTask() { pomoTaskId = null; const m = document.getElementById('pomodoroMode'); if (m) m.innerText = 'Özel Süre / Sayaç'; }
+        function startTaskTimer(id) {
+            const t = findTaskAnywhere(id); if (!t) return;
+            if (pomoIsRunning || pomoPendingSeconds > 0) {
+                showToast({ title: 'Sayaç meşgul', body: 'Önce mevcut çalışmayı "Bitir ve Kaydet" ya da "Sıfırla" ile kapat.' });
+                gotoTab('pomodoro'); return;
+            }
+            pomoTaskId = t.id;
+            const sel = document.getElementById('pomoSubject');
+            sel.value = [...sel.options].some(o => o.value === t.subject) ? t.subject : 'Genel';
+            document.getElementById('pomodoroMode').innerText = '🎯 ' + t.text;
+            gotoTab('pomodoro');
+            updatePomoTimeFromInputs();
+            togglePomodoro();
+        }
         let pomoTotalSecondsLeft = 25 * 60;
         let pomoIsRunning = false;
 
@@ -3901,7 +4113,8 @@
             pomoSetIdleUI('Başlat');
             updatePomoDisplay();
             updatePomoPendingInfo();
-            if (seconds >= 60) logStudy(subject, seconds);
+            if (seconds >= 60) logStudy(subject, seconds, pomoTaskId);
+            pomoClearTask();
             triggerConfetti();
             alert(seconds >= 60 ? `Süre bitti! ${fmtDur(seconds / 3600)} ${subject} çalışması kaydedildi.` : 'Süre bitti, tebrikler!');
         }
@@ -3912,7 +4125,8 @@
             if (seconds < 60) { alert('Kaydetmek için en az 1 dakika çalışmış olmalısın.'); if (seconds > 0) { pomoSetIdleUI('Devam Et'); } updatePomoPendingInfo(); return; }
             const subject = document.getElementById('pomoSubject').value;
             pomoPendingSeconds = 0;
-            logStudy(subject, seconds);
+            logStudy(subject, seconds, pomoTaskId);
+            pomoClearTask();
             pomoTotalSecondsLeft = pomoReadInputsSeconds();
             pomoSetIdleUI('Başlat');
             updatePomoDisplay();
@@ -3926,6 +4140,7 @@
             pomoIsRunning = false;
             pomoPendingSeconds = 0;
             pomoSegmentStart = 0;
+            pomoClearTask();
             pomoSetIdleUI('Başlat');
             pomoTotalSecondsLeft = pomoReadInputsSeconds();
             updatePomoDisplay();
@@ -3948,6 +4163,25 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
             pomoTotalSecondsLeft = (h * 3600) + (m * 60) + s;
             updatePomoDisplay();
         }
+
+        /* ================= ÇEVRİMDIŞI / UYGULAMA OLARAK YÜKLEME ================= */
+        window.addEventListener('offline', () => setSyncBadge('Çevrimdışı · veriler cihazda', '#f59e0b'));
+        window.addEventListener('online', () => setSyncBadge('Bulut: Bağlandı'));
+        if (navigator.onLine === false) setSyncBadge('Çevrimdışı · veriler cihazda', '#f59e0b');
+
+        let deferredInstall = null;
+        const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+        function toggleInstallBtn(show) { const b = document.getElementById('installBtn'); if (b) b.style.display = show ? '' : 'none'; }
+        window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; toggleInstallBtn(true); });
+        window.addEventListener('appinstalled', () => { deferredInstall = null; toggleInstallBtn(false); });
+        if (/iphone|ipad/i.test(navigator.userAgent) && !_isStandalone) document.addEventListener('DOMContentLoaded', () => toggleInstallBtn(true));
+        function installApp() {
+            if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; toggleInstallBtn(false); }
+            else showToast({ title: 'Ana ekrana ekle', body: 'Chrome: menü → "Uygulamayı yükle". Safari: Paylaş → "Ana Ekrana Ekle".' });
+        }
+        // Bildirime tıklayınca uygulama kapalıysa doğru sekmede açılır
+        const _qTab = new URLSearchParams(location.search).get('tab');
+        if (_qTab) setTimeout(() => gotoTab(_qTab), 400);
     </script>
 </body>
 </html>
