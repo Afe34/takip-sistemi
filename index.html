@@ -506,6 +506,43 @@
         .move-day-btn.current { opacity: 0.45; cursor: default; }
         .move-pool-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 10px; border: 1px dashed var(--border-color); background: none; color: var(--text-color); font-size: 14px; font-weight: 600; cursor: pointer; }
         .move-pool-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* ===== ALT MENÜ ÇUBUĞU + KOMPAKT GÖREV KARTLARI ===== */
+        .bottom-nav { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 120; background-color: var(--container-bg); border-top: 1px solid var(--border-color); box-shadow: 0 -6px 24px rgba(0,0,0,0.12); padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); justify-content: center; gap: 4px; }
+        .bottom-nav .bn-btn { flex: 1; max-width: 140px; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; border-radius: 12px; color: var(--subtext-color); font-size: 11px; font-weight: 700; cursor: pointer; transition: background-color 0.15s, color 0.15s; }
+        .bottom-nav .bn-btn .bn-ic { font-size: 22px; line-height: 1; }
+        .bottom-nav .bn-btn:hover { background-color: var(--item-hover); }
+        .bottom-nav .bn-btn.active { color: var(--accent-color); background-color: rgba(0,217,181,0.12); }
+        @media (max-width: 1100px), (pointer: coarse) {
+            .tabs { display: none; }
+            .bottom-nav { display: flex; }
+            body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+            .toast-stack { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+            .header { margin-bottom: 14px; }
+        }
+        .more-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+        @media (min-width: 560px) { .more-grid { grid-template-columns: repeat(3, 1fr); } }
+        .more-item { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 76px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; }
+        .more-item .mi-ic { font-size: 22px; line-height: 1; }
+        .more-item:hover { border-color: var(--accent-color); }
+        .more-item.active { border-color: var(--accent-color); color: var(--accent-color); background-color: rgba(0,217,181,0.10); }
+
+        .draggable-task { flex-direction: row; align-items: center; gap: 6px; padding: 4px 4px 4px 10px; min-height: 46px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+        .draggable-task .task-content { flex: 1; min-width: 0; align-items: center; gap: 10px; padding: 4px 0; cursor: pointer; }
+        .draggable-task .task-content input[type="checkbox"] { margin-top: 0; }
+        .draggable-task .task-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; }
+        .draggable-task .task-actions { border-top: none; padding-top: 0; margin: 0; gap: 2px; flex-shrink: 0; align-items: center; justify-content: flex-end; }
+        .draggable-task .task-spent { margin-left: 4px; }
+        .tk-sub { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; padding: 1px 5px; margin-right: 6px; border-radius: 4px; vertical-align: 1px; }
+        .tk-btn { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: none; background: none; border-radius: 8px; color: var(--subtext-color); font-size: 17px; line-height: 1; cursor: pointer; }
+        .tk-btn:hover { background-color: var(--input-bg); color: var(--accent-color); }
+        @media (pointer: coarse) { .tk-btn { width: 42px; height: 42px; } .draggable-task { min-height: 50px; } }
+        .drop-zone { padding: 10px; min-height: 140px; gap: 6px; }
+        .today-list { gap: 6px; }
+        .task-menu { position: fixed; z-index: 170; min-width: 200px; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.28); }
+        .task-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 12px; border: none; background: none; border-radius: 8px; color: var(--text-color); font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+        .task-menu button:hover { background-color: var(--input-bg); }
+        .task-menu button.danger { color: var(--danger-color); }
     </style>
 </head>
 <body data-theme="light">
@@ -990,6 +1027,25 @@
         </div>
     </div>
 
+    <nav class="bottom-nav" id="bottomNav" aria-label="Ana menü">
+        <button class="bn-btn" data-tab="today" onclick="bnGo('today')"><span class="bn-ic">🏠</span><span>Bugün</span></button>
+        <button class="bn-btn" data-tab="planner" onclick="bnGo('planner')"><span class="bn-ic">🗓️</span><span>Plan</span></button>
+        <button class="bn-btn" data-tab="spaced" onclick="bnGo('spaced')"><span class="bn-ic">🧠</span><span>Tekrar</span></button>
+        <button class="bn-btn" data-tab="errors" onclick="bnGo('errors')"><span class="bn-ic">📌</span><span>Hata</span></button>
+        <button class="bn-btn" data-tab="pomodoro" onclick="bnGo('pomodoro')"><span class="bn-ic">⏱️</span><span>Sayaç</span></button>
+        <button class="bn-btn" id="bnMore" onclick="openMoreSheet()"><span class="bn-ic" id="bnMoreIc">☰</span><span id="bnMoreLabel">Daha fazla</span></button>
+    </nav>
+
+    <div class="move-sheet-backdrop" id="moreSheet" onclick="if(event.target === this) closeMoreSheet()">
+        <div class="move-sheet" role="dialog" aria-modal="true" aria-labelledby="moreSheetTitle">
+            <div class="move-sheet-head">
+                <div><div class="move-sheet-title" id="moreSheetTitle">Diğer bölümler</div></div>
+                <button class="btn-icon" onclick="closeMoreSheet()" title="Kapat" aria-label="Kapat">✕</button>
+            </div>
+            <div class="more-grid" id="moreGrid"></div>
+        </div>
+    </div>
+
     <div class="move-sheet-backdrop" id="moveSheet" onclick="if(event.target === this) closeMoveSheet()">
         <div class="move-sheet" role="dialog" aria-modal="true" aria-labelledby="moveSheetTitle">
             <div class="move-sheet-head">
@@ -1378,6 +1434,7 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId + 'Tab').classList.add('active');
             btnElement.classList.add('active');
+            updateBottomNav(tabId);
             if(tabId === 'today') renderToday();
             if(tabId === 'exams') renderExams();
             if(tabId === 'stats') renderStats();
@@ -1582,22 +1639,23 @@
             return true;
         }
 
-        function createTaskElement(task, sourceStr) {
+        function createTaskElement(task, sourceStr, opts) {
             const sc = getSubjectColor(task.subject);
+            const o = opts || {};
+            const tid = task.id;
             return `
                 <div class="draggable-task ${task.completed ? 'completed' : ''}" draggable="true"
-                     data-task-id="${task.id}" data-source="${sourceStr}"
-                     ondragstart="drag(event, ${task.id}, '${sourceStr}')"
+                     data-task-id="${tid}" data-source="${sourceStr}"
+                     ondragstart="drag(event, ${tid}, '${sourceStr}')"
                      style="border-left: 3px solid ${sc.color};">
-                    ${task.subject ? `<div class="task-subject-badge" style="color:${sc.color}; background:${sc.bg}; border-color:${sc.border};">${escapeHtml(task.subject)}</div>` : ''}
-                    <div class="task-content" onclick="toggleTaskDrag(${task.id}, '${sourceStr}')">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskDrag(${task.id}, '${sourceStr}')">
-                        <span class="task-text">${escapeHtml(task.text)}</span>${task.spentSec ? `<span class="task-spent">⏱ ${fmtDur(task.spentSec / 3600)}</span>` : ''}
+                    <div class="task-content" onclick="toggleTaskDrag(${tid}, '${sourceStr}')">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskDrag(${tid}, '${sourceStr}')" aria-label="Tamamlandı">
+                        <span class="task-text">${task.subject ? `<b class="tk-sub" style="color:${sc.color}; background:${sc.bg};">${escapeHtml(subjectAbbr(task.subject))}</b>` : ''}${escapeHtml(task.text)}</span>${task.spentSec ? `<span class="task-spent">⏱ ${fmtDur(task.spentSec / 3600)}</span>` : ''}
                     </div>
                     <div class="task-actions">
-                        <button class="move-btn" onclick="event.stopPropagation(); startTaskTimer(${task.id})">▶ Başlat</button>
-                        <button class="move-btn" onclick="event.stopPropagation(); openMoveSheet(${task.id}, '${sourceStr}')">📅 Taşı</button>
-                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTaskDrag(${task.id}, '${sourceStr}')">Sil</button>
+                        ${o.play && !task.completed ? `<button class="tk-btn" title="Başlat" aria-label="Sayacı başlat" onclick="event.stopPropagation(); startTaskTimer(${tid})">▶</button>` : ''}
+                        ${sourceStr === 'pool' ? `<button class="tk-btn" title="Güne taşı" aria-label="Güne taşı" onclick="event.stopPropagation(); openMoveSheet(${tid}, 'pool')">📅</button>` : ''}
+                        <button class="tk-btn" title="Diğer işlemler" aria-label="Diğer işlemler" onclick="event.stopPropagation(); openTaskMenu(${tid}, '${sourceStr}', this)">⋯</button>
                     </div>
                 </div>`;
         }
@@ -1851,7 +1909,7 @@
                     <div class="today-col">
                         <div class="today-sec"><span>📋 Bugünkü görevler</span><span>${tasks.filter(t => !t.completed).length} açık</span></div>
                         <div class="input-group" style="margin-bottom:0"><select id="todaySubject" style="max-width:130px"></select><input type="text" id="todayInput" placeholder="Bugüne görev ekle..." onkeypress="if(event.key==='Enter') addTodayTask()"><button onclick="addTodayTask()">+</button></div>
-                        <div class="today-list">${tasks.length ? tasks.map(t => createTaskElement(t, todayStr)).join('') : empty('Bugün için görev yok. Haftalık plandan ya da yukarıdan ekleyebilirsin.')}</div>
+                        <div class="today-list">${tasks.length ? tasks.map(t => createTaskElement(t, todayStr, { play: true })).join('') : empty('Bugün için görev yok. Haftalık plandan ya da yukarıdan ekleyebilirsin.')}</div>
                         ${overdue.length ? `<div class="today-sec warn"><span>⚠️ Kaçırılan görevler (${overdue.length})</span><button class="link-btn" onclick="pullAllToToday()">Hepsini bugüne al</button></div>` +
                             overdue.slice(0, 8).map(({ t, ds }) => { const d = parseDateStr(ds); return `<div class="today-row"><div><b>${escapeHtml(t.subject || '')}</b> ${escapeHtml(t.text)}<small>${d.getDate()} ${monthNames[d.getMonth()]} ${dayNames[(d.getDay() + 6) % 7]}</small></div><button class="link-btn" onclick="pullToToday(${t.id}, '${ds}')">Bugüne al</button></div>`; }).join('') : ''}
                     </div>
@@ -3777,6 +3835,89 @@
             document.addEventListener('touchcancel', e => finish(e, true), { passive: false });
             document.addEventListener('contextmenu', e => { if (st) e.preventDefault(); });
         })();
+
+        /* ================= ALT MENÜ + GÖREV MENÜSÜ ================= */
+        // Alt çubuk dar/dokunmatik ekranlarda üstteki sekmelerin yerini alır; sekmelerin kendisi (switchTab) değişmedi.
+        const BN_PRIMARY = ['today', 'planner', 'spaced', 'errors', 'pomodoro'];
+        const SUBJECT_ABBR = { 'Matematik': 'MAT', 'Geometri': 'GEO', 'Fizik': 'FİZ', 'Kimya': 'KİM', 'Biyoloji': 'BİY', 'Türkçe': 'TÜR', 'Sosyal': 'SOS', 'Genel': 'GEN' };
+        function subjectAbbr(s) { return SUBJECT_ABBR[s] || (s || '').slice(0, 3).toLocaleUpperCase('tr'); }
+
+        function tabInfo() {
+            return [...document.querySelectorAll('.tabs .tab-btn')].map(b => {
+                const m = (b.getAttribute('onclick') || '').match(/'(\w+)'\)/);
+                const text = b.textContent.trim();
+                const sp = text.indexOf(' ');
+                return { id: m ? m[1] : '', icon: sp > 0 ? text.slice(0, sp) : '', label: sp > 0 ? text.slice(sp + 1) : text };
+            }).filter(t => t.id);
+        }
+        function currentTabId() {
+            const el = document.querySelector('.tab-content.active');
+            return el ? el.id.replace(/Tab$/, '') : 'today';
+        }
+        function updateBottomNav(tabId) {
+            document.querySelectorAll('#bottomNav .bn-btn[data-tab]').forEach(b => {
+                const on = b.dataset.tab === tabId;
+                b.classList.toggle('active', on);
+                if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+            });
+            const more = document.getElementById('bnMore');
+            if (!more) return;
+            const inMore = BN_PRIMARY.indexOf(tabId) < 0;
+            more.classList.toggle('active', inMore);
+            const info = inMore ? tabInfo().find(t => t.id === tabId) : null;
+            document.getElementById('bnMoreIc').innerText = info ? info.icon : '☰';
+            document.getElementById('bnMoreLabel').innerText = info ? info.label.split(' ')[0] : 'Daha fazla';
+        }
+        function bnGo(tabId) {
+            gotoTab(tabId);
+            window.scrollTo(0, 0);
+        }
+        function openMoreSheet() {
+            const cur = currentTabId();
+            document.getElementById('moreGrid').innerHTML = tabInfo().filter(t => BN_PRIMARY.indexOf(t.id) < 0).map(t =>
+                `<button class="more-item ${t.id === cur ? 'active' : ''}" onclick="moreGo('${t.id}')"><span class="mi-ic">${t.icon}</span><span>${escapeHtml(t.label)}</span></button>`).join('');
+            document.getElementById('moreSheet').classList.add('open');
+        }
+        function closeMoreSheet() { document.getElementById('moreSheet').classList.remove('open'); }
+        function moreGo(tabId) { closeMoreSheet(); bnGo(tabId); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMoreSheet(); });
+
+        /* --- Görev kartındaki "⋯" menüsü --- */
+        let taskMenuEl = null;
+        function closeTaskMenu() { if (taskMenuEl) { taskMenuEl.remove(); taskMenuEl = null; } }
+        function openTaskMenu(taskId, source, btn) {
+            closeTaskMenu();
+            const task = findPlannerTask(taskId, source);
+            if (!task) return;
+            const items = [];
+            if (!task.completed) items.push(['▶', 'Sayacı başlat', () => startTaskTimer(taskId)]);
+            items.push(['📅', 'Güne taşı', () => openMoveSheet(taskId, source)]);
+            items.push(['🗑️', 'Sil', () => deleteTaskDrag(taskId, source), 'danger']);
+            const m = document.createElement('div');
+            m.className = 'task-menu';
+            m.setAttribute('role', 'menu');
+            items.forEach(([ic, label, fn, cls]) => {
+                const b = document.createElement('button');
+                b.setAttribute('role', 'menuitem');
+                if (cls) b.className = cls;
+                b.innerHTML = `<span>${ic}</span><span>${label}</span>`;
+                b.onclick = e => { e.stopPropagation(); closeTaskMenu(); fn(); };
+                m.appendChild(b);
+            });
+            document.body.appendChild(m);
+            const r = btn.getBoundingClientRect(), mw = m.offsetWidth, mh = m.offsetHeight;
+            const left = Math.min(Math.max(8, r.right - mw), window.innerWidth - mw - 8);
+            let top = r.bottom + 4;
+            if (top + mh > window.innerHeight - 8) top = Math.max(8, r.top - mh - 4);
+            m.style.left = left + 'px';
+            m.style.top = top + 'px';
+            taskMenuEl = m;
+        }
+        document.addEventListener('click', e => { if (taskMenuEl && !taskMenuEl.contains(e.target)) closeTaskMenu(); });
+        window.addEventListener('scroll', closeTaskMenu, true);
+        window.addEventListener('resize', closeTaskMenu);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTaskMenu(); });
+        updateBottomNav('today');
 
         /* ================= BİLDİRİMLER ================= */
         // Kurallar: sabah özeti + akşam kontrolü. Tekrar kartı, görev ve hedef satırları ayrı ayrı açılıp kapatılır.

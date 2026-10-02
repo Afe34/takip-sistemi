@@ -1,6 +1,6 @@
 // YKS Sistemim - çevrimdışı çalışma + bildirim tıklama
-const CACHE = 'yks-v1';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'yks-v2';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 const HOSTS = ['cdn.jsdelivr.net', 'www.gstatic.com'];   // Chart.js, confetti, Firebase modülleri
 
 self.addEventListener('install', e => {
