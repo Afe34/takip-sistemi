@@ -114,9 +114,10 @@
         [data-theme="dark"] body { background-image: radial-gradient(ellipse at 20% 10%, rgba(0,217,181,0.04) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(99,102,241,0.04) 0%, transparent 60%); }
         .container { width: 100%; max-width: 1300px; background-color: var(--container-bg); padding: 24px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); border: 1px solid var(--border-color); }
         [data-theme="dark"] .container { box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,217,181,0.06); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header h1 { min-width: 0; }
         .header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, var(--text-color) 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .header-right { display: flex; align-items: center; gap: 10px; }
+        .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 100%; }
         .sync-badge { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; background-color: rgba(0, 217, 181, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); box-shadow: 0 0 10px rgba(0,217,181,0.15); }
         .btn-icon { background-color: var(--input-bg); border: 1px solid var(--border-color); cursor: pointer; font-size: 14px; padding: 8px 12px; border-radius: 8px; color: var(--text-color); font-weight: 600; transition: all 0.2s; }
         .btn-icon:hover { border-color: var(--accent-color); color: var(--accent-color); }
@@ -261,7 +262,7 @@
         .pomodoro-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 44px 40px; max-width: 500px; margin: 0 auto; text-align: center; position: relative; overflow: hidden; }
         [data-theme="dark"] .pomodoro-box { box-shadow: 0 0 60px rgba(0,217,181,0.07); }
         .pomodoro-box::before { content: ''; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,217,181,0.05) 0%, transparent 70%); pointer-events: none; }
-        .pomodoro-timer { font-size: 68px; font-weight: 800; color: var(--accent-color); margin: 20px 0; font-family: 'SF Mono', 'Fira Code', monospace; text-shadow: 0 0 30px rgba(0,217,181,0.25); letter-spacing: 0.02em; }
+        .pomodoro-timer { font-size: clamp(38px, 13vw, 68px); font-weight: 800; color: var(--accent-color); margin: 20px 0; font-family: 'SF Mono', 'Fira Code', monospace; text-shadow: 0 0 30px rgba(0,217,181,0.25); letter-spacing: 0.02em; white-space: nowrap; }
         .pomodoro-btns { display: flex; gap: 12px; width: 100%; }
         .pomodoro-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .pomodoro-btns button:hover { transform: translateY(-1px); }
@@ -519,6 +520,14 @@
             body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
             .toast-stack { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
             .header { margin-bottom: 14px; }
+            .header h1 { font-size: 19px; flex: 1 1 100%; }
+            .header-right { flex: 1 1 100%; }
+            .task-subject-badge { font-size: 12px; }
+            .tk-sub { font-size: 11px; }
+            .bottom-nav .bn-btn { font-size: 12px; }
+            .link-btn { font-size: 12px; padding: 5px 9px; }
+            .topic-chip, .topic-chip.small { font-size: 12px; }
+            .today-row small { font-size: 12px; }
         }
         .more-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
         @media (min-width: 560px) { .more-grid { grid-template-columns: repeat(3, 1fr); } }
