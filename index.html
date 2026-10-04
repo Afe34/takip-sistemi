@@ -75,7 +75,7 @@
             --bg-color: #eef2fa;
             --container-bg: #ffffff;
             --text-color: #1a2540;
-            --subtext-color: #5a7090;
+            --subtext-color: #44597c;
             --input-bg: #f3f6fc;
             --border-color: #cdd8ef;
             --item-hover: #e4edf9;
@@ -115,7 +115,7 @@
             --bg-color: #f1e7d0;
             --container-bg: #faf3e2;
             --text-color: #4b3b2a;
-            --subtext-color: #8a7458;
+            --subtext-color: #6b5840;
             --input-bg: #efe3c8;
             --border-color: #ddc9a0;
             --item-hover: #ece0bd;
@@ -135,7 +135,7 @@
             --bg-color: #111111;
             --container-bg: #1a1a1a;
             --text-color: #f5f5f5;
-            --subtext-color: #888888;
+            --subtext-color: #8f8f8f;
             --input-bg: #222222;
             --border-color: #333333;
             --item-hover: #2a2a2a;
@@ -628,6 +628,34 @@
         .task-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 12px; border: none; background: none; border-radius: 8px; color: var(--text-color); font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
         .task-menu button:hover { background-color: var(--input-bg); }
         .task-menu button.danger { color: var(--danger-color); }
+
+        /* ===== OKUNABİLİRLİK: küçük yazılar büyütüldü (tüm ekran genişliklerinde) ===== */
+        .tk-sub, .sync-badge, .notif-badge, .bottom-nav .bn-btn, .topic-chip.small, .move-day-btn small,
+        .task-spent, .today-row small, .weak-badge, .exam-row-head, .exam-row-label span, .ai-meta,
+        .notif-item-time, .hm-legend, .link-chip, .link-btn, .weak-meta, .countdown-label, .target-label,
+        .day-note-btn, .work-summary-title, .work-pill, .task-subject-badge, .stat-card .stat-sub {
+            font-size: 12px;
+        }
+        .course-badge, .topic-stages, .error-filter-btn, .chart-filter-btn, .tpl-days label, .tpl-item,
+        .stat-card .stat-label, .goal-edit, .notif-link, .notif-item-body, .notif-perm, .notif-perm button,
+        .toast-body, .auth-local-btn, .auth-error, .exam-row-calc, .exam-legacy-note, .topic-chip,
+        .exam-extra, .link-note, .filter-bar, .subject-bar-label, .ai-sub, .ai-panel label, .ai-note, .ai-hint,
+        .ai-topics, .pool-hint {
+            font-size: 13px;
+        }
+        /* görev satırlarındaki (planda ders/süre seçimi, hata defteri etiketleri vb.) satır-içi 11px yazılar */
+        .draggable-task, .error-card-item, .spaced-card, .work-pills, .day-note-btn, .course-card { font-size: 13px; }
+        .draggable-task .tk-sub { font-size: 12px; }
+
+        /* ===== Günlük hedef: halka grafik ===== */
+        .goal-ring-card { display: flex; align-items: center; gap: 12px; }
+        .goal-ring-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+        .goal-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+        .goal-ring-bg { fill: none; stroke: var(--border-color); stroke-width: 6; }
+        .goal-ring-fg { fill: none; stroke: var(--accent-color); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 169.65; transition: stroke-dashoffset 0.5s ease; }
+        .goal-ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-color); }
+        .goal-ring-text { min-width: 0; }
+        .goal-ring-text .stat-value { font-size: 16px; }
     </style>
 </head>
 <body data-theme="light">
@@ -2003,7 +2031,7 @@
                 <div class="today-head"><div><div class="today-title">Bugün</div><div class="today-date">${now.getDate()} ${monthNames[now.getMonth()]} ${dayNames[(now.getDay() + 6) % 7]}</div></div>
                     <button class="today-btn" onclick="gotoTab('pomodoro')">⏱️ Sayaca git</button></div>
                 <div class="today-stats">
-                    <div class="stat-card"><div class="stat-label">Günlük hedef</div><div class="stat-value">${fmtDur(hrs)} / ${fmtDur(studyGoal)}</div><div class="today-bar"><div style="width:${pct}%"></div></div></div>
+                    <div class="stat-card goal-ring-card"><div class="goal-ring-wrap"><svg class="goal-ring-svg" viewBox="0 0 64 64" aria-hidden="true"><circle class="goal-ring-bg" cx="32" cy="32" r="27"></circle><circle class="goal-ring-fg" cx="32" cy="32" r="27" style="stroke-dashoffset:${(169.65 * (1 - pct / 100)).toFixed(1)}"></circle></svg><div class="goal-ring-pct">%${pct}</div></div><div class="goal-ring-text"><div class="stat-label">Günlük hedef</div><div class="stat-value">${fmtDur(hrs)} / ${fmtDur(studyGoal)}</div></div></div>
                     <div class="stat-card"><div class="stat-label">Çalışma serisi</div><div class="stat-value">🔥 ${computeStreaks().current} gün</div></div>
                     <div class="stat-card" style="cursor:pointer" onclick="gotoTab('spaced')"><div class="stat-label">Bekleyen tekrar kartı</div><div class="stat-value">${due.length}</div></div>
                 </div>
