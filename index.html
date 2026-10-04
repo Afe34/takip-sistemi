@@ -321,6 +321,13 @@
         .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); font-size: 14px; outline: none; }
         .btn-add-error { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--btn-green), var(--btn-green-hover)); color: var(--btn-text, #ffffff); font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; transition: opacity 0.2s, transform 0.1s; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(var(--accent-rgb),0.25); }
         .btn-add-error:hover { opacity: 0.88; transform: translateY(-1px); }
+        .img-pick-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .img-pick-btn { flex: 1; min-width: 130px; padding: 10px; border-radius: 8px; border: 1px dashed var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 13px; font-weight: 600; cursor: pointer; }
+        .img-pick-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .img-pick-btn:disabled { opacity: 0.6; cursor: wait; }
+        .img-preview-box { position: relative; margin-top: 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); max-width: 220px; }
+        .img-preview-box img { display: block; width: 100%; max-height: 220px; object-fit: contain; background: #000; }
+        .img-remove-btn { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 6px; padding: 4px 9px; font-size: 11px; cursor: pointer; }
         .error-list-card { flex: 1; width: 100%; background-color: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; min-height: 400px; }
         .error-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
         .error-card-item { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
@@ -841,8 +848,17 @@
                         <textarea id="errReason" placeholder="Neden kaçtı?"></textarea>
                     </div>
                     <div class="form-field">
-                        <label for="errImage">Soru Görseli</label>
-                        <input type="file" id="errImage" accept="image/*">
+                        <label>Soru Görseli</label>
+                        <div class="img-pick-row">
+                            <button type="button" class="img-pick-btn" id="errPickGalleryBtn" onclick="document.getElementById('errImageGallery').click()">🖼️ Dosyalardan Seç</button>
+                            <button type="button" class="img-pick-btn" id="errPickCameraBtn" onclick="document.getElementById('errImageCamera').click()">📷 Kamerayla Çek</button>
+                        </div>
+                        <input type="file" id="errImageGallery" accept="image/*" style="display:none" onchange="handleErrorImagePick(this.files[0]); this.value='';">
+                        <input type="file" id="errImageCamera" accept="image/*" capture="environment" style="display:none" onchange="handleErrorImagePick(this.files[0]); this.value='';">
+                        <div class="img-preview-box" id="errImgPreviewBox" style="display:none;">
+                            <img id="errImgPreview" alt="Seçilen görsel önizlemesi">
+                            <button type="button" class="img-remove-btn" onclick="removeErrorImage()">Kaldır</button>
+                        </div>
                     </div>
                     <button class="btn-add-error" onclick="addErrorItem()">Hatayı Deftere Ekle</button>
                 </div>
@@ -2418,22 +2434,44 @@
             });
         }
 
+        /* ---- Soru görseli: dosyalardan seç ya da kamerayla çek ---- */
+        let pendingErrorImageDataUrl = null;
+        async function handleErrorImagePick(file) {
+            if (!file) return;
+            const galBtn = document.getElementById('errPickGalleryBtn'), camBtn = document.getElementById('errPickCameraBtn');
+            const prevGal = galBtn.innerText, prevCam = camBtn.innerText;
+            galBtn.disabled = true; camBtn.disabled = true; camBtn.innerText = '⏳ İşleniyor...';
+            try {
+                const dataUrl = await compressImage(file);
+                if (!dataUrl) { showToast({ title: 'Görsel okunamadı', body: 'Lütfen başka bir fotoğraf dene.' }); return; }
+                pendingErrorImageDataUrl = dataUrl;
+                document.getElementById('errImgPreview').src = dataUrl;
+                document.getElementById('errImgPreviewBox').style.display = 'block';
+            } finally {
+                galBtn.disabled = false; camBtn.disabled = false; galBtn.innerText = prevGal; camBtn.innerText = prevCam;
+            }
+        }
+        function removeErrorImage() {
+            pendingErrorImageDataUrl = null;
+            document.getElementById('errImgPreviewBox').style.display = 'none';
+            document.getElementById('errImgPreview').src = '';
+        }
+
         async function addErrorItem() {
             if (window.__addingError) return;
             const subject = document.getElementById('errSubject').value;
             const topic = document.getElementById('errTopic').value.trim();
             const reason = document.getElementById('errReason').value.trim();
-            const file = document.getElementById('errImage').files[0];
 
             if (topic === '') { alert('Lütfen konu başlığını girin.'); return; }
             window.__addingError = true;
             try {
                 const newId = Date.now();
-                const imageData = await compressImage(file);
-                const imgInfo = await storeImage('err', newId, imageData);
+                const imgInfo = await storeImage('err', newId, pendingErrorImageDataUrl);
 
                 errorData.unshift(Object.assign({ id: newId, subject: subject, topic: topic, reason: reason, resolved: false, date: new Date().toLocaleDateString('tr-TR') }, imgInfo));
-                document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = ''; document.getElementById('errImage').value = '';
+                document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = '';
+                removeErrorImage();
                 saveErrorData(); renderErrorLog();
             } catch (err) {
                 console.error('Hata eklenemedi:', err);
