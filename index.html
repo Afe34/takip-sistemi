@@ -1506,7 +1506,7 @@
             initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
-            initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); });
+            initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); });
             initCloudSyncFor('yks_target_goal', (data) => { const el = document.getElementById('targetGoal'); if (el && typeof data === 'string' && document.activeElement !== el) el.value = data; });
             
             updatePomoDisplay();
@@ -4130,6 +4130,62 @@
         function saveNotifFired() { localStorage.setItem('yks_notif_fired', JSON.stringify(notifFired)); }
         function saveNotifHistory() { localStorage.setItem('yks_notif_history', JSON.stringify(notifHistory)); }
 
+        /* --- Capacitor (Android uygulaması) ile gerçek cihaz alarmı ---
+           Web'de (tarayıcıda) bu bölüm hiç devreye girmez, her şey yukarıdaki
+           setInterval tabanlı kontrol gibi çalışmaya devam eder. Uygulama
+           Capacitor ile Android'e paketlenip LocalNotifications eklentisi
+           eklendiğinde (npx cap sync sonrası) window.Capacitor otomatik olarak
+           var olur ve aşağıdaki kod devreye girip sabah/akşam bildirimlerini
+           işletim sisteminin kendi alarm sistemine (AlarmManager) kaydeder —
+           uygulama kapalı, telefon uykuda ya da internet yokken bile çalışır. */
+        const NATIF_IDS = { morning: 9001, evening: 9002 };
+        function isNativeApp() {
+            return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+        }
+        function getLocalNotificationsPlugin() {
+            return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) || null;
+        }
+        async function requestNativeNotifPermission() {
+            const LN = getLocalNotificationsPlugin();
+            if (!LN) return false;
+            try {
+                const cur = await LN.checkPermissions();
+                if (cur.display === 'granted') return true;
+                const req = await LN.requestPermissions();
+                return req.display === 'granted';
+            } catch (err) { console.error('Yerel bildirim izni alınamadı:', err); return false; }
+        }
+        async function scheduleNativeDailyReminders() {
+            const LN = getLocalNotificationsPlugin();
+            if (!LN) return;
+            try {
+                // Önce eskisini iptal et (saat değiştiyse ya da kapatıldıysa tekrar kurulmasın)
+                await LN.cancel({ notifications: [{ id: NATIF_IDS.morning }, { id: NATIF_IDS.evening }] }).catch(() => {});
+
+                const ok = await requestNativeNotifPermission();
+                if (!ok) return;
+
+                const toSchedule = [];
+                if (notifSettings.morningOn) {
+                    const [h, m] = (notifSettings.morningTime || '09:00').split(':').map(Number);
+                    toSchedule.push({
+                        id: NATIF_IDS.morning, title: 'Sabah özeti', body: 'Bugünkü planını görmek için dokun.',
+                        schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
+                        extra: { tab: 'today' }
+                    });
+                }
+                if (notifSettings.eveningOn) {
+                    const [h, m] = (notifSettings.eveningTime || '20:00').split(':').map(Number);
+                    toSchedule.push({
+                        id: NATIF_IDS.evening, title: 'Akşam kontrolü', body: 'Bugün ne kadar çalıştın, bir bak.',
+                        schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
+                        extra: { tab: 'today' }
+                    });
+                }
+                if (toSchedule.length) await LN.schedule({ notifications: toSchedule });
+            } catch (err) { console.error('Günlük hatırlatıcılar kurulamadı:', err); }
+        }
+
         function gotoTab(tabId) {
             const btn = document.querySelector(`.tab-btn[onclick*="'${tabId}'"]`);
             if (btn) switchTab(btn, tabId);
@@ -4204,7 +4260,31 @@
             setTimeout(() => el.remove(), 8000);
         }
 
+        async function nativeSystemNotify(n) {
+            const LN = getLocalNotificationsPlugin();
+            if (!LN) return false;
+            try {
+                const perm = await LN.checkPermissions();
+                if (perm.display !== 'granted') {
+                    const req = await LN.requestPermissions();
+                    if (req.display !== 'granted') return false;
+                }
+                await LN.schedule({
+                    notifications: [{
+                        id: Math.floor(Math.random() * 1000000) + 10000,
+                        title: n.title,
+                        body: n.body || '',
+                        extra: { tab: n.tab || null }
+                    }]
+                });
+                return true;
+            } catch (err) { console.error('Yerel bildirim gönderilemedi:', err); return false; }
+        }
+
         function systemNotify(n) {
+            // Android uygulaması olarak çalışıyorsa, web Notification API'si WebView içinde
+            // güvenilir çalışmadığı için doğrudan cihazın bildirim sistemini kullan.
+            if (isNativeApp()) { nativeSystemNotify(n); return; }
             if (!('Notification' in window) || Notification.permission !== 'granted') return;
             const opts = { body: n.body, tag: n.tag, data: { tab: n.tab || null } };
             const fallback = () => {
@@ -4287,6 +4367,10 @@
         function renderNotifPermission() {
             const el = document.getElementById('notifPermRow');
             if (!el) return;
+            if (isNativeApp()) {
+                el.innerHTML = '📱 Android uygulaması: sabah/akşam hatırlatıcıları cihazın kendi alarm sistemiyle kurulur, uygulama kapalıyken de çalışır.<br><button onclick="requestNotifPermission()">Bildirim iznini kontrol et</button>';
+                return;
+            }
             if (!('Notification' in window)) {
                 el.innerHTML = 'Bu tarayıcı sistem bildirimlerini desteklemiyor. Bildirimler yalnızca uygulama içinde (🔔 ve köşedeki kutular) görünür.';
             } else if (Notification.permission === 'granted') {
@@ -4298,6 +4382,7 @@
             }
         }
         function requestNotifPermission() {
+            if (isNativeApp()) { requestNativeNotifPermission().then(() => { scheduleNativeDailyReminders(); renderNotifPermission(); }); return; }
             if (!('Notification' in window)) return;
             const done = () => renderNotifPermission();
             const r = Notification.requestPermission(done);
@@ -4320,6 +4405,7 @@
                 eveningTime: v('nsEveningTime').value || NOTIF_DEFAULTS.eveningTime
             };
             saveToCloudAndLocal('yks_notif_settings', notifSettings);
+            scheduleNativeDailyReminders();
         }
 
         function toggleNotifPanel(e) {
@@ -4338,6 +4424,19 @@
         setTimeout(checkNotifSchedule, 4000);
         setInterval(checkNotifSchedule, 30000);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) checkNotifSchedule(); });
+
+        // Uygulama Android'e paketlenmişse (Capacitor) gerçek cihaz alarmlarını kur
+        // ve bildirime dokunulduğunda ilgili sekmeye götür.
+        if (isNativeApp()) {
+            scheduleNativeDailyReminders();
+            const LN = getLocalNotificationsPlugin();
+            if (LN && LN.addListener) {
+                LN.addListener('localNotificationActionPerformed', (action) => {
+                    const tab = action && action.notification && action.notification.extra && action.notification.extra.tab;
+                    if (tab) gotoTab(tab);
+                });
+            }
+        }
 
         /* ================= SAYAÇ (POMODORO) LOGIC ================= */
         let pomoInterval = null;
