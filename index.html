@@ -394,6 +394,9 @@
         .today-title { font-size: 22px; font-weight: 800; } .today-date { font-size: 13px; color: var(--subtext-color); }
         .today-btn { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
         .today-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .reading-strip { display: flex; gap: 6px; margin-top: 10px; }
+        .reading-dot { width: 27px; height: 27px; border-radius: 50%; border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; letter-spacing: -0.3px; color: var(--subtext-color); flex-shrink: 0; }
+        .reading-dot.on { background-color: var(--accent-color); border-color: var(--accent-color); color: #fff; }
         .today-bar { height: 8px; border-radius: 6px; background: var(--border-color); margin-top: 8px; overflow: hidden; }
         .today-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent-color), #3b82f6); border-radius: 6px; }
         .today-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
@@ -1554,6 +1557,7 @@
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
             initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); });
             initCloudSyncFor('yks_target_goal', (data) => { const el = document.getElementById('targetGoal'); if (el && typeof data === 'string' && document.activeElement !== el) el.value = data; });
+            initCloudSyncFor('yks_reading_data', (data) => { readingData = Object.assign({ book: '', goal: 40, log: {}, history: [] }, data || {}); renderToday(); });
             
             updatePomoDisplay();
         });
@@ -2288,6 +2292,54 @@
             list.innerHTML = t.map(x => `<div class="tpl-item"><span>${escapeHtml(x.subject)} · ${escapeHtml(x.text)}<br><small>${x.days.map(d => dayNames[d].substring(0, 3)).join(', ')}</small></span><button class="delete-btn" onclick="deleteTemplate(${x.id})">Sil</button></div>`).join('');
         }
 
+        /* ================= OKUMA TAKİBİ (ders dışı kitap okuma alışkanlığı) ================= */
+        let readingData = Object.assign({ book: '', goal: 40, log: {}, history: [] }, JSON.parse(localStorage.getItem('yks_reading_data') || 'null') || {});
+        function saveReadingData() { saveToCloudAndLocal('yks_reading_data', readingData); }
+        function computeReadingStreak() {
+            const read = Object.keys(readingData.log).filter(k => readingData.log[k]).sort();
+            let longest = 0, run = 0, prev = null;
+            read.forEach(k => { const d = parseDateStr(k); run = (prev && Math.round((d - prev) / 86400000) === 1) ? run + 1 : 1; longest = Math.max(longest, run); prev = d; });
+            const set = new Set(read);
+            let cursor = new Date(); cursor.setHours(0, 0, 0, 0);
+            if (!set.has(formatDateString(cursor))) cursor = addDays(cursor, -1);
+            let current = 0;
+            while (set.has(formatDateString(cursor))) { current++; cursor = addDays(cursor, -1); }
+            return { current, longest };
+        }
+        function markReadingToday() {
+            const ds = formatDateString(new Date());
+            const pagesEl = document.getElementById('readingPagesInput');
+            const pages = pagesEl ? parseInt(pagesEl.value, 10) : NaN;
+            readingData.log[ds] = pages > 0 ? pages : true;
+            saveReadingData(); renderToday();
+            triggerConfetti('small');
+        }
+        function unmarkReadingToday() {
+            delete readingData.log[formatDateString(new Date())];
+            saveReadingData(); renderToday();
+        }
+        function updateReadingBook() {
+            readingData.book = document.getElementById('readingBookInput').value.trim();
+            saveReadingData();
+        }
+        function updateReadingGoal() {
+            const v = parseInt(document.getElementById('readingGoalInput').value, 10);
+            readingData.goal = v > 0 ? v : 40;
+            saveReadingData(); renderToday();
+        }
+        function removeReadingHistory(id) {
+            readingData.history = readingData.history.filter(h => h.id !== id);
+            saveReadingData(); renderToday();
+        }
+        function finishReadingBook() {
+            if (!readingData.book) return;
+            readingData.history.unshift({ id: Date.now(), title: readingData.book, finishedAt: formatDateString(new Date()) });
+            readingData.history = readingData.history.slice(0, 30);
+            readingData.book = '';
+            saveReadingData(); renderToday();
+            triggerConfetti('medium', 'Kitap bitti, tebrikler!');
+        }
+
         /* ================= BUGÜN ANA EKRANI ================= */
         function addTodayTask() {
             const el = document.getElementById('todayInput'); const text = el.value.trim(); if (!text) return;
@@ -2301,6 +2353,38 @@
             const now = new Date(), today = formatDateString(now);
             for (let i = 1; i <= NOTIF_LOOKBACK_DAYS; i++) { const ds = formatDateString(addDays(now, -i)); (plannerData.days[ds] || []).filter(t => !t.completed).forEach(t => moveTaskTo(t.id, ds, today)); }
         }
+        const READING_DOW2 = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+        function renderReadingCard() {
+            const now = new Date(), todayStr = formatDateString(now);
+            const marked = readingData.log[todayStr];
+            const pagesToday = typeof marked === 'number' ? marked : null;
+            const streak = computeReadingStreak();
+            const last7 = Array.from({ length: 7 }, (_, i) => addDays(now, i - 6));
+            const dots = last7.map(d => {
+                const ds = formatDateString(d), on = !!readingData.log[ds];
+                return `<div class="reading-dot ${on ? 'on' : ''}" title="${ds}">${READING_DOW2[(d.getDay() + 6) % 7]}</div>`;
+            }).join('');
+            return `
+                <div class="today-sec" style="margin-top:18px"><span>📖 Okuma Takibi</span>${streak.current ? `<span>🔥 ${streak.current} gün</span>` : ''}</div>
+                <div class="stat-card">
+                    <div class="input-group" style="margin-bottom:8px">
+                        <input type="text" id="readingBookInput" placeholder="Şu an okuduğun kitap (opsiyonel)" value="${escapeHtml(readingData.book)}" onchange="updateReadingBook()">
+                        ${readingData.book ? `<button class="link-btn" onclick="finishReadingBook()">Bitirdim</button>` : ''}
+                    </div>
+                    <div class="input-group" style="margin-bottom:10px; align-items:center;">
+                        <span style="font-size:13px; color:var(--subtext-color); white-space:nowrap;">Günlük hedef</span>
+                        <input type="number" id="readingGoalInput" min="1" value="${readingData.goal}" onchange="updateReadingGoal()" style="max-width:70px">
+                        <span style="font-size:13px; color:var(--subtext-color);">sayfa</span>
+                    </div>
+                    ${marked
+                    ? `<div class="today-row"><div>✅ Bugün okudum${pagesToday ? ` · ${pagesToday} sayfa` : ''}</div><button class="link-btn" onclick="unmarkReadingToday()">kaldır</button></div>`
+                    : `<div class="input-group"><input type="number" id="readingPagesInput" placeholder="sayfa" min="0" style="flex:1; min-width:84px"><button onclick="markReadingToday()">Bugünü işaretle</button></div>`}
+                    <div class="reading-strip">${dots}</div>
+                </div>
+                ${readingData.history.length ? `<div class="today-sec"><span>✅ Bitirilen kitaplar</span></div>` +
+                    readingData.history.slice(0, 5).map(h => `<div class="today-row"><div><b>${escapeHtml(h.title)}</b><small>${h.finishedAt}</small></div><button class="delete-btn" title="Kaldır" onclick="removeReadingHistory(${h.id})">✕</button></div>`).join('') : ''}`;
+        }
+
         function renderToday() {
             const root = document.getElementById('todayRoot'); if (!root) return;
             tplList();
@@ -2336,7 +2420,8 @@
                         <div class="today-sec"><span>🎯 En zayıf 3 konu</span></div>
                         ${weak.length ? weak.map(o => `<div class="today-row"><div><b>${escapeHtml(o.topic)}</b><small>${escapeHtml(o.subject)} · ${o.examMisses} denemede · ${o.openErrors} açık hata</small></div><div class="btns">${o.spaced ? '' : `<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'spaced')">🧠 Tekrara ekle</button>`}<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'newerror')">📓</button></div></div>`).join('') : empty('Deneme ve hata defteri doldukça en zayıf konuların burada görünür.')}
                     </div>
-                </div>`;
+                </div>
+                ${renderReadingCard()}`;
             const ts = document.getElementById('todaySubject'); ts.innerHTML = STAT_SUBJECTS.map(x => `<option value="${x}">${x}</option>`).join(''); ts.value = pSubVal;
             const ti = document.getElementById('todayInput'); ti.value = pv; if (hadFocus) ti.focus();
         }
