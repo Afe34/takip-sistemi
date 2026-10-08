@@ -350,20 +350,8 @@
         @media (min-width: 900px) { .exam-grid { grid-template-columns: 340px 1fr; } }
         .exam-inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .chart-container { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; height: 380px; position: relative; display: flex; flex-direction: column; }
-        .chart-filter-btn, .goal-filter-btn { background-color: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .chart-filter-btn.active, .goal-filter-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(var(--accent-rgb),0.3); }
-
-        .goal-row { margin-bottom: 14px; }
-        .goal-row-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
-        .goal-row-label { font-weight: 700; font-size: 13px; }
-        .goal-row-input-wrap { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--subtext-color); }
-        .goal-row-input-wrap input[type="number"] { width: 56px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 12px; font-weight: 700; text-align: center; outline: none; }
-        .goal-bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background-color: var(--border-color); margin-bottom: 4px; }
-        .goal-bar-fill { height: 100%; border-radius: 6px; transition: width 0.3s ease; }
-        .goal-status { font-size: 12px; font-weight: 600; }
-        .goal-status.ok { color: var(--btn-green, var(--accent-color)); }
-        .goal-status.bad { color: var(--danger-color); }
-        .goal-status.neutral { color: var(--subtext-color); }
+        .chart-filter-btn { background-color: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .chart-filter-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(var(--accent-rgb),0.3); }
         
         .pomodoro-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 44px 40px; max-width: 500px; margin: 0 auto; text-align: center; position: relative; overflow: hidden; }
         [data-theme="dark"] .pomodoro-box { box-shadow: 0 0 60px rgba(var(--accent-rgb),0.07); }
@@ -1070,16 +1058,6 @@
                         <div id="examSubjectBars"></div>
                     </div>
                     <div class="error-list-card" style="min-height: auto;">
-                        <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <span>🎯 Net Hedefi <span style="font-weight:400; font-size:12px; color:var(--subtext-color);">(son 5 deneme ortalaması)</span></span>
-                            <div style="display:flex; gap:6px;">
-                                <button class="goal-filter-btn active" id="goalFilterTYT" onclick="setGoalFilter('TYT')">TYT</button>
-                                <button class="goal-filter-btn" id="goalFilterAYT" onclick="setGoalFilter('AYT')">AYT</button>
-                            </div>
-                        </div>
-                        <div id="netGoalRows"></div>
-                    </div>
-                    <div class="error-list-card" style="min-height: auto;">
                         <div class="error-form-title">Son Denemeler</div>
                         <div id="examHistoryList"></div>
                     </div>
@@ -1573,7 +1551,6 @@
             initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
             initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
-            initCloudSyncFor('yks_net_goals', (data) => { netGoals = data || {}; renderNetGoals(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
             initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); });
             initCloudSyncFor('yks_target_goal', (data) => { const el = document.getElementById('targetGoal'); if (el && typeof data === 'string' && document.activeElement !== el) el.value = data; });
@@ -3111,72 +3088,6 @@
             renderExamChart();
         }
 
-        /* ---- Net Hedefi: ders bazında ve toplamda hedef net belirleyip son 5 deneme ortalamasıyla karşılaştırma ---- */
-        let netGoals = JSON.parse(localStorage.getItem('yks_net_goals') || 'null') || {};
-        let currentGoalFilter = 'TYT';
-
-        function setGoalFilter(filterType) {
-            currentGoalFilter = filterType;
-            document.querySelectorAll('.goal-filter-btn').forEach(btn => btn.classList.remove('active'));
-            const btn = document.getElementById(filterType === 'TYT' ? 'goalFilterTYT' : 'goalFilterAYT');
-            if (btn) btn.classList.add('active');
-            renderNetGoals();
-        }
-
-        function updateNetGoal(type, code, value) {
-            const v = Math.max(0, parseFloat(value) || 0);
-            if (!netGoals[type]) netGoals[type] = {};
-            netGoals[type][code] = v;
-            saveToCloudAndLocal('yks_net_goals', netGoals);
-            renderNetGoals();
-        }
-
-        function renderNetGoals() {
-            const box = document.getElementById('netGoalRows');
-            if (!box) return;
-            const type = currentGoalFilter;
-            const goals = netGoals[type] || {};
-            const recent = examData.filter(e => e.type === type && e.sections).slice(-5);
-
-            function goalRow(code, label, max) {
-                let sum = 0, count = 0;
-                recent.forEach(e => {
-                    if (code === 'TOPLAM') { sum += e.total; count++; }
-                    else if (e.sections[code]) { sum += (e.sections[code].c - e.sections[code].w / 4); count++; }
-                });
-                const avg = count ? Math.round((sum / count) * 100) / 100 : null;
-                const goal = goals[code] || 0;
-                const avgDisplay = avg === null ? '—' : fmtNet(avg);
-                let barPct = 0, statusClass = 'neutral', statusText = 'Hedef belirlemedin';
-                if (goal > 0) {
-                    barPct = Math.max(0, Math.min(100, avg === null ? 0 : (avg / goal) * 100));
-                    if (avg !== null) {
-                        const diff = Math.round((avg - goal) * 100) / 100;
-                        if (diff >= 0) { statusClass = 'ok'; statusText = `Hedefi ${diff === 0 ? 'tuttur' : '+' + fmtNet(diff)} 🎉`; }
-                        else { statusClass = 'bad'; statusText = `Hedefe ${fmtNet(Math.abs(diff))} net kaldı`; }
-                    } else {
-                        statusText = 'Bu türde henüz deneme yok';
-                    }
-                } else if (avg !== null) {
-                    statusText = 'Hedef belirlemedin';
-                }
-                const barColor = statusClass === 'ok' ? 'var(--accent-color)' : (statusClass === 'bad' ? 'var(--danger-color)' : 'var(--border-color)');
-                return `<div class="goal-row">
-                    <div class="goal-row-top">
-                        <span class="goal-row-label">${escapeHtml(label)}</span>
-                        <span class="goal-row-input-wrap">Hedef <input type="number" min="0" max="${max}" step="0.25" value="${goal || ''}" placeholder="0" onchange="updateNetGoal('${type}','${code}', this.value)"> · Ortalama <b>${avgDisplay}</b></span>
-                    </div>
-                    <div class="goal-bar"><div class="goal-bar-fill" style="width:${barPct}%; background:${barColor};"></div></div>
-                    <div class="goal-status ${statusClass}">${statusText}</div>
-                </div>`;
-            }
-
-            let html = (EXAM_SECTIONS[type] || []).map(sec => goalRow(sec.code, sec.label, sec.max)).join('');
-            const totalMax = (EXAM_SECTIONS[type] || []).reduce((s, sec) => s + sec.max, 0);
-            html += goalRow('TOPLAM', 'Toplam Net', totalMax);
-            box.innerHTML = html;
-        }
-
         function toggleExamFields() {
             const typeEl = document.getElementById('examType');
             if (!typeEl) return;
@@ -3327,7 +3238,6 @@
                 list.innerHTML = '<div class="empty-text">Henüz kaydedilmiş deneme yok. Soldaki formdan ilk denemeni kaydedebilirsin.</div>';
                 renderExamChart();
                 renderExamAnalysis();
-                renderNetGoals();
                 return;
             }
 
@@ -3356,7 +3266,6 @@
 
             renderExamChart();
             renderExamAnalysis();
-            renderNetGoals();
         }
 
         function renderExamChart() {
@@ -4257,6 +4166,22 @@
             const list = source === 'pool' ? (plannerData.pool[formatDateString(currentWeekStart)] || []) : (plannerData.days[source] || []);
             return list.find(t => t.id == id) || null;
         }
+        // Bir şablondan (tekrarlayan görev) üretilmiş bir kartta "Tekrarı tamamen durdur" seçilince:
+        // 1) şablonun kendisi silinir (artık hiçbir gelecek haftaya eklenmez)
+        // 2) bugünden itibaren, o şablondan daha önce üretilmiş ama henüz görülmemiş/silinmemiş tüm gün kopyaları kaldırılır
+        function stopRecurringTask(taskId, source) {
+            const task = findPlannerTask(taskId, source);
+            if (!task || !task.tplId) return;
+            const tplId = task.tplId, todayStr = formatDateString(new Date());
+            tplList();
+            plannerData.templates = plannerData.templates.filter(t => t.id !== tplId);
+            Object.keys(plannerData.days).forEach(ds => {
+                if (ds < todayStr) return;   // geçmiş günlere dokunulmaz
+                plannerData.days[ds] = plannerData.days[ds].filter(t => t.tplId !== tplId);
+            });
+            savePlanner(); renderPlanner(); renderTemplates();
+            showToast({ title: 'Tekrarlayan görev durduruldu', body: 'Şablon silindi, bugünden sonraki tüm günlerden kaldırıldı.' });
+        }
 
         function openMoveSheet(taskId, source) {
             const task = findPlannerTask(taskId, source);
@@ -4450,7 +4375,8 @@
             const items = [];
             if (!task.completed) items.push(['▶', 'Sayacı başlat', () => startTaskTimer(taskId)]);
             items.push(['📅', 'Güne taşı', () => openMoveSheet(taskId, source)]);
-            items.push(['🗑️', 'Sil', () => deleteTaskDrag(taskId, source), 'danger']);
+            if (task.tplId) items.push(['🔁', 'Tekrarı tamamen durdur', () => stopRecurringTask(taskId, source), 'danger']);
+            items.push(['🗑️', 'Sil' + (task.tplId ? ' (sadece bu gün)' : ''), () => deleteTaskDrag(taskId, source), 'danger']);
             const m = document.createElement('div');
             m.className = 'task-menu';
             m.setAttribute('role', 'menu');
