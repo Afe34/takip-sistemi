@@ -335,7 +335,17 @@
         .error-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
         .error-card-item { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
         .error-card-item.resolved { opacity: 0.6; border-style: dashed; }
-        .error-img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
+        .error-img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; display: block; }
+        .error-img-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+        .error-img-row .error-img-wrap { width: 100%; }
+        .error-img-row:has(.error-img-wrap:nth-child(2)) .error-img-wrap { width: calc(50% - 3px); }
+        .error-img-row .error-img-preview { max-height: 130px; }
+        .error-img-wrap { position: relative; }
+        .error-img-wrap .img-remove-btn { position: absolute; top: 5px; right: 5px; }
+        .img-preview-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .img-preview-thumb { position: relative; width: 68px; height: 68px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .img-preview-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .img-preview-thumb .img-remove-btn { position: absolute; top: 2px; right: 2px; padding: 2px 6px; }
 
         .error-filter-panel { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
         .error-filter-btn { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; user-select: none; }
@@ -874,17 +884,14 @@
                         <textarea id="errReason" placeholder="Neden kaçtı?"></textarea>
                     </div>
                     <div class="form-field">
-                        <label>Soru Görseli</label>
+                        <label>Soru Görseli (birden fazla ekleyebilirsin)</label>
                         <div class="img-pick-row">
                             <button type="button" class="img-pick-btn" id="errPickGalleryBtn" onclick="document.getElementById('errImageGallery').click()">🖼️ Dosyalardan Seç</button>
                             <button type="button" class="img-pick-btn" id="errPickCameraBtn" onclick="document.getElementById('errImageCamera').click()">📷 Kamerayla Çek</button>
                         </div>
-                        <input type="file" id="errImageGallery" accept="image/*" class="file-input-hidden" onchange="handleErrorImagePick(this.files[0]); this.value='';">
-                        <input type="file" id="errImageCamera" accept="image/*" capture="environment" class="file-input-hidden" onchange="handleErrorImagePick(this.files[0]); this.value='';">
-                        <div class="img-preview-box" id="errImgPreviewBox" style="display:none;">
-                            <img id="errImgPreview" alt="Seçilen görsel önizlemesi">
-                            <button type="button" class="img-remove-btn" onclick="removeErrorImage()">Kaldır</button>
-                        </div>
+                        <input type="file" id="errImageGallery" accept="image/*" multiple class="file-input-hidden" onchange="handleErrorImagePick(this.files); this.value='';">
+                        <input type="file" id="errImageCamera" accept="image/*" capture="environment" class="file-input-hidden" onchange="handleErrorImagePick(this.files); this.value='';">
+                        <div class="img-preview-row" id="errImgPreviewRow"></div>
                     </div>
                     <button class="btn-add-error" onclick="addErrorItem()">Hatayı Deftere Ekle</button>
                 </div>
@@ -916,7 +923,7 @@
         <div id="notesTab" class="tab-content">
             <div class="error-layout">
                 <div class="error-form-card">
-                    <div class="error-form-title">Önemli Not / Taktik Ekle</div>
+                    <div class="error-form-title" id="noteFormTitle">Önemli Not / Taktik Ekle</div>
                     <div class="form-field">
                         <label for="noteSubject">Ders</label>
                         <select id="noteSubject">
@@ -939,10 +946,19 @@
                         <textarea id="noteContent" placeholder="Unutulmaması gereken formül, detay veya soru çözme taktiği..." style="height: 100px; resize: vertical;"></textarea>
                     </div>
                     <div class="form-field">
-                        <label for="noteImage">Görsel / Ek (Opsiyonel)</label>
-                        <input type="file" id="noteImage" accept="image/*">
+                        <label>Görsel / Ek (Opsiyonel, birden fazla ekleyebilirsin)</label>
+                        <div class="img-pick-row">
+                            <button type="button" class="img-pick-btn" id="notePickGalleryBtn" onclick="document.getElementById('noteImageGallery').click()">🖼️ Dosyalardan Seç</button>
+                            <button type="button" class="img-pick-btn" id="notePickCameraBtn" onclick="document.getElementById('noteImageCamera').click()">📷 Kamerayla Çek</button>
+                        </div>
+                        <input type="file" id="noteImageGallery" accept="image/*" multiple class="file-input-hidden" onchange="handleNoteImagePick(this.files); this.value='';">
+                        <input type="file" id="noteImageCamera" accept="image/*" capture="environment" class="file-input-hidden" onchange="handleNoteImagePick(this.files); this.value='';">
+                        <div class="img-preview-row" id="noteImgPreviewRow"></div>
                     </div>
-                    <button class="btn-add-error" onclick="addNoteItem()">Notu Kaydet</button>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-add-error" id="noteSubmitBtn" onclick="addNoteItem()" style="flex:1;">Notu Kaydet</button>
+                        <button type="button" class="img-pick-btn" id="noteCancelEditBtn" onclick="cancelNoteEdit()" style="display:none; flex:0 0 auto;">Vazgeç</button>
+                    </div>
                 </div>
 
                 <div class="error-list-card">
@@ -1440,12 +1456,28 @@
             const ref = imageDocRef(k);
             if (ref && window.fsDeleteDoc) { try { await window.fsDeleteDoc(ref); } catch (e) { console.error('Fotoğraf silinemedi:', e); } }
         }
-        function imgTag(kind, item) {
-            if (!item.image && !item.hasImage) return '';
-            const k = kind + '_' + item.id;
-            if (item.image) imageCache[k] = imageCache[k] || item.image;
+        // k: bu görselin benzersiz depolama anahtarı (örn. "err_123" ana görsel, "err_123_a1_456" ek görsel)
+        // info: {image?, hasImage?} taşıyan nesne — bir öğenin kendisi (ana görsel) ya da bir extraImages elemanı olabilir
+        // removeCall: verilirse küçük resmin üzerine o fonksiyonu çağıran bir "✕" kaldırma düğmesi eklenir
+        function imgTagKV(k, info, removeCall) {
+            if (!info.image && !info.hasImage) return '';
+            if (info.image) imageCache[k] = imageCache[k] || info.image;
             const cached = imageCache[k];
-            return `<img data-img-key="${k}" src="${cached || IMG_PLACEHOLDER}" class="error-img-preview ${cached ? '' : 'img-loading'}" onclick="openImageByKey('${k}')" alt="Soru fotoğrafı">`;
+            const img = `<img data-img-key="${k}" src="${cached || IMG_PLACEHOLDER}" class="error-img-preview ${cached ? '' : 'img-loading'}" onclick="openImageByKey('${k}')" alt="Soru fotoğrafı">`;
+            if (!removeCall) return img;
+            return `<div class="error-img-wrap">${img}<button type="button" class="img-remove-btn" onclick="event.stopPropagation(); ${removeCall}">✕</button></div>`;
+        }
+        function imgTag(kind, item) {
+            return imgTagKV(kind + '_' + item.id, item, `delete${kind === 'err' ? 'Error' : 'Note'}ItemImage(${item.id}, 'main')`);
+        }
+        function extraImgTags(kind, item) {
+            if (!item.extraImages || !item.extraImages.length) return '';
+            return item.extraImages.map(ei => imgTagKV(kind + '_' + ei.id, ei, `delete${kind === 'err' ? 'Error' : 'Note'}ItemImage(${item.id}, '${ei.id}')`)).join('');
+        }
+        // Bir öğenin ana görseli + varsa ek görsellerini, kaldırma düğmeleriyle birlikte tek bir satırda döndürür
+        function allImgTags(kind, item) {
+            const tags = imgTag(kind, item) + extraImgTags(kind, item);
+            return tags ? `<div class="error-img-row">${tags}</div>` : '';
         }
         function hydrateImages() {
             document.querySelectorAll('img.img-loading[data-img-key]').forEach(img => {
@@ -1479,12 +1511,23 @@
                         try { await putAiDoc(item.id, item.ai); delete item.ai; item.hasAi = true; moved++; }
                         catch (e) { failed++; console.error('Analiz taşınamadı:', e); }
                     }
-                    if (typeof item.image !== 'string' || item.image.indexOf('data:') !== 0) continue;
-                    if (uid !== cloudUid) return;
-                    try {
-                        await putImageDoc(job.kind + '_' + item.id, item.image);
-                        delete item.image; item.hasImage = true; moved++;
-                    } catch (e) { failed++; console.error('Fotoğraf taşınamadı:', e); }
+                    if (typeof item.image === 'string' && item.image.indexOf('data:') === 0) {
+                        if (uid !== cloudUid) return;
+                        try {
+                            await putImageDoc(job.kind + '_' + item.id, item.image);
+                            delete item.image; item.hasImage = true; moved++;
+                        } catch (e) { failed++; console.error('Fotoğraf taşınamadı:', e); }
+                    }
+                    if (Array.isArray(item.extraImages)) {
+                        for (const ei of item.extraImages) {
+                            if (typeof ei.image !== 'string' || ei.image.indexOf('data:') !== 0) continue;
+                            if (uid !== cloudUid) return;
+                            try {
+                                await putImageDoc(job.kind + '_' + ei.id, ei.image);
+                                delete ei.image; ei.hasImage = true; moved++;
+                            } catch (e) { failed++; console.error('Ek fotoğraf taşınamadı:', e); }
+                        }
+                    }
                 }
                 if (uid === cloudUid && (moved || forceSave)) { job.save(); job.render(); }
                 if (moved) showToast({ title: 'Fotoğraflar ve analizler ayrı depoya taşındı', body: `${moved} öğe taşındı, kayıt boyutu küçüldü.` });
@@ -2790,27 +2833,78 @@
             });
         }
 
-        /* ---- Soru görseli: dosyalardan seç ya da kamerayla çek ---- */
-        let pendingErrorImageDataUrl = null;
-        async function handleErrorImagePick(file) {
-            if (!file) return;
-            const galBtn = document.getElementById('errPickGalleryBtn'), camBtn = document.getElementById('errPickCameraBtn');
-            const prevGal = galBtn.innerText, prevCam = camBtn.innerText;
-            galBtn.disabled = true; camBtn.disabled = true; camBtn.innerText = '⏳ İşleniyor...';
+        /* ---- Görsel ekleme: dosyalardan seç ya da kamerayla çek — birden fazla fotoğraf eklenebilir ---- */
+        // Bekleyen (henüz kaydedilmemiş) görselleri önizleme satırında, tek tek kaldırılabilir şekilde çizer
+        function renderPendingImgPreview(rowId, pendingArr, removeFnName) {
+            const row = document.getElementById(rowId); if (!row) return;
+            row.innerHTML = pendingArr.map((dataUrl, i) => `
+                <div class="img-preview-thumb">
+                    <img src="${dataUrl}" alt="Seçilen görsel">
+                    <button type="button" class="img-remove-btn" onclick="${removeFnName}(${i})">✕</button>
+                </div>`).join('');
+        }
+        // file listesindeki her dosyayı sıkıştırıp pendingArr'a ekler; buttonIds ile geçici "işleniyor" durumunu gösterir
+        async function pickImagesInto(fileList, pendingArr, buttonIds, rowId, removeFnName) {
+            const files = Array.from(fileList || []); if (!files.length) return;
+            const btns = buttonIds.map(id => document.getElementById(id)).filter(Boolean);
+            const prevTexts = btns.map(b => b.innerText);
+            btns.forEach(b => { b.disabled = true; });
+            if (btns[1]) btns[1].innerText = '⏳ İşleniyor...';
             try {
-                const dataUrl = await compressImage(file);
-                if (!dataUrl) { showToast({ title: 'Görsel okunamadı', body: 'Lütfen başka bir fotoğraf dene.' }); return; }
-                pendingErrorImageDataUrl = dataUrl;
-                document.getElementById('errImgPreview').src = dataUrl;
-                document.getElementById('errImgPreviewBox').style.display = 'block';
+                for (const file of files) {
+                    const dataUrl = await compressImage(file);
+                    if (dataUrl) pendingArr.push(dataUrl);
+                }
+                renderPendingImgPreview(rowId, pendingArr, removeFnName);
             } finally {
-                galBtn.disabled = false; camBtn.disabled = false; galBtn.innerText = prevGal; camBtn.innerText = prevCam;
+                btns.forEach((b, i) => { b.disabled = false; b.innerText = prevTexts[i]; });
             }
         }
-        function removeErrorImage() {
-            pendingErrorImageDataUrl = null;
-            document.getElementById('errImgPreviewBox').style.display = 'none';
-            document.getElementById('errImgPreview').src = '';
+
+        let pendingErrorImages = [];
+        async function handleErrorImagePick(fileList) {
+            await pickImagesInto(fileList, pendingErrorImages, ['errPickGalleryBtn', 'errPickCameraBtn'], 'errImgPreviewRow', 'removePendingErrorImage');
+        }
+        function removePendingErrorImage(i) {
+            pendingErrorImages.splice(i, 1);
+            renderPendingImgPreview('errImgPreviewRow', pendingErrorImages, 'removePendingErrorImage');
+        }
+        // Daha önce kaydedilmiş bir öğeden tek bir görseli kaldırır (imgId 'main' ya da bir extraImages id'si olabilir)
+        function deleteErrorItemImage(itemId, imgId) {
+            const item = errorData.find(e => e.id === itemId); if (!item) return;
+            if (imgId === 'main') {
+                if (item.hasImage) deleteImageDoc('err', itemId);
+                delete item.image; delete item.hasImage;
+            } else {
+                const idx = (item.extraImages || []).findIndex(ei => ei.id === imgId);
+                if (idx > -1) {
+                    if (item.extraImages[idx].hasImage) deleteImageDoc('err', item.extraImages[idx].id);
+                    item.extraImages.splice(idx, 1);
+                }
+            }
+            saveErrorData(); renderErrorLog();
+        }
+        // Bekleyen görsel listesini bir öğeye yeni kayıt olarak dönüştürür (ilki ana görsel, kalanı ek görsel olur)
+        async function buildImageFields(kind, itemId, pendingArr) {
+            if (!pendingArr.length) return {};
+            const mainInfo = await storeImage(kind, itemId, pendingArr[0]);
+            const extraImages = [];
+            for (let i = 1; i < pendingArr.length; i++) {
+                const extraId = itemId + '_a' + i + '_' + Date.now();
+                extraImages.push(Object.assign({ id: extraId }, await storeImage(kind, extraId, pendingArr[i])));
+            }
+            return extraImages.length ? Object.assign({}, mainInfo, { extraImages }) : mainInfo;
+        }
+        // Bekleyen görselleri VAR OLAN bir öğeye ekler (düzenleme sırasında): ana görsel yoksa ilkini ana yapar, gerisi ek görsel olur
+        async function appendPendingImagesToItem(kind, item, pendingArr) {
+            if (!pendingArr.length) return;
+            const imgs = pendingArr.slice();
+            if (!item.image && !item.hasImage) Object.assign(item, await storeImage(kind, item.id, imgs.shift()));
+            item.extraImages = item.extraImages || [];
+            for (let i = 0; i < imgs.length; i++) {
+                const extraId = item.id + '_a' + i + '_' + Date.now();
+                item.extraImages.push(Object.assign({ id: extraId }, await storeImage(kind, extraId, imgs[i])));
+            }
         }
 
         async function addErrorItem() {
@@ -2823,11 +2917,11 @@
             window.__addingError = true;
             try {
                 const newId = Date.now();
-                const imgInfo = await storeImage('err', newId, pendingErrorImageDataUrl);
+                const imgInfo = await buildImageFields('err', newId, pendingErrorImages);
 
                 errorData.unshift(Object.assign({ id: newId, subject: subject, topic: topic, reason: reason, resolved: false, date: new Date().toLocaleDateString('tr-TR') }, imgInfo));
                 document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = '';
-                removeErrorImage();
+                pendingErrorImages = []; renderPendingImgPreview('errImgPreviewRow', pendingErrorImages, 'removePendingErrorImage');
                 saveErrorData(); renderErrorLog();
             } catch (err) {
                 console.error('Hata eklenemedi:', err);
@@ -2845,6 +2939,7 @@
                 const gone = errorData.find(e => e.id === id);
                 errorData = errorData.filter(e => e.id !== id); saveErrorData(); renderErrorLog();
                 if (gone && gone.hasImage) deleteImageDoc('err', id);
+                if (gone) (gone.extraImages || []).forEach(ei => { if (ei.hasImage) deleteImageDoc('err', ei.id); });
                 if (gone && gone.hasAi) deleteAiDoc(id);
             }
         }
@@ -2911,7 +3006,7 @@
                 const st = stats[statKey(item.subject, item.topic)];
                 grid.innerHTML += `
                     <div class="error-card-item ${item.resolved ? 'resolved' : ''}" style="border-left: 3px solid ${sc.color};">
-                        ${imgTag('err', item)}
+                        ${allImgTags('err', item)}
                         <div style="font-size: 11px; font-weight: 700; color: ${sc.color}; background: ${sc.bg}; border: 1px solid ${sc.border}; display:inline-block; padding:2px 8px; border-radius:6px; margin-bottom:4px;">${escapeHtml(item.subject)}</div>
                         <div style="font-weight: 700; font-size: 14px;">${escapeHtml(item.topic)}</div>
                         ${st && st.examMisses ? `<div class="link-note">📝 Denemelerde ${st.examMisses} kez kaçırıldı</div>` : ''}
@@ -2933,37 +3028,90 @@
             saveToCloudAndLocal('yks_notes_data', notesData);
         }
 
+        let pendingNoteImages = [];
+        let editingNoteId = null;
+        async function handleNoteImagePick(fileList) {
+            await pickImagesInto(fileList, pendingNoteImages, ['notePickGalleryBtn', 'notePickCameraBtn'], 'noteImgPreviewRow', 'removePendingNoteImage');
+        }
+        function removePendingNoteImage(i) {
+            pendingNoteImages.splice(i, 1);
+            renderPendingImgPreview('noteImgPreviewRow', pendingNoteImages, 'removePendingNoteImage');
+        }
+        function deleteNoteItemImage(itemId, imgId) {
+            const item = notesData.find(n => n.id === itemId); if (!item) return;
+            if (imgId === 'main') {
+                if (item.hasImage) deleteImageDoc('note', itemId);
+                delete item.image; delete item.hasImage;
+            } else {
+                const idx = (item.extraImages || []).findIndex(ei => ei.id === imgId);
+                if (idx > -1) {
+                    if (item.extraImages[idx].hasImage) deleteImageDoc('note', item.extraImages[idx].id);
+                    item.extraImages.splice(idx, 1);
+                }
+            }
+            saveNotesData(); renderNotesLog();
+        }
+        // Not formunu seçilen notun bilgileriyle doldurup "düzenleme moduna" geçirir
+        function editNoteItem(id) {
+            const item = notesData.find(n => n.id === id); if (!item) return;
+            editingNoteId = id;
+            document.getElementById('noteSubject').value = item.subject;
+            document.getElementById('noteTopic').value = item.topic;
+            document.getElementById('noteContent').value = item.content;
+            pendingNoteImages = []; renderPendingImgPreview('noteImgPreviewRow', pendingNoteImages, 'removePendingNoteImage');
+            document.getElementById('noteFormTitle').innerText = 'Notu Düzenle';
+            document.getElementById('noteSubmitBtn').innerText = 'Değişiklikleri Kaydet';
+            document.getElementById('noteCancelEditBtn').style.display = '';
+            document.getElementById('notesTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function cancelNoteEdit() {
+            editingNoteId = null;
+            document.getElementById('noteSubject').value = 'Matematik';
+            document.getElementById('noteTopic').value = '';
+            document.getElementById('noteContent').value = '';
+            pendingNoteImages = []; renderPendingImgPreview('noteImgPreviewRow', pendingNoteImages, 'removePendingNoteImage');
+            document.getElementById('noteFormTitle').innerText = 'Önemli Not / Taktik Ekle';
+            document.getElementById('noteSubmitBtn').innerText = 'Notu Kaydet';
+            document.getElementById('noteCancelEditBtn').style.display = 'none';
+        }
         async function addNoteItem() {
             if (window.__addingNote) return;
             const subject = document.getElementById('noteSubject').value;
             const topic = document.getElementById('noteTopic').value.trim();
             const content = document.getElementById('noteContent').value.trim();
-            const file = document.getElementById('noteImage').files[0];
 
             if (topic === '' || content === '') { alert('Lütfen konu/başlık ve not detayını boş bırakmayın.'); return; }
             window.__addingNote = true;
             try {
-                const newId = Date.now();
-                const imageData = await compressImage(file);
-                const imgInfo = await storeImage('note', newId, imageData);
-
-                notesData.unshift(Object.assign({
-                    id: newId,
-                    subject: subject,
-                    topic: topic,
-                    content: content,
-                    date: new Date().toLocaleDateString('tr-TR')
-                }, imgInfo));
-
-                document.getElementById('noteTopic').value = '';
-                document.getElementById('noteContent').value = '';
-                document.getElementById('noteImage').value = '';
-                saveNotesData();
-                renderNotesLog();
-                triggerConfetti('small');
+                if (editingNoteId) {
+                    const item = notesData.find(n => n.id === editingNoteId);
+                    if (item) {
+                        item.subject = subject; item.topic = topic; item.content = content;
+                        await appendPendingImagesToItem('note', item, pendingNoteImages);
+                        saveNotesData(); renderNotesLog();
+                        triggerConfetti('small');
+                    }
+                    cancelNoteEdit();
+                } else {
+                    const newId = Date.now();
+                    const imgInfo = await buildImageFields('note', newId, pendingNoteImages);
+                    notesData.unshift(Object.assign({
+                        id: newId,
+                        subject: subject,
+                        topic: topic,
+                        content: content,
+                        date: new Date().toLocaleDateString('tr-TR')
+                    }, imgInfo));
+                    document.getElementById('noteTopic').value = '';
+                    document.getElementById('noteContent').value = '';
+                    pendingNoteImages = []; renderPendingImgPreview('noteImgPreviewRow', pendingNoteImages, 'removePendingNoteImage');
+                    saveNotesData();
+                    renderNotesLog();
+                    triggerConfetti('small');
+                }
             } catch (err) {
-                console.error('Not eklenemedi:', err);
-                showToast({ title: 'Kayıt eklenemedi', body: 'Bir şeyler ters gitti, lütfen tekrar deneyin.' });
+                console.error('Not kaydedilemedi:', err);
+                showToast({ title: 'Kayıt başarısız', body: 'Bir şeyler ters gitti, lütfen tekrar deneyin.' });
             } finally { window.__addingNote = false; }
         }
 
@@ -2974,6 +3122,8 @@
                 saveNotesData();
                 renderNotesLog();
                 if (gone && gone.hasImage) deleteImageDoc('note', id);
+                if (gone) (gone.extraImages || []).forEach(ei => { if (ei.hasImage) deleteImageDoc('note', ei.id); });
+                if (editingNoteId === id) cancelNoteEdit();
             }
         }
 
@@ -3031,14 +3181,15 @@
                 const sc = getSubjectColor(item.subject);
                 grid.innerHTML += `
                     <div class="error-card-item" style="border-left: 3px solid ${sc.color};">
-                        ${imgTag('note', item)}
+                        ${allImgTags('note', item)}
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                             <span style="font-size: 11px; font-weight: 700; color: ${sc.color}; background: ${sc.bg}; border: 1px solid ${sc.border}; padding:2px 8px; border-radius:6px;">${escapeHtml(item.subject)}</span>
                             <span style="font-size: 11px; color: var(--subtext-color);">${escapeHtml(item.date)}</span>
                         </div>
                         <div style="font-weight: 700; font-size: 14px;">${escapeHtml(item.topic)}</div>
                         <div style="font-size: 13px; color: var(--text-color); white-space: pre-wrap; line-height: 1.4;">${escapeHtml(item.content)}</div>
-                        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 4px;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap:6px; margin-top: 4px;">
+                            <button class="delete-btn" onclick="editNoteItem(${item.id})">Düzenle</button>
                             <button class="delete-btn" onclick="deleteNoteItem(${item.id})">Sil</button>
                         </div>
                     </div>`;
@@ -4212,8 +4363,11 @@
             try {
                 const content = [];
                 let usedPhoto = false;
-                if (item.image || item.hasImage) {
-                    const dataUrl = item.image || await getImageData('err_' + id);
+                const photoRefs = [];
+                if (item.image || item.hasImage) photoRefs.push({ key: 'err_' + id, inline: item.image });
+                (item.extraImages || []).forEach(ei => photoRefs.push({ key: 'err_' + ei.id, inline: ei.image }));
+                for (const pr of photoRefs) {
+                    const dataUrl = pr.inline || await getImageData(pr.key);
                     if (dataUrl && dataUrl.indexOf('data:image/') === 0 && dataUrl.indexOf(';base64,') > 0) {
                         content.push({ type: 'image', source: { type: 'base64', media_type: dataUrl.slice(5, dataUrl.indexOf(';')), data: dataUrl.slice(dataUrl.indexOf(',') + 1) } });
                         usedPhoto = true;
