@@ -979,6 +979,8 @@
                         <button class="error-filter-btn" data-subject="Genel" onclick="toggleNoteFilter('Genel')">Genel</button>
                     </div>
 
+                    <div id="notesAiSummaryRow" style="display:none; margin-bottom:12px;"></div>
+
                     <div class="error-items-grid" id="noteGrid"></div>
                 </div>
             </div>
@@ -3170,6 +3172,21 @@
 
             countEl.innerText = filtered.length;
 
+            const summaryRow = document.getElementById('notesAiSummaryRow');
+            if (summaryRow) {
+                if (selectedNoteSubjects.length === 1) {
+                    const subj = selectedNoteSubjects[0];
+                    const subjCount = notesData.filter(n => n.subject === subj).length;
+                    if (subjCount > 0) {
+                        summaryRow.style.display = 'block';
+                        summaryRow.innerHTML = `<button class="link-btn" onclick="openNotesAiSummary('${subj.replace(/'/g, "\\'")}')">🤖 ${escapeHtml(subj)} notlarından AI özeti çıkar (${subjCount} not)</button>`;
+                    } else { summaryRow.style.display = 'none'; summaryRow.innerHTML = ''; }
+                } else {
+                    summaryRow.style.display = 'none';
+                    summaryRow.innerHTML = '';
+                }
+            }
+
             if (filtered.length === 0) {
                 grid.innerHTML = notesData.length === 0
                     ? '<div class="empty-text">Henüz not eklenmedi. Yukarıdaki formdan ilk notunu ekleyebilirsin.</div>'
@@ -4124,7 +4141,23 @@
             '- "Tekrar edilecek konular" altında en fazla 4 madde ver, her madde yalnızca konu adı olsun.',
             '- Toplam en fazla yaklaşık 350 kelime yaz.'
         ].join('\n');
+
+        const NOTES_AI_SYSTEM = [
+            'Sen deneyimli bir YKS (TYT/AYT) öğretmenisin. Öğrencinin bir dersten biriktirdiği "önemli notlar" listesini tek, düzenli bir çalışma özetine dönüştürüyorsun.',
+            '',
+            'Kurallar:',
+            '- Türkçe yaz, sade ve kısa cümleler kullan. LaTeX kullanma; formülleri düz metin ve Unicode ile yaz (x², √, ∫, ≤).',
+            '- Notları olduğu gibi kopyalama; konu başlıklarına göre grupla, birbirini tekrar edenleri birleştir.',
+            '- Yalnızca öğrencinin kendi notlarındaki bilgiyi kullan, yeni bilgi veya konu uydurma.',
+            '- Şu başlıkları aynen ve bu sırayla kullan:',
+            '## Konu başlıkları',
+            '## Kritik noktalar',
+            '## Sık karışan / dikkat edilmesi gerekenler',
+            '- Çıktı en fazla yaklaşık 450 kelime olsun.'
+        ].join('\n');
+
         let aiCurrentId = null;
+        let aiNotesSubject = null;
         let aiBusy = false;
         const aiCache = {};
 
@@ -4165,6 +4198,116 @@
             return `<button class="link-btn" onclick="openAiAnalysis(${item.id})">🤖 ${saved ? 'Analizi aç' : 'AI analizi'}</button>`;
         }
 
+        /* --- Not özetleri: users/{uid}/ai/notes_{ders}; bulut yoksa localStorage --- */
+        function notesAiDocRef(subject) {
+            return (window.db && window.fsDoc && cloudUid) ? window.fsDoc(window.db, 'users', cloudUid, 'ai', 'notes_' + subject) : null;
+        }
+        function getLocalNotesAiSummaries() { try { return JSON.parse(localStorage.getItem('yks_notes_ai_summaries')) || {}; } catch (e) { return {}; } }
+        function saveLocalNotesAiSummaries(obj) { localStorage.setItem('yks_notes_ai_summaries', JSON.stringify(obj)); }
+        async function saveNotesAiResult(subject, result) {
+            if (cloudUid) {
+                try {
+                    const ref = notesAiDocRef(subject);
+                    if (ref && window.fsSetDoc) { await window.fsSetDoc(ref, result); aiCache['notes_' + subject] = result; return; }
+                } catch (e) { console.error('Not özeti kaydedilemedi:', e); }
+            }
+            const all = getLocalNotesAiSummaries(); all[subject] = result; saveLocalNotesAiSummaries(all);
+        }
+        async function loadNotesAiResult(subject) {
+            const key = 'notes_' + subject;
+            if (aiCache[key]) return aiCache[key];
+            if (cloudUid && window.fsGetDoc) {
+                try {
+                    const ref = notesAiDocRef(subject);
+                    if (ref) { const snap = await window.fsGetDoc(ref); if (snap.exists()) { aiCache[key] = snap.data(); return aiCache[key]; } }
+                } catch (e) { console.error('Not özeti okunamadı:', e); }
+            }
+            const all = getLocalNotesAiSummaries();
+            return all[subject] || null;
+        }
+        async function deleteNotesAiResult(subject) {
+            delete aiCache['notes_' + subject];
+            if (cloudUid && window.fsDeleteDoc) {
+                try { const ref = notesAiDocRef(subject); if (ref) await window.fsDeleteDoc(ref); } catch (e) { console.error('Not özeti silinemedi:', e); }
+            }
+            const all = getLocalNotesAiSummaries(); delete all[subject]; saveLocalNotesAiSummaries(all);
+        }
+        function buildNotesAiPrompt(subject, items) {
+            const lines = [`Ders: ${subject}`, `Toplam not sayısı: ${items.length}`, '', 'Notlar:'];
+            items.forEach((n, i) => { lines.push(`${i + 1}. [${n.topic || 'Başlıksız'}] ${n.content || ''}`); });
+            return lines.join('\n');
+        }
+        function renderNotesAiReady(subject, count) {
+            aiBody(`
+                <div class="ai-note" style="margin-top:0;">📒 ${escapeHtml(subject)} dersinden ${count} not özetlenecek.</div>
+                <button class="auth-google-btn" onclick="runNotesAiSummary()">Özet çıkar</button>
+                <p class="ai-hint">Model: ${escapeHtml(aiModelLabel(getAiModel()))} · yaklaşık 20–40 saniye sürer.</p>
+            `);
+        }
+        function renderNotesAiResult(subject, result) {
+            const when = result.date ? new Date(result.date).toLocaleDateString('tr-TR') : '';
+            aiBody(`
+                <div class="ai-result">${renderMiniMarkdown(result.text)}</div>
+                <div class="ai-meta">${escapeHtml(aiModelLabel(result.model || ''))}${when ? ' · ' + when : ''} · ${result.count || 0} not kullanıldı</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="notesAiReanalyze()">Yeniden özetle</button>
+                    <button class="link-btn" onclick="deleteNotesAiSummary()">Özeti sil</button>
+                </div>
+                <p class="ai-hint">Yapay zekâ hata yapabilir. Özeti kendi notlarınla karşılaştır.</p>
+            `);
+        }
+        function renderNotesAiError(err) {
+            console.error('Not özeti hatası:', err);
+            aiBody(`
+                <div class="ai-error">${escapeHtml(aiErrorText(err))}${err && err.message ? `<small>${escapeHtml(err.message)}</small>` : ''}</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="notesAiReanalyze()">Tekrar dene</button>
+                    <button class="link-btn" onclick="renderAiSetup()">⚙️ Ayarlar</button>
+                </div>
+            `);
+        }
+        function notesAiReanalyze() {
+            if (!aiNotesSubject) return;
+            renderNotesAiReady(aiNotesSubject, notesData.filter(n => n.subject === aiNotesSubject).length);
+        }
+        async function runNotesAiSummary() {
+            if (aiBusy) return;
+            const subject = aiNotesSubject;
+            if (!subject) return;
+            const items = notesData.filter(n => n.subject === subject);
+            if (!items.length) { renderNotesAiError(new Error('Bu derste henüz not yok.')); return; }
+            aiBusy = true;
+            renderAiLoading();
+            try {
+                const model = getAiModel();
+                const text = await callClaude(model, NOTES_AI_SYSTEM, [{ type: 'text', text: buildNotesAiPrompt(subject, items) }]);
+                if (!text) throw new Error('Boş yanıt alındı');
+                const result = { text: text, model: model, date: new Date().toISOString(), count: items.length };
+                await saveNotesAiResult(subject, result);
+                if (aiNotesSubject === subject) renderNotesAiResult(subject, result);
+            } catch (err) {
+                if (aiNotesSubject === subject) renderNotesAiError(err);
+            } finally { aiBusy = false; }
+        }
+        async function deleteNotesAiSummary() {
+            const subject = aiNotesSubject;
+            if (!subject || !confirm('Kayıtlı özet silinsin mi?')) return;
+            await deleteNotesAiResult(subject);
+            renderNotesAiReady(subject, notesData.filter(n => n.subject === subject).length);
+        }
+        async function openNotesAiSummary(subject) {
+            aiCurrentId = null;
+            aiNotesSubject = subject;
+            document.getElementById('aiTitle').innerText = `${subject} · Not Özeti`;
+            document.getElementById('aiModal').classList.add('open');
+            if (!getAiKey()) { renderAiSetup(); return; }
+            const items = notesData.filter(n => n.subject === subject);
+            const saved = await loadNotesAiResult(subject);
+            if (aiNotesSubject !== subject) return;
+            if (saved) renderNotesAiResult(subject, saved);
+            else renderNotesAiReady(subject, items.length);
+        }
+
         /* --- Küçük ve güvenli markdown çevirici --- */
         function renderMiniMarkdown(text) {
             const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
@@ -4201,7 +4344,7 @@
 
         /* --- Pencere durumları --- */
         function aiBody(html) { document.getElementById('aiBody').innerHTML = html; }
-        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; }
+        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; aiNotesSubject = null; }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAiModal(); });
 
         async function openAiAnalysis(id) {
@@ -4245,6 +4388,7 @@
             } else if (!getAiKey()) { err.innerText = 'Lütfen API anahtarını yapıştır.'; return; }
             localStorage.setItem('yks_ai_model', document.getElementById('aiModelSelect').value);
             if (aiCurrentId) openAiAnalysis(aiCurrentId);
+            else if (aiNotesSubject) openNotesAiSummary(aiNotesSubject);
         }
         function removeAiKey() {
             if (!confirm('API anahtarı bu tarayıcıdan silinsin mi?')) return;
