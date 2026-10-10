@@ -1237,6 +1237,17 @@
         <img id="modalImg" src="" alt="Soru Görseli">
     </div>
 
+    <div id="examShareModal" class="image-modal" onclick="closeExamShareModal()">
+        <div onclick="event.stopPropagation()" style="display:flex; flex-direction:column; align-items:center; gap:14px; max-width:94vw;">
+            <img id="examShareImg" src="" alt="Deneme sonucu kartı" style="max-width:420px; width:100%; border-radius:14px; box-shadow:0 10px 40px rgba(0,0,0,0.5); display:block;">
+            <div style="display:flex; gap:10px; width:100%; max-width:420px;">
+                <button class="btn-add-error" onclick="downloadExamShareImg()">⬇️ İndir</button>
+                <button class="btn-add-error" id="examShareSendBtn" onclick="shareExamCardNow()" style="display:none;">📤 Paylaş</button>
+            </div>
+        </div>
+        <span class="image-modal-close" onclick="closeExamShareModal()">&times;</span>
+    </div>
+
     <script>
         // ================= FIREBASE CLOUD SYNC ENTEGRASYONU =================
         let isCloudLoading = false;
@@ -3482,6 +3493,161 @@
             renderExams();
         }
 
+        /* ================= PAYLAŞILABİLİR DENEME SONUCU KARTI ================= */
+        // Bir dersin doğru/yanlış/net değerini döndürür; eski kayıtlarda (sections yoksa) details string'inden sadece net çözümlenebilir
+        function examSectionNet(exam, sec) {
+            if (exam.sections && exam.sections[sec.code]) {
+                const s = exam.sections[sec.code];
+                return { c: s.c, w: s.w, net: s.c - s.w / 4 };
+            }
+            const details = parseExamDetails(exam.details, exam.type);
+            return { c: null, w: null, net: details[sec.code] !== undefined ? details[sec.code] : 0 };
+        }
+        function rr(ctx, x, y, w, h, r) {
+            if (w <= 0 || h <= 0) return;
+            if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+        const EXAM_SHARE_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+        function buildExamShareCanvas(exam) {
+            const defs = EXAM_SECTIONS[exam.type] || EXAM_SECTIONS.TYT;
+            const sortedTopics = (exam.topics || []).slice().sort((a, b) => (b.count || 1) - (a.count || 1));
+            const shownTopics = sortedTopics.slice(0, 6);
+            const W = 900, padX = 56;
+            const rowH = 74;
+            const topicsBlockH = shownTopics.length ? (54 + Math.ceil(shownTopics.length / 2) * 34) : 0;
+            const H = 420 + defs.length * rowH + topicsBlockH;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = W; canvas.height = H;
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#1c2436');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = '#3b82f6'; ctx.fillRect(0, 0, W, 8);
+
+            let y = 64;
+            ctx.font = `700 15px ${EXAM_SHARE_FONT}`;
+            const badgeText = exam.type;
+            const badgeW = ctx.measureText(badgeText).width + 30;
+            ctx.fillStyle = 'rgba(59,130,246,0.2)'; rr(ctx, padX, y - 26, badgeW, 36, 9); ctx.fill();
+            ctx.fillStyle = '#60a5fa'; ctx.fillText(badgeText, padX + 15, y - 1);
+
+            y += 46;
+            ctx.fillStyle = '#f9fafb'; ctx.font = `800 30px ${EXAM_SHARE_FONT}`;
+            ctx.fillText((exam.name || '').slice(0, 42), padX, y);
+
+            y += 32;
+            ctx.fillStyle = '#9ca3af'; ctx.font = `500 16px ${EXAM_SHARE_FONT}`;
+            ctx.fillText(formatDateForDisplay(exam.date), padX, y);
+
+            y += 78;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff'; ctx.font = `800 76px ${EXAM_SHARE_FONT}`;
+            ctx.fillText(fmtNet(exam.total), W / 2, y);
+            ctx.font = `700 17px ${EXAM_SHARE_FONT}`; ctx.fillStyle = '#9ca3af';
+            ctx.fillText('NET', W / 2, y + 28);
+            ctx.textAlign = 'left';
+
+            y += 56;
+            defs.forEach(sec => {
+                const r = examSectionNet(exam, sec);
+                const sc = getSubjectColor(sec.label);
+                ctx.fillStyle = '#e5e7eb'; ctx.font = `700 18px ${EXAM_SHARE_FONT}`;
+                ctx.fillText(sec.label, padX, y + 22);
+                if (r.c !== null) {
+                    ctx.font = `400 13px ${EXAM_SHARE_FONT}`; ctx.fillStyle = '#9ca3af';
+                    ctx.fillText(`Doğru ${r.c} · Yanlış ${r.w} · Boş ${Math.max(0, sec.max - r.c - r.w)}`, padX, y + 41);
+                }
+                ctx.textAlign = 'right'; ctx.fillStyle = sc.color; ctx.font = `800 21px ${EXAM_SHARE_FONT}`;
+                ctx.fillText(fmtNet(r.net), W - padX, y + 24);
+                ctx.textAlign = 'left';
+
+                const barY = y + 36, barW = W - padX * 2, barH = 9;
+                ctx.fillStyle = 'rgba(255,255,255,0.09)'; rr(ctx, padX, barY, barW, barH, 4); ctx.fill();
+                const frac = Math.max(0, Math.min(1, r.net / sec.max));
+                ctx.fillStyle = sc.color; rr(ctx, padX, barY, barW * frac, barH, 4); ctx.fill();
+                y += rowH;
+            });
+
+            if (shownTopics.length) {
+                y += 14;
+                ctx.fillStyle = '#9ca3af'; ctx.font = `700 14px ${EXAM_SHARE_FONT}`;
+                ctx.fillText('Hata yapılan konular', padX, y);
+                y += 28;
+                const colW = (W - padX * 2 - 14) / 2;
+                shownTopics.forEach((t, i) => {
+                    const col = i % 2, row = Math.floor(i / 2);
+                    const cx = padX + col * (colW + 14), cy = y + row * 34;
+                    const sc = getSubjectColor(t.subject);
+                    ctx.fillStyle = sc.bg || 'rgba(255,255,255,0.08)'; rr(ctx, cx, cy, colW, 26, 7); ctx.fill();
+                    ctx.fillStyle = sc.color; ctx.font = `600 13px ${EXAM_SHARE_FONT}`;
+                    const label = `${t.topic}${t.count > 1 ? ' ×' + t.count : ''}`;
+                    const maxChars = 30;
+                    ctx.fillText(label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label, cx + 12, cy + 18);
+                });
+                if (sortedTopics.length > shownTopics.length) {
+                    y += Math.ceil(shownTopics.length / 2) * 34 + 6;
+                    ctx.fillStyle = '#6b7280'; ctx.font = `500 12px ${EXAM_SHARE_FONT}`;
+                    ctx.fillText(`+${sortedTopics.length - shownTopics.length} konu daha`, padX, y);
+                }
+            }
+
+            ctx.textAlign = 'center'; ctx.fillStyle = '#4b5563'; ctx.font = `600 14px ${EXAM_SHARE_FONT}`;
+            ctx.fillText('YKS Sistemim', W / 2, H - 26);
+            ctx.textAlign = 'left';
+
+            return canvas;
+        }
+
+        let examShareBlobCache = null, examShareNameCache = '';
+        function openExamShareCard(id) {
+            const exam = examData.find(e => e.id === id);
+            if (!exam) return;
+            const canvas = buildExamShareCanvas(exam);
+            examShareNameCache = `deneme_${(exam.name || 'sonuc').replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ]+/g, '_')}.png`;
+            canvas.toBlob(blob => {
+                examShareBlobCache = blob;
+                const url = URL.createObjectURL(blob);
+                document.getElementById('examShareImg').src = url;
+                document.getElementById('examShareModal').style.display = 'flex';
+                const shareBtn = document.getElementById('examShareSendBtn');
+                const canUseShare = !!(navigator.canShare && blob && navigator.canShare({ files: [new File([blob], examShareNameCache, { type: 'image/png' })] }));
+                shareBtn.style.display = canUseShare ? '' : 'none';
+            }, 'image/png');
+        }
+        function closeExamShareModal() {
+            document.getElementById('examShareModal').style.display = 'none';
+            const img = document.getElementById('examShareImg');
+            if (img.src) URL.revokeObjectURL(img.src);
+            img.src = '';
+        }
+        function downloadExamShareImg() {
+            if (!examShareBlobCache) return;
+            const url = URL.createObjectURL(examShareBlobCache);
+            const a = document.createElement('a');
+            a.href = url; a.download = examShareNameCache;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            showToast({ title: 'Kart indirildi', body: 'Galeri/İndirilenler klasöründe bulabilirsin.' });
+        }
+        async function shareExamCardNow() {
+            if (!examShareBlobCache) return;
+            try {
+                const file = new File([examShareBlobCache], examShareNameCache, { type: 'image/png' });
+                await navigator.share({ files: [file], title: 'Deneme Sonucum' });
+            } catch (e) {
+                if (e.name !== 'AbortError') showToast({ title: 'Paylaşılamadı', body: 'Bunun yerine indirip paylaşabilirsin.' });
+            }
+        }
+
         function renderExams() {
             const list = document.getElementById('examHistoryList');
             if (!list) return;
@@ -3510,6 +3676,7 @@
                         <div style="display:flex; align-items:center; gap:12px;">
                             <div style="font-weight:800; font-size:16px; color:var(--accent-color);">${exam.total} Net</div>
                             <div style="display:flex; gap:4px;">
+                                <button class="edit-btn" onclick="openExamShareCard(${exam.id})" title="Paylaşılabilir kart">📤</button>
                                 <button class="edit-btn" onclick="editExam(${exam.id})" title="Düzenle">✏️</button>
                                 <button class="delete-btn" onclick="deleteExam(${exam.id})">Sil</button>
                             </div>
