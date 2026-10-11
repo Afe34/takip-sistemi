@@ -356,6 +356,41 @@
         .image-modal img { max-width: 90%; max-height: 90vh; border-radius: 8px; }
         .image-modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; }
 
+        /* ===== Deneme Analiz Raporu (çıktı/print) ===== */
+        #examReportModal { z-index: 10001; }
+        .report-page { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1f2937; background: #ffffff; padding: 36px 40px 44px; }
+        .report-head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #111827; padding-bottom: 18px; margin-bottom: 26px; }
+        .report-head-left .report-brand { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+        .report-head-left .report-title { font-size: 26px; font-weight: 800; color: #111827; }
+        .report-head-right { text-align: right; font-size: 12px; color: #6b7280; }
+        .report-head-right .report-badge { display: inline-block; background: var(--report-accent, #111827); color: #fff; font-weight: 700; font-size: 12px; padding: 5px 12px; border-radius: 999px; margin-bottom: 8px; }
+        .report-stat-card.rs-main { border-left: 4px solid var(--report-accent, #111827); }
+        .report-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+        .report-stat-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; background: #f9fafb; }
+        .report-stat-card .rs-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+        .report-stat-card .rs-value { font-size: 22px; font-weight: 800; color: #111827; }
+        .report-stat-card .rs-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .report-section-title { font-size: 15px; font-weight: 800; color: #111827; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+        .report-section { margin-bottom: 30px; }
+        .report-chart-box { position: relative; width: 100%; height: 260px; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; box-sizing: border-box; }
+        .report-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .report-table th { text-align: left; background: #111827; color: #fff; font-weight: 700; padding: 9px 10px; }
+        .report-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; color: #1f2937; }
+        .report-table tr:nth-child(even) td { background: #f9fafb; }
+        .report-table .rt-strong { font-weight: 800; color: #111827; }
+        .report-bar-track { background: #e5e7eb; border-radius: 6px; height: 8px; overflow: hidden; width: 100%; min-width: 70px; }
+        .report-bar-fill { height: 100%; border-radius: 6px; background: var(--report-accent, #111827); }
+        .report-empty { font-size: 13px; color: #9ca3af; padding: 16px 0; }
+        .report-foot { margin-top: 10px; font-size: 10.5px; color: #9ca3af; text-align: center; }
+
+        @media print {
+            body > *:not(#examReportModal) { display: none !important; }
+            #examReportModal { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; overflow: visible !important; }
+            #examReportModal > div { box-shadow: none !important; max-width: 100% !important; border-radius: 0 !important; }
+            #examReportModalBar { display: none !important; }
+            .report-page { padding: 0 !important; }
+        }
+
         .exam-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 900px) { .exam-grid { grid-template-columns: 340px 1fr; } }
         .exam-inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1069,6 +1104,7 @@
                         <div style="flex: 1; position: relative; width: 100%; height: 100%; min-height: 0;">
                             <canvas id="examChart"></canvas>
                         </div>
+                        <button class="btn-icon" style="width:100%; margin-top:12px; font-weight:700;" onclick="openExamReportPicker()">📄 Deneme Analiz Raporu / Çıktı Al</button>
                     </div>
                     <div class="error-list-card" style="min-height: auto;">
                         <div class="error-form-title">Zayıf Konular</div>
@@ -1246,6 +1282,33 @@
             </div>
         </div>
         <span class="image-modal-close" onclick="closeExamShareModal()">&times;</span>
+    </div>
+
+    <!-- Deneme Analiz Raporu: Tür Seçim Modalı -->
+    <div id="examReportTypeModal" class="image-modal" onclick="closeExamReportPicker()">
+        <div onclick="event.stopPropagation()" style="background:var(--card-bg); border-radius:16px; padding:28px; max-width:360px; width:90%; text-align:center;">
+            <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:6px;">Hangi sınav için rapor istiyorsun?</div>
+            <div style="font-size:13px; color:var(--subtext-color); margin-bottom:20px;">Son 10 deneme üzerinden profesyonel bir analiz raporu / çıktı oluşturulacak.</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-add-error" onclick="generateExamReport('TYT')">TYT Raporu</button>
+                <button class="btn-add-error" onclick="generateExamReport('AYT')">AYT Raporu</button>
+            </div>
+            <button class="btn-icon" style="width:100%; margin-top:14px;" onclick="closeExamReportPicker()">Vazgeç</button>
+        </div>
+    </div>
+
+    <!-- Deneme Analiz Raporu: Çıktı / Yazdırma Modalı -->
+    <div id="examReportModal" class="image-modal" style="align-items:flex-start; overflow-y:auto; padding:24px 12px;">
+        <div style="background:#ffffff; border-radius:16px; max-width:900px; width:100%; margin:0 auto; overflow:hidden;">
+            <div id="examReportModalBar" style="position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:#111827; color:#fff;">
+                <span style="font-weight:700; font-size:14px;">Deneme Analiz Raporu</span>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-add-error" style="padding:8px 14px; width:auto;" onclick="printExamReport()">🖨️ Yazdır / PDF Kaydet</button>
+                    <button class="btn-icon" style="padding:8px 14px; width:auto; background:transparent; border-color:#374151; color:#fff;" onclick="closeExamReportModal()">✕ Kapat</button>
+                </div>
+            </div>
+            <div id="examReportPrintArea"></div>
+        </div>
     </div>
 
     <script>
@@ -3515,12 +3578,25 @@
             ctx.closePath();
         }
         const EXAM_SHARE_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+        // Kartın rengi her zaman o an aktif olan temanın accent rengini kullanır (tema ile uyumlu kalsın diye),
+        // ama zemin/metin her zaman beyaz/koyu gri sabit kalır: hem şık/sade durur hem siyah-beyaz çıktıda kaybolmaz.
+        function getThemeAccentHex() {
+            const v = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+            return v || '#0abfa0';
+        }
+        function hexToRgba(hex, alpha) {
+            const h = (hex || '').replace('#', '');
+            if (h.length !== 6) return `rgba(10,191,160,${alpha})`;
+            const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+            return `rgba(${r},${g},${b},${alpha})`;
+        }
         function buildExamShareCanvas(exam) {
             const defs = EXAM_SECTIONS[exam.type] || EXAM_SECTIONS.TYT;
             const sortedTopics = (exam.topics || []).slice().sort((a, b) => (b.count || 1) - (a.count || 1));
             const shownTopics = sortedTopics.slice(0, 6);
+            const accent = getThemeAccentHex();
             const W = 900, padX = 56;
-            const rowH = 74;
+            const rowH = 86;
             const topicsBlockH = shownTopics.length ? (54 + Math.ceil(shownTopics.length / 2) * 34) : 0;
             const H = 420 + defs.length * rowH + topicsBlockH;
 
@@ -3528,29 +3604,32 @@
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            const grad = ctx.createLinearGradient(0, 0, 0, H);
-            grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#1c2436');
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#3b82f6'; ctx.fillRect(0, 0, W, 8);
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = accent; ctx.fillRect(0, 0, W, 8);
 
             let y = 64;
             ctx.font = `700 15px ${EXAM_SHARE_FONT}`;
             const badgeText = exam.type;
             const badgeW = ctx.measureText(badgeText).width + 30;
-            ctx.fillStyle = 'rgba(59,130,246,0.2)'; rr(ctx, padX, y - 26, badgeW, 36, 9); ctx.fill();
-            ctx.fillStyle = '#60a5fa'; ctx.fillText(badgeText, padX + 15, y - 1);
+            ctx.fillStyle = '#111827'; rr(ctx, padX, y - 26, badgeW, 36, 9); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillText(badgeText, padX + 15, y - 1);
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#9ca3af'; ctx.font = `600 12px ${EXAM_SHARE_FONT}`;
+            ctx.fillText('YKS SİSTEMİM', W - padX, y - 1);
+            ctx.textAlign = 'left';
 
             y += 46;
-            ctx.fillStyle = '#f9fafb'; ctx.font = `800 30px ${EXAM_SHARE_FONT}`;
+            ctx.fillStyle = '#111827'; ctx.font = `800 30px ${EXAM_SHARE_FONT}`;
             ctx.fillText((exam.name || '').slice(0, 42), padX, y);
 
             y += 32;
-            ctx.fillStyle = '#9ca3af'; ctx.font = `500 16px ${EXAM_SHARE_FONT}`;
+            ctx.fillStyle = '#6b7280'; ctx.font = `500 16px ${EXAM_SHARE_FONT}`;
             ctx.fillText(formatDateForDisplay(exam.date), padX, y);
 
             y += 78;
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#ffffff'; ctx.font = `800 76px ${EXAM_SHARE_FONT}`;
+            ctx.fillStyle = '#111827'; ctx.font = `800 76px ${EXAM_SHARE_FONT}`;
             ctx.fillText(fmtNet(exam.total), W / 2, y);
             ctx.font = `700 17px ${EXAM_SHARE_FONT}`; ctx.fillStyle = '#9ca3af';
             ctx.fillText('NET', W / 2, y + 28);
@@ -3559,49 +3638,50 @@
             y += 56;
             defs.forEach(sec => {
                 const r = examSectionNet(exam, sec);
-                const sc = getSubjectColor(sec.label);
-                ctx.fillStyle = '#e5e7eb'; ctx.font = `700 18px ${EXAM_SHARE_FONT}`;
-                ctx.fillText(sec.label, padX, y + 22);
-                if (r.c !== null) {
-                    ctx.font = `400 13px ${EXAM_SHARE_FONT}`; ctx.fillStyle = '#9ca3af';
-                    ctx.fillText(`Doğru ${r.c} · Yanlış ${r.w} · Boş ${Math.max(0, sec.max - r.c - r.w)}`, padX, y + 41);
-                }
-                ctx.textAlign = 'right'; ctx.fillStyle = sc.color; ctx.font = `800 21px ${EXAM_SHARE_FONT}`;
-                ctx.fillText(fmtNet(r.net), W - padX, y + 24);
+                ctx.fillStyle = '#111827'; ctx.font = `700 18px ${EXAM_SHARE_FONT}`;
+                ctx.fillText(sec.label, padX, y + 20);
+
+                ctx.textAlign = 'right'; ctx.fillStyle = '#111827'; ctx.font = `800 21px ${EXAM_SHARE_FONT}`;
+                ctx.fillText(fmtNet(r.net), W - padX, y + 22);
                 ctx.textAlign = 'left';
 
-                const barY = y + 36, barW = W - padX * 2, barH = 9;
-                ctx.fillStyle = 'rgba(255,255,255,0.09)'; rr(ctx, padX, barY, barW, barH, 4); ctx.fill();
+                if (r.c !== null) {
+                    ctx.font = `400 13px ${EXAM_SHARE_FONT}`; ctx.fillStyle = '#9ca3af';
+                    ctx.fillText(`Doğru ${r.c} · Yanlış ${r.w} · Boş ${Math.max(0, sec.max - r.c - r.w)}`, padX, y + 40);
+                }
+
+                const barY = y + (r.c !== null ? 54 : 36), barW = W - padX * 2, barH = 9;
+                ctx.fillStyle = '#e5e7eb'; rr(ctx, padX, barY, barW, barH, 4); ctx.fill();
                 const frac = Math.max(0, Math.min(1, r.net / sec.max));
-                ctx.fillStyle = sc.color; rr(ctx, padX, barY, barW * frac, barH, 4); ctx.fill();
+                ctx.fillStyle = accent; rr(ctx, padX, barY, barW * frac, barH, 4); ctx.fill();
                 y += rowH;
             });
 
             if (shownTopics.length) {
                 y += 14;
-                ctx.fillStyle = '#9ca3af'; ctx.font = `700 14px ${EXAM_SHARE_FONT}`;
+                ctx.fillStyle = '#6b7280'; ctx.font = `700 14px ${EXAM_SHARE_FONT}`;
                 ctx.fillText('Hata yapılan konular', padX, y);
                 y += 28;
                 const colW = (W - padX * 2 - 14) / 2;
                 shownTopics.forEach((t, i) => {
                     const col = i % 2, row = Math.floor(i / 2);
                     const cx = padX + col * (colW + 14), cy = y + row * 34;
-                    const sc = getSubjectColor(t.subject);
-                    ctx.fillStyle = sc.bg || 'rgba(255,255,255,0.08)'; rr(ctx, cx, cy, colW, 26, 7); ctx.fill();
-                    ctx.fillStyle = sc.color; ctx.font = `600 13px ${EXAM_SHARE_FONT}`;
+                    ctx.fillStyle = '#f3f4f6'; rr(ctx, cx, cy, colW, 26, 7); ctx.fill();
+                    ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(cx + 12, cy + 13, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#1f2937'; ctx.font = `600 13px ${EXAM_SHARE_FONT}`;
                     const label = `${t.topic}${t.count > 1 ? ' ×' + t.count : ''}`;
-                    const maxChars = 30;
-                    ctx.fillText(label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label, cx + 12, cy + 18);
+                    const maxChars = 28;
+                    ctx.fillText(label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label, cx + 22, cy + 18);
                 });
                 if (sortedTopics.length > shownTopics.length) {
                     y += Math.ceil(shownTopics.length / 2) * 34 + 6;
-                    ctx.fillStyle = '#6b7280'; ctx.font = `500 12px ${EXAM_SHARE_FONT}`;
+                    ctx.fillStyle = '#9ca3af'; ctx.font = `500 12px ${EXAM_SHARE_FONT}`;
                     ctx.fillText(`+${sortedTopics.length - shownTopics.length} konu daha`, padX, y);
                 }
             }
 
-            ctx.textAlign = 'center'; ctx.fillStyle = '#4b5563'; ctx.font = `600 14px ${EXAM_SHARE_FONT}`;
-            ctx.fillText('YKS Sistemim', W / 2, H - 26);
+            ctx.textAlign = 'center'; ctx.fillStyle = '#9ca3af'; ctx.font = `600 13px ${EXAM_SHARE_FONT}`;
+            ctx.fillText('yks sistemim · kişisel çalışma takip uygulaması', W / 2, H - 26);
             ctx.textAlign = 'left';
 
             return canvas;
@@ -3743,6 +3823,188 @@
                             ticks: { color: textColor, font: { size: 11 } },
                             grid: { color: gridColor }
                         }
+                    }
+                }
+            });
+        }
+
+        /* ================= DENEME ANALİZ RAPORU (ÇIKTI / YAZDIR) ================= */
+        let examReportChartInstance = null;
+
+        function openExamReportPicker() {
+            document.getElementById('examReportTypeModal').style.display = 'flex';
+        }
+        function closeExamReportPicker() {
+            document.getElementById('examReportTypeModal').style.display = 'none';
+        }
+        function closeExamReportModal() {
+            document.getElementById('examReportModal').style.display = 'none';
+            if (examReportChartInstance) { examReportChartInstance.destroy(); examReportChartInstance = null; }
+        }
+        function printExamReport() {
+            window.print();
+        }
+
+        function lastNExamsByType(type, n) {
+            return examData
+                .filter(e => e.type === type)
+                .slice()
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(-n);
+        }
+
+        function generateExamReport(type) {
+            const scoped = lastNExamsByType(type, 10);
+            closeExamReportPicker();
+            const accent = getThemeAccentHex();
+
+            const area = document.getElementById('examReportPrintArea');
+            if (!area) return;
+
+            if (scoped.length === 0) {
+                area.innerHTML = `<div class="report-page"><div class="report-empty">Henüz kaydedilmiş ${escapeHtml(type)} denemesi yok. Rapor oluşturmak için önce bir deneme kaydet.</div></div>`;
+                document.getElementById('examReportModal').style.display = 'flex';
+                return;
+            }
+
+            const last = scoped[scoped.length - 1];
+            const first = scoped[0];
+            const avg = Math.round((scoped.reduce((s, e) => s + e.total, 0) / scoped.length) * 100) / 100;
+            const best = scoped.reduce((a, b) => (b.total > a.total ? b : a));
+            const diff = Math.round((last.total - first.total) * 100) / 100;
+            const diffTxt = (diff > 0 ? '+' : '') + diff;
+            const now = new Date();
+            const genDate = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            // Ders bazında toplu başarı oranı (sections verisi olan denemeler üzerinden)
+            const defs = EXAM_SECTIONS[type] || [];
+            const agg = {};
+            defs.forEach(sec => { agg[sec.code] = { label: sec.label, c: 0, w: 0, max: 0, n: 0 }; });
+            scoped.forEach(e => {
+                if (!e.sections) return;
+                defs.forEach(sec => {
+                    const s = e.sections[sec.code];
+                    if (!s) return;
+                    agg[sec.code].c += s.c; agg[sec.code].w += s.w; agg[sec.code].max += sec.max; agg[sec.code].n++;
+                });
+            });
+            const subjectRows = Object.values(agg).filter(r => r.n > 0);
+
+            // Son denemeler tablosu (ders bazında net)
+            const examRows = scoped.slice().reverse(); // en yeni en üstte
+
+            area.innerHTML = `
+                <div class="report-page" style="--report-accent: ${accent};">
+                    <div class="report-head">
+                        <div class="report-head-left">
+                            <div class="report-brand">YKS Sistemim</div>
+                            <div class="report-title">${escapeHtml(type)} Deneme Analiz Raporu</div>
+                        </div>
+                        <div class="report-head-right">
+                            <div class="report-badge">Son ${scoped.length} Deneme</div>
+                            <div>Oluşturma tarihi: ${genDate}</div>
+                        </div>
+                    </div>
+
+                    <div class="report-stat-grid">
+                        <div class="report-stat-card rs-main">
+                            <div class="rs-label">Son Deneme Net</div>
+                            <div class="rs-value">${fmtNet(last.total)}</div>
+                            <div class="rs-sub">${escapeHtml(last.name)}</div>
+                        </div>
+                        <div class="report-stat-card">
+                            <div class="rs-label">Ortalama Net</div>
+                            <div class="rs-value">${fmtNet(avg)}</div>
+                            <div class="rs-sub">Son ${scoped.length} deneme</div>
+                        </div>
+                        <div class="report-stat-card">
+                            <div class="rs-label">En Yüksek Net</div>
+                            <div class="rs-value">${fmtNet(best.total)}</div>
+                            <div class="rs-sub">${escapeHtml(best.name)}</div>
+                        </div>
+                        <div class="report-stat-card">
+                            <div class="rs-label">Değişim</div>
+                            <div class="rs-value">${diffTxt}</div>
+                            <div class="rs-sub">İlk → son deneme</div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <div class="report-section-title">Net Gelişim Grafiği</div>
+                        <div class="report-chart-box"><canvas id="examReportChartCanvas"></canvas></div>
+                    </div>
+
+                    <div class="report-section">
+                        <div class="report-section-title">Ders Bazında Başarı Oranı</div>
+                        ${subjectRows.length ? `
+                        <table class="report-table">
+                            <thead><tr><th>Ders</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Doğruluk</th><th></th></tr></thead>
+                            <tbody>
+                                ${subjectRows.map(r => {
+                                    const blank = r.max - r.c - r.w;
+                                    const pct = Math.round((r.c / r.max) * 100);
+                                    return `<tr>
+                                        <td class="rt-strong">${escapeHtml(r.label)}</td>
+                                        <td>${r.c}</td>
+                                        <td>${r.w}</td>
+                                        <td>${blank}</td>
+                                        <td class="rt-strong">%${pct}</td>
+                                        <td><div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;"></div></div></td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>` : `<div class="report-empty">Bu denemelerde doğru/yanlış sayısı girilmemiş, sadece net kaydedilmiş.</div>`}
+                    </div>
+
+                    <div class="report-section">
+                        <div class="report-section-title">Deneme Listesi</div>
+                        <table class="report-table">
+                            <thead><tr><th>Yayın</th><th>Tarih</th>${defs.map(d => `<th>${escapeHtml(d.label)}</th>`).join('')}<th>Toplam Net</th></tr></thead>
+                            <tbody>
+                                ${examRows.map(e => {
+                                    const cells = defs.map(sec => {
+                                        const n = examSectionNet(e, sec).net;
+                                        return `<td>${fmtNet(n)}</td>`;
+                                    }).join('');
+                                    return `<tr><td class="rt-strong">${escapeHtml(e.name)}</td><td>${formatDateForDisplay(e.date)}</td>${cells}<td class="rt-strong">${fmtNet(e.total)}</td></tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-foot">YKS Sistemim · kişisel çalışma takip uygulaması</div>
+                </div>`;
+
+            document.getElementById('examReportModal').style.display = 'flex';
+
+            if (examReportChartInstance) { examReportChartInstance.destroy(); examReportChartInstance = null; }
+            const ctx = document.getElementById('examReportChartCanvas').getContext('2d');
+            examReportChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: scoped.map(e => formatDateForDisplay(e.date)),
+                    datasets: [{
+                        label: 'Toplam Net',
+                        data: scoped.map(e => e.total),
+                        borderColor: accent,
+                        backgroundColor: hexToRgba(accent, 0.1),
+                        borderWidth: 3,
+                        pointBackgroundColor: accent,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => `Net: ${c.parsed.y}` } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#6b7280', font: { size: 11 } }, grid: { color: '#f3f4f6' } },
+                        y: { ticks: { color: '#6b7280', font: { size: 11 } }, grid: { color: '#f3f4f6' } }
                     }
                 }
             });
