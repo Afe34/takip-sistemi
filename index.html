@@ -258,6 +258,7 @@
 
         .drop-zone { flex: 1; padding: 14px; min-height: 350px; display: flex; flex-direction: column; gap: 12px; }
         .drop-zone.drag-over { background-color: var(--drag-over-bg); }
+        .drop-indicator { position: fixed; height: 3px; background: var(--accent-color); border-radius: 3px; z-index: 180; display: none; box-shadow: 0 0 8px rgba(var(--accent-rgb),0.6); pointer-events: none; }
         .day-empty-hint { margin: auto 0; padding: 12px 8px; text-align: center; font-size: 12px; color: var(--subtext-color); opacity: 0.75; border: 1.5px dashed var(--border-color); border-radius: 8px; }
         .pool-zone { min-height: 350px; }
 
@@ -2141,14 +2142,69 @@
             savePlanner(); renderPlanner();
         }
 
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
-        function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
-        function drag(ev, taskId, source) { ev.dataTransfer.setData("taskId", taskId); ev.dataTransfer.setData("source", source); }
+        /* ---- Görevler arasına bırakma: hangi iki görevin arasına denk geldiğini bulur ---- */
+        function findInsertionPoint(zoneEl, clientY, excludeId) {
+            const cards = [...zoneEl.querySelectorAll(':scope > .draggable-task')].filter(c => c.dataset.taskId != excludeId);
+            for (const card of cards) {
+                const r = card.getBoundingClientRect();
+                if (clientY < r.top + r.height / 2) return { beforeId: card.dataset.taskId, y: r.top };
+            }
+            const last = cards[cards.length - 1];
+            return { beforeId: null, y: last ? last.getBoundingClientRect().bottom : null };
+        }
+        function showDropIndicator(zoneEl, y) {
+            let ind = document.getElementById('dropIndicator');
+            if (!ind) { ind = document.createElement('div'); ind.id = 'dropIndicator'; ind.className = 'drop-indicator'; document.body.appendChild(ind); }
+            const zr = zoneEl.getBoundingClientRect();
+            ind.style.left = (zr.left + 8) + 'px';
+            ind.style.width = Math.max(0, zr.width - 16) + 'px';
+            ind.style.top = ((y != null ? y : zr.top + 8) - 1) + 'px';
+            ind.style.display = 'block';
+        }
+        function hideDropIndicator() { const ind = document.getElementById('dropIndicator'); if (ind) ind.style.display = 'none'; }
+
+        let dragSourceId = null;   // masaüstü HTML5 sürüklemede dataTransfer dragover sırasında okunamadığı için ayrıca tutulur
+        let dragInsertBeforeId = null;
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+            const ins = findInsertionPoint(ev.currentTarget, ev.clientY, dragSourceId);
+            dragInsertBeforeId = ins.beforeId;
+            showDropIndicator(ev.currentTarget, ins.y);
+        }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); hideDropIndicator(); }
+        function drag(ev, taskId, source) { ev.dataTransfer.setData("taskId", taskId); ev.dataTransfer.setData("source", source); dragSourceId = String(taskId); }
 
         function drop(ev, targetZone) {
             ev.preventDefault();
             document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drag-over'));
-            moveTaskTo(ev.dataTransfer.getData("taskId"), ev.dataTransfer.getData("source"), targetZone);
+            hideDropIndicator();
+            moveTaskToPosition(ev.dataTransfer.getData("taskId"), ev.dataTransfer.getData("source"), targetZone, dragInsertBeforeId);
+            dragSourceId = null; dragInsertBeforeId = null;
+        }
+
+        // Hem günler arası taşımayı hem AYNI günün içinde sıra değiştirmeyi (iki görev arasına bırakma) destekler.
+        // insertBeforeId: null ise listenin sonuna eklenir; bir görev id'si verilirse tam onun önüne yerleşir.
+        function moveTaskToPosition(taskId, sourceZone, targetZone, insertBeforeId) {
+            const weekKey = formatDateString(currentWeekStart);
+            const getList = (zone) => {
+                if (zone === 'pool') { if (!plannerData.pool[weekKey]) plannerData.pool[weekKey] = []; return plannerData.pool[weekKey]; }
+                if (!plannerData.days[zone]) plannerData.days[zone] = []; return plannerData.days[zone];
+            };
+            const srcList = getList(sourceZone);
+            const idx = srcList.findIndex(t => t.id == taskId);
+            if (idx === -1) return false;
+            const taskToMove = srcList.splice(idx, 1)[0];
+
+            const tgtList = getList(targetZone);   // sourceZone === targetZone ise srcList ile aynı referans, az önceki splice zaten yansıdı
+            let insertIdx = tgtList.length;
+            if (insertBeforeId != null) {
+                const bIdx = tgtList.findIndex(t => t.id == insertBeforeId);
+                if (bIdx > -1) insertIdx = bIdx;
+            }
+            tgtList.splice(insertIdx, 0, taskToMove);
+            savePlanner(); renderPlanner();
+            return true;
         }
 
         function moveTaskTo(taskId, sourceZone, targetZone) {
@@ -4978,6 +5034,17 @@
             const list = source === 'pool' ? (plannerData.pool[formatDateString(currentWeekStart)] || []) : (plannerData.days[source] || []);
             return list.find(t => t.id == id) || null;
         }
+        // Bir görevi kendi gününde (ya da havuzda) bir yukarı/aşağı taşır (sıra değişimi, gün değişmez)
+        function reorderTask(id, source, dir) {
+            const list = source === 'pool' ? plannerData.pool[formatDateString(currentWeekStart)] : plannerData.days[source];
+            if (!list) return;
+            const idx = list.findIndex(t => t.id == id);
+            if (idx === -1) return;
+            const swapWith = idx + dir;
+            if (swapWith < 0 || swapWith >= list.length) return;   // zaten en başta/en sonda
+            [list[idx], list[swapWith]] = [list[swapWith], list[idx]];
+            savePlanner(); renderPlanner();
+        }
         // Bir şablondan (tekrarlayan görev) üretilmiş bir kartta "Tekrarı tamamen durdur" seçilince:
         // 1) şablonun kendisi silinir (artık hiçbir gelecek haftaya eklenmez)
         // 2) bugünden itibaren, o şablondan daha önce üretilmiş ama henüz görülmemiş/silinmemiş tüm gün kopyaları kaldırılır
@@ -5084,6 +5151,7 @@
                 if (st.el) { st.el.classList.remove('touch-dragging'); st.el.draggable = true; }
                 document.body.classList.remove('touch-drag-active');
                 document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+                hideDropIndicator();
                 st = null;
             }
 
@@ -5108,6 +5176,15 @@
                 }
                 e.preventDefault();
                 placeGhost(); highlight(t.clientX, t.clientY);
+                const z = zoneAt(t.clientX, t.clientY);
+                if (z) {
+                    const ins = findInsertionPoint(z, t.clientY, st.id);
+                    st.insertBeforeId = ins.beforeId;
+                    showDropIndicator(z, ins.y);
+                } else {
+                    st.insertBeforeId = null;
+                    hideDropIndicator();
+                }
             }, { passive: false });
 
             function finish(e, cancelled) {
@@ -5116,14 +5193,19 @@
                 if (e.cancelable) e.preventDefault();   // bırakma sonrası sahte tıklamayı (görevi tamamlama) engelle
                 const t = (e.changedTouches && e.changedTouches[0]) || { clientX: st.lastX, clientY: st.lastY };
                 const zone = cancelled ? null : zoneAt(t.clientX, t.clientY);
-                const { id, source } = st;
+                const { id, source, insertBeforeId } = st;
                 cleanup();
-                if (zone && zone.dataset.zone !== source) {
-                    if (moveTaskTo(id, source, zone.dataset.zone)) {
-                        const target = zone.dataset.zone;
-                        let label = 'Havuza alındı';
-                        if (target !== 'pool') { const d = parseDateStr(target); label = `${dayNames[(d.getDay() + 6) % 7]} gününe taşındı`; }
-                        showToast({ title: label });
+                if (zone) {
+                    const target = zone.dataset.zone;
+                    if (target === source && insertBeforeId == null) return;   // aynı yere bırakıldı, bir şey değişmedi
+                    if (moveTaskToPosition(id, source, target, insertBeforeId)) {
+                        if (target === source) {
+                            showToast({ title: 'Sıra güncellendi' });
+                        } else {
+                            let label = 'Havuza alındı';
+                            if (target !== 'pool') { const d = parseDateStr(target); label = `${dayNames[(d.getDay() + 6) % 7]} gününe taşındı`; }
+                            showToast({ title: label });
+                        }
                     }
                 }
             }
@@ -5184,8 +5266,12 @@
             closeTaskMenu();
             const task = findPlannerTask(taskId, source);
             if (!task) return;
+            const list = source === 'pool' ? (plannerData.pool[formatDateString(currentWeekStart)] || []) : (plannerData.days[source] || []);
+            const idx = list.findIndex(t => t.id == taskId);
             const items = [];
             if (!task.completed) items.push(['▶', 'Sayacı başlat', () => startTaskTimer(taskId)]);
+            if (idx > 0) items.push(['⬆️', 'Yukarı taşı', () => reorderTask(taskId, source, -1)]);
+            if (idx > -1 && idx < list.length - 1) items.push(['⬇️', 'Aşağı taşı', () => reorderTask(taskId, source, 1)]);
             items.push(['📅', 'Güne taşı', () => openMoveSheet(taskId, source)]);
             if (task.tplId) items.push(['🔁', 'Tekrarı tamamen durdur', () => stopRecurringTask(taskId, source), 'danger']);
             items.push(['🗑️', 'Sil' + (task.tplId ? ' (sadece bu gün)' : ''), () => deleteTaskDrag(taskId, source), 'danger']);
