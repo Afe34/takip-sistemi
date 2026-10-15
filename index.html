@@ -257,6 +257,16 @@
         .work-pill-delete:hover { color: var(--danger-color); }
 
         .drop-zone { flex: 1; padding: 14px; min-height: 350px; display: flex; flex-direction: column; gap: 12px; }
+        .task-section { display: flex; flex-direction: column; gap: 12px; }
+        .section-divider { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; }
+        .section-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border-color) 20%, var(--border-color) 80%, transparent); }
+        .section-label-input { flex: 0 1 auto; width: 84px; min-width: 0; border: none; border-radius: 20px; padding: 5px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; text-align: center; cursor: text; }
+        .section-label-input.sec-a { background: rgba(var(--accent-rgb), 0.16); color: var(--accent-color); }
+        .section-label-input.sec-b { background: rgba(59,130,246,0.16); color: #3b82f6; }
+        .section-label-input:focus { outline: 2px solid currentColor; outline-offset: 1px; }
+        .section-merge-btn { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--subtext-color); font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .section-merge-btn:hover { background: rgba(255,71,87,0.12); color: #ff4757; border-color: #ff4757; }
+        .day-empty-hint.small { padding: 8px; font-size: 11px; }
         .drop-zone.drag-over { background-color: var(--drag-over-bg); }
         .drop-indicator { position: fixed; height: 3px; background: var(--accent-color); border-radius: 3px; z-index: 180; display: none; box-shadow: 0 0 8px rgba(var(--accent-rgb),0.6); pointer-events: none; }
         .day-empty-hint { margin: auto 0; padding: 12px 8px; text-align: center; font-size: 12px; color: var(--subtext-color); opacity: 0.75; border: 1.5px dashed var(--border-color); border-radius: 8px; }
@@ -1142,6 +1152,12 @@
             </div>
 
             <div class="stat-insights" id="statInsights"></div>
+
+            <div class="stats-panel">
+                <div class="stats-panel-title">🤖 Haftalık AI Raporu</div>
+                <p class="ai-note" style="margin-top:0;">Bu hafta hangi görevleri yaptın, hangi denemeler nasıl geçti, hata defterinde neler birikti — hepsini okuyup sana özet ve öneri çıkarır.</p>
+                <button class="auth-google-btn" onclick="openWeeklyReport()">Haftalık raporu aç</button>
+            </div>
 
             <div class="stats-charts">
                 <div class="chart-container" style="height: 340px;">
@@ -2142,15 +2158,28 @@
             savePlanner(); renderPlanner();
         }
 
-        /* ---- Görevler arasına bırakma: hangi iki görevin arasına denk geldiğini bulur ---- */
+        /* ---- Görevler arasına bırakma: hangi iki görevin arasına (ve hangi bölüme) denk geldiğini bulur ---- */
         function findInsertionPoint(zoneEl, clientY, excludeId) {
-            const cards = [...zoneEl.querySelectorAll(':scope > .draggable-task')].filter(c => c.dataset.taskId != excludeId);
+            const cards = [...zoneEl.querySelectorAll('.draggable-task')].filter(c => c.dataset.taskId != excludeId);
             for (const card of cards) {
                 const r = card.getBoundingClientRect();
-                if (clientY < r.top + r.height / 2) return { beforeId: card.dataset.taskId, y: r.top };
+                if (clientY < r.top + r.height / 2) {
+                    const secEl = card.closest('.task-section');
+                    return { beforeId: card.dataset.taskId, y: r.top, sec: secEl ? Number(secEl.dataset.sec) : 0 };
+                }
+            }
+            // kart bulunamadı: günün bölümlere ayrılıp ayrılmadığına bakıp en yakın bölümün sonuna yerleştir
+            const sections = [...zoneEl.querySelectorAll('.task-section')];
+            if (sections.length) {
+                let sec = Number(sections[0].dataset.sec), y = sections[0].getBoundingClientRect().top;
+                for (const s of sections) {
+                    const r = s.getBoundingClientRect();
+                    if (clientY >= r.top) { sec = Number(s.dataset.sec); y = r.bottom; }
+                }
+                return { beforeId: null, y, sec };
             }
             const last = cards[cards.length - 1];
-            return { beforeId: null, y: last ? last.getBoundingClientRect().bottom : null };
+            return { beforeId: null, y: last ? last.getBoundingClientRect().bottom : null, sec: 0 };
         }
         function showDropIndicator(zoneEl, y) {
             let ind = document.getElementById('dropIndicator');
@@ -2165,11 +2194,13 @@
 
         let dragSourceId = null;   // masaüstü HTML5 sürüklemede dataTransfer dragover sırasında okunamadığı için ayrıca tutulur
         let dragInsertBeforeId = null;
+        let dragInsertSec = 0;
         function allowDrop(ev) {
             ev.preventDefault();
             ev.currentTarget.classList.add('drag-over');
             const ins = findInsertionPoint(ev.currentTarget, ev.clientY, dragSourceId);
             dragInsertBeforeId = ins.beforeId;
+            dragInsertSec = ins.sec;
             showDropIndicator(ev.currentTarget, ins.y);
         }
         function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); hideDropIndicator(); }
@@ -2179,13 +2210,13 @@
             ev.preventDefault();
             document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drag-over'));
             hideDropIndicator();
-            moveTaskToPosition(ev.dataTransfer.getData("taskId"), ev.dataTransfer.getData("source"), targetZone, dragInsertBeforeId);
-            dragSourceId = null; dragInsertBeforeId = null;
+            moveTaskToPosition(ev.dataTransfer.getData("taskId"), ev.dataTransfer.getData("source"), targetZone, dragInsertBeforeId, dragInsertSec);
+            dragSourceId = null; dragInsertBeforeId = null; dragInsertSec = 0;
         }
 
         // Hem günler arası taşımayı hem AYNI günün içinde sıra değiştirmeyi (iki görev arasına bırakma) destekler.
         // insertBeforeId: null ise listenin sonuna eklenir; bir görev id'si verilirse tam onun önüne yerleşir.
-        function moveTaskToPosition(taskId, sourceZone, targetZone, insertBeforeId) {
+        function moveTaskToPosition(taskId, sourceZone, targetZone, insertBeforeId, sec) {
             const weekKey = formatDateString(currentWeekStart);
             const getList = (zone) => {
                 if (zone === 'pool') { if (!plannerData.pool[weekKey]) plannerData.pool[weekKey] = []; return plannerData.pool[weekKey]; }
@@ -2195,6 +2226,7 @@
             const idx = srcList.findIndex(t => t.id == taskId);
             if (idx === -1) return false;
             const taskToMove = srcList.splice(idx, 1)[0];
+            if (sec !== undefined && sec !== null) taskToMove.sec = sec;   // günü ikiye bölen bir bölüme bırakıldıysa, görevi o bölüme ata
 
             const tgtList = getList(targetZone);   // sourceZone === targetZone ise srcList ile aynı referans, az önceki splice zaten yansıdı
             let insertIdx = tgtList.length;
@@ -2301,7 +2333,24 @@
                 let dayDate = new Date(currentWeekStart); dayDate.setDate(currentWeekStart.getDate() + i);
                 let dateStr = formatDateString(dayDate); let isToday = dateStr === todayStr;
                 let dayTasks = plannerData.days[dateStr] || [];
-                let tasksHTML = dayTasks.map(t => createTaskElement(t, dateStr)).join('');
+                let sectionCfg = plannerData.sections && plannerData.sections[dateStr];
+                let tasksHTML;
+                if (sectionCfg) {
+                    const topTasks = dayTasks.filter(t => (t.sec || 0) !== 1);
+                    const botTasks = dayTasks.filter(t => (t.sec || 0) === 1);
+                    tasksHTML = `
+                        <div class="task-section" data-sec="0">${topTasks.map(t => createTaskElement(t, dateStr)).join('') || '<div class="day-empty-hint small">Boş</div>'}</div>
+                        <div class="section-divider">
+                            <input type="text" class="section-label-input sec-a" value="${escapeHtml(sectionCfg.labelA)}" onchange="setSectionLabel('${dateStr}','labelA', this.value)" placeholder="Üst">
+                            <span class="section-divider-line"></span>
+                            <button class="section-merge-btn" onclick="toggleDaySplit('${dateStr}')" title="Bölümleri birleştir">✕</button>
+                            <span class="section-divider-line"></span>
+                            <input type="text" class="section-label-input sec-b" value="${escapeHtml(sectionCfg.labelB)}" onchange="setSectionLabel('${dateStr}','labelB', this.value)" placeholder="Alt">
+                        </div>
+                        <div class="task-section" data-sec="1">${botTasks.map(t => createTaskElement(t, dateStr)).join('') || '<div class="day-empty-hint small">Boş</div>'}</div>`;
+                } else {
+                    tasksHTML = dayTasks.map(t => createTaskElement(t, dateStr)).join('');
+                }
                 let currentNoteText = dayNotesData[dateStr] || '';
                 let hasNote = currentNoteText.trim().length > 0;
 
@@ -2325,6 +2374,7 @@
                         <div class="day-action-btns">
                             <button class="day-note-btn" onclick="toggleDayWorkDrawer('${dateStr}')">⏱️ Çalışma</button>
                             <button class="day-note-btn" onclick="toggleDayNoteDrawer('${dateStr}')">${hasNote ? '📝 Not Var' : '📝 Not'}</button>
+                            ${!sectionCfg ? `<button class="day-note-btn" onclick="toggleDaySplit('${dateStr}')" title="Günü bölümlere ayır">➗ Böl</button>` : ''}
                         </div>
                     </div>
                     
@@ -2396,6 +2446,7 @@
             if (!plannerData.pool) plannerData.pool = {};
             if (!plannerData.templates) plannerData.templates = [];
             if (!plannerData.tplDone) plannerData.tplDone = {};
+            if (!plannerData.sections) plannerData.sections = {};   // günü ikiye bölen (Dershane/Ev gibi) özel etiketler
             return plannerData.templates;
         }
         function findTaskAnywhere(id) {
@@ -4641,8 +4692,26 @@
             '- Çıktı en fazla yaklaşık 450 kelime olsun.'
         ].join('\n');
 
+        const WEEKLY_AI_SYSTEM = [
+            'Sen deneyimli bir YKS (TYT/AYT) koçusun. Öğrencinin son 7 güne ait görev tamamlama durumu, deneme netleri ve hata defteri/tekrar verilerini özetleyen bir metin alıyorsun; bunu okuyup haftalık bir değerlendirme ve plan çıkarıyorsun.',
+            '',
+            'Kurallar:',
+            '- Türkçe yaz, sade ve kısa cümleler kullan. LaTeX kullanma; formülleri düz metin ve Unicode ile yaz (x², √, ∫, ≤).',
+            '- Yalnızca sana verilen verileri yorumla, veri yoksa veya eksikse bunu açıkça söyle; sayı veya olay uydurma.',
+            '- Yargılayıcı veya suçlayıcı bir dil kullanma; gerçekçi, teşvik edici ve somut ol.',
+            '- Şu başlıkları aynen ve bu sırayla kullan:',
+            '## Bu hafta özet',
+            '## İyi gidenler',
+            '## İhmal edilenler / dikkat',
+            '## Deneme trendi',
+            '## Gelecek hafta için 3 öneri',
+            '- "Gelecek hafta için 3 öneri" altında tam olarak 3 madde ver, her biri tek cümlelik somut bir eylem olsun.',
+            '- Toplam en fazla yaklaşık 350 kelime yaz.'
+        ].join('\n');
+
         let aiCurrentId = null;
         let aiNotesSubject = null;
+        let aiWeeklyMode = false;
         let aiBusy = false;
         const aiCache = {};
 
@@ -4793,6 +4862,161 @@
             else renderNotesAiReady(subject, items.length);
         }
 
+        /* --- Haftalık AI Raporu: users/{uid}/ai/weekly_{weekKey}; bulut yoksa localStorage --- */
+        function parseTrDate(str) {
+            if (!str) return null;
+            const m = String(str).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+            if (!m) return null;
+            return new Date(+m[3], +m[2] - 1, +m[1]);
+        }
+        function currentWeekKey() { return formatDateString(getMonday(new Date())); }
+        function weeklyAiDocRef(weekKey) {
+            return (window.db && window.fsDoc && cloudUid) ? window.fsDoc(window.db, 'users', cloudUid, 'ai', 'weekly_' + weekKey) : null;
+        }
+        function getLocalWeeklyAiReports() { try { return JSON.parse(localStorage.getItem('yks_weekly_ai_reports')) || {}; } catch (e) { return {}; } }
+        function saveLocalWeeklyAiReport(weekKey, obj) { const all = getLocalWeeklyAiReports(); all[weekKey] = obj; localStorage.setItem('yks_weekly_ai_reports', JSON.stringify(all)); }
+        async function saveWeeklyAiReport(weekKey, result) {
+            if (cloudUid) {
+                try {
+                    const ref = weeklyAiDocRef(weekKey);
+                    if (ref && window.fsSetDoc) { await window.fsSetDoc(ref, result); aiCache['weekly_' + weekKey] = result; return; }
+                } catch (e) { console.error('Haftalık rapor kaydedilemedi:', e); }
+            }
+            aiCache['weekly_' + weekKey] = result;
+            saveLocalWeeklyAiReport(weekKey, result);
+        }
+        async function loadWeeklyAiReport(weekKey) {
+            const key = 'weekly_' + weekKey;
+            if (aiCache[key]) return aiCache[key];
+            if (cloudUid && window.fsGetDoc) {
+                try {
+                    const ref = weeklyAiDocRef(weekKey);
+                    if (ref) { const snap = await window.fsGetDoc(ref); if (snap.exists()) { aiCache[key] = snap.data(); return aiCache[key]; } }
+                } catch (e) { console.error('Haftalık rapor okunamadı:', e); }
+            }
+            const all = getLocalWeeklyAiReports();
+            return all[weekKey] || null;
+        }
+        async function deleteWeeklyAiReport(weekKey) {
+            delete aiCache['weekly_' + weekKey];
+            if (cloudUid && window.fsDeleteDoc) {
+                try { const ref = weeklyAiDocRef(weekKey); if (ref) await window.fsDeleteDoc(ref); } catch (e) { console.error('Haftalık rapor silinemedi:', e); }
+            }
+            const all = getLocalWeeklyAiReports(); delete all[weekKey]; localStorage.setItem('yks_weekly_ai_reports', JSON.stringify(all));
+        }
+
+        function buildWeeklyReportData() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+
+            // 1) Görev tamamlama (son 7 gün: bugün dahil)
+            let totalTasks = 0, doneTasks = 0;
+            const dayLines = [];
+            const missedBySubject = {};
+            for (let i = 6; i >= 0; i--) {
+                const d = addDays(today, -i);
+                const ds = formatDateString(d);
+                const tasks = (plannerData.days || {})[ds] || [];
+                const done = tasks.filter(t => t.completed).length;
+                totalTasks += tasks.length; doneTasks += done;
+                tasks.filter(t => !t.completed).forEach(t => { missedBySubject[t.subject] = (missedBySubject[t.subject] || 0) + 1; });
+                dayLines.push(`${ds} (${d.toLocaleDateString('tr-TR', { weekday: 'long' })}): ${done}/${tasks.length} görev tamamlandı${tasks.length ? ' — ' + tasks.map(t => `${t.completed ? '✓' : '✗'} [${t.subject}] ${t.text}`).join('; ') : ''}`);
+            }
+            let overdueOpen = 0;
+            for (let i = 7; i <= NOTIF_LOOKBACK_DAYS; i++) {
+                overdueOpen += (((plannerData.days || {})[formatDateString(addDays(today, -i))]) || []).filter(t => !t.completed).length;
+            }
+
+            // 2) Deneme netleri (son 21 gün, trend için)
+            const recentExams = examData.filter(e => { const d = new Date(e.date); return !isNaN(d) && (today - d) / 86400000 <= 21; })
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+            const examLines = recentExams.map(e => `${e.date} · ${e.name} (${e.type}) → toplam net: ${e.total}${e.details ? ' | ' + e.details : ''}`);
+
+            // 3) Hata defteri (son 7 gün eklenenler) + tekrar kartları
+            const newErrors = errorData.filter(e => { const d = parseTrDate(e.date); return d && (today - d) / 86400000 < 7; });
+            const errBySubject = {};
+            newErrors.forEach(e => { errBySubject[e.subject] = (errBySubject[e.subject] || 0) + 1; });
+            const dueCount = notifDueCards().length;
+            const totalSpaced = spacedData.length;
+
+            const lines = [];
+            lines.push(`GÖREV TAMAMLAMA (son 7 gün): ${doneTasks}/${totalTasks} görev tamamlandı.`);
+            if (overdueOpen > 0) lines.push(`Daha eski günlerden biriken, hâlâ tamamlanmamış ${overdueOpen} görev var.`);
+            if (Object.keys(missedBySubject).length) lines.push('Tamamlanmayan görevlerin ders dağılımı: ' + Object.entries(missedBySubject).map(([s, c]) => `${s}: ${c}`).join(', ') + '.');
+            lines.push('Gün gün dökümü:');
+            lines.push(...dayLines.map(l => '- ' + l));
+            lines.push('');
+            lines.push('DENEME NETLERİ (son 21 gün, eskiden yeniye):');
+            lines.push(examLines.length ? examLines.map(l => '- ' + l).join('\n') : '- Bu dönemde kayıtlı deneme yok.');
+            lines.push('');
+            lines.push(`HATA DEFTERİ: son 7 günde ${newErrors.length} yeni hata kaydı eklendi${Object.keys(errBySubject).length ? ' (' + Object.entries(errBySubject).map(([s, c]) => `${s}: ${c}`).join(', ') + ')' : ''}.`);
+            lines.push(`TEKRAR (aralıklı tekrar) KARTLARI: toplam ${totalSpaced} kart, bugün itibarıyla ${dueCount} tanesi tekrar zamanı gelmiş veya gecikmiş.`);
+            return lines.join('\n');
+        }
+
+        function renderWeeklyReportReady() {
+            aiBody(`
+                <div class="ai-note" style="margin-top:0;">📊 Bu hafta yaptıkların (görevler, denemeler, hata defteri) okunup değerlendirilecek.</div>
+                <button class="auth-google-btn" onclick="runWeeklyAiReport()">Rapor oluştur</button>
+                <p class="ai-hint">Model: ${escapeHtml(aiModelLabel(getAiModel()))} · yaklaşık 20–40 saniye sürer.</p>
+            `);
+        }
+        function renderWeeklyReportResult(result) {
+            const when = result.date ? new Date(result.date).toLocaleDateString('tr-TR') : '';
+            aiBody(`
+                <div class="ai-result">${renderMiniMarkdown(result.text)}</div>
+                <div class="ai-meta">${escapeHtml(aiModelLabel(result.model || ''))}${when ? ' · ' + when : ''}</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="weeklyReportReanalyze()">Yeniden oluştur</button>
+                    <button class="link-btn" onclick="deleteWeeklyReportConfirm()">Raporu sil</button>
+                </div>
+                <p class="ai-hint">Yapay zekâ hata yapabilir, rapor fikir vermek içindir.</p>
+            `);
+        }
+        function renderWeeklyReportError(err) {
+            console.error('Haftalık rapor hatası:', err);
+            aiBody(`
+                <div class="ai-error">${escapeHtml(aiErrorText(err))}${err && err.message ? `<small>${escapeHtml(err.message)}</small>` : ''}</div>
+                <div class="ai-actions">
+                    <button class="link-btn" onclick="weeklyReportReanalyze()">Tekrar dene</button>
+                    <button class="link-btn" onclick="renderAiSetup()">⚙️ Ayarlar</button>
+                </div>
+            `);
+        }
+        function weeklyReportReanalyze() { renderWeeklyReportReady(); }
+        async function deleteWeeklyReportConfirm() {
+            if (!confirm('Kayıtlı haftalık rapor silinsin mi?')) return;
+            await deleteWeeklyAiReport(currentWeekKey());
+            renderWeeklyReportReady();
+        }
+        async function runWeeklyAiReport() {
+            if (aiBusy) return;
+            aiBusy = true;
+            renderAiLoading();
+            const weekKey = currentWeekKey();
+            try {
+                const model = getAiModel();
+                const text = await callClaude(model, WEEKLY_AI_SYSTEM, [{ type: 'text', text: buildWeeklyReportData() }]);
+                if (!text) throw new Error('Boş yanıt alındı');
+                const result = { text: text, model: model, date: new Date().toISOString() };
+                await saveWeeklyAiReport(weekKey, result);
+                if (aiWeeklyMode) renderWeeklyReportResult(result);
+            } catch (err) {
+                if (aiWeeklyMode) renderWeeklyReportError(err);
+            } finally { aiBusy = false; }
+        }
+        async function openWeeklyReport() {
+            aiCurrentId = null;
+            aiNotesSubject = null;
+            aiWeeklyMode = true;
+            document.getElementById('aiTitle').innerText = 'Haftalık Rapor';
+            document.getElementById('aiModal').classList.add('open');
+            if (!getAiKey()) { renderAiSetup(); return; }
+            const saved = await loadWeeklyAiReport(currentWeekKey());
+            if (!aiWeeklyMode) return;
+            if (saved) renderWeeklyReportResult(saved);
+            else renderWeeklyReportReady();
+        }
+
         /* --- Küçük ve güvenli markdown çevirici --- */
         function renderMiniMarkdown(text) {
             const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
@@ -4829,7 +5053,7 @@
 
         /* --- Pencere durumları --- */
         function aiBody(html) { document.getElementById('aiBody').innerHTML = html; }
-        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; aiNotesSubject = null; }
+        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; aiNotesSubject = null; aiWeeklyMode = false; }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAiModal(); });
 
         async function openAiAnalysis(id) {
@@ -4874,6 +5098,7 @@
             localStorage.setItem('yks_ai_model', document.getElementById('aiModelSelect').value);
             if (aiCurrentId) openAiAnalysis(aiCurrentId);
             else if (aiNotesSubject) openNotesAiSummary(aiNotesSubject);
+            else if (aiWeeklyMode) openWeeklyReport();
         }
         function removeAiKey() {
             if (!confirm('API anahtarı bu tarayıcıdan silinsin mi?')) return;
@@ -5034,16 +5259,52 @@
             const list = source === 'pool' ? (plannerData.pool[formatDateString(currentWeekStart)] || []) : (plannerData.days[source] || []);
             return list.find(t => t.id == id) || null;
         }
-        // Bir görevi kendi gününde (ya da havuzda) bir yukarı/aşağı taşır (sıra değişimi, gün değişmez)
+        // Bir görevi kendi grubunda (gün bölünmüşse aynı bölüm içinde) bir yukarı/aşağı taşır
         function reorderTask(id, source, dir) {
             const list = source === 'pool' ? plannerData.pool[formatDateString(currentWeekStart)] : plannerData.days[source];
             if (!list) return;
             const idx = list.findIndex(t => t.id == id);
             if (idx === -1) return;
-            const swapWith = idx + dir;
-            if (swapWith < 0 || swapWith >= list.length) return;   // zaten en başta/en sonda
-            [list[idx], list[swapWith]] = [list[swapWith], list[idx]];
+            const sec = list[idx].sec || 0;
+            let swapIdx = idx + dir;
+            while (swapIdx >= 0 && swapIdx < list.length && (list[swapIdx].sec || 0) !== sec) swapIdx += dir;
+            if (swapIdx < 0 || swapIdx >= list.length) return;   // aynı bölümde komşu kalmadı
+            [list[idx], list[swapIdx]] = [list[swapIdx], list[idx]];
             savePlanner(); renderPlanner();
+        }
+        function hasSameSectionNeighbor(list, idx, dir) {
+            const sec = (list[idx] && list[idx].sec) || 0;
+            let i = idx + dir;
+            while (i >= 0 && i < list.length) { if ((list[i].sec || 0) === sec) return true; i += dir; }
+            return false;
+        }
+        // Günü ikiye bölmüşse, görevi dokunmadan diğer bölüme taşımak için (sürüklemenin alternatifi)
+        function moveTaskSection(taskId, dateStr, sec) {
+            const list = plannerData.days[dateStr]; if (!list) return;
+            const t = list.find(x => x.id == taskId); if (!t) return;
+            t.sec = sec;
+            savePlanner(); renderPlanner();
+        }
+
+        /* ---- Günü ikiye bölme (ör. "Dershane" / "Ev") ---- */
+        function toggleDaySplit(dateStr) {
+            tplList();
+            if (plannerData.sections[dateStr]) {
+                if (!confirm('Bu günün bölümlerini birleştirip tek listeye dönmek istiyor musun?')) return;
+                delete plannerData.sections[dateStr];
+            } else {
+                let last = null;
+                try { last = JSON.parse(localStorage.getItem('yks_last_section_labels') || 'null'); } catch (e) {}
+                plannerData.sections[dateStr] = { labelA: (last && last.labelA) || 'Dershane', labelB: (last && last.labelB) || 'Ev' };
+            }
+            savePlanner(); renderPlanner();
+        }
+        function setSectionLabel(dateStr, which, value) {
+            tplList();
+            if (!plannerData.sections[dateStr]) return;
+            plannerData.sections[dateStr][which] = value.trim() || (which === 'labelA' ? 'Üst' : 'Alt');
+            localStorage.setItem('yks_last_section_labels', JSON.stringify(plannerData.sections[dateStr]));
+            savePlanner();
         }
         // Bir şablondan (tekrarlayan görev) üretilmiş bir kartta "Tekrarı tamamen durdur" seçilince:
         // 1) şablonun kendisi silinir (artık hiçbir gelecek haftaya eklenmez)
@@ -5180,6 +5441,7 @@
                 if (z) {
                     const ins = findInsertionPoint(z, t.clientY, st.id);
                     st.insertBeforeId = ins.beforeId;
+                    st.sec = ins.sec;
                     showDropIndicator(z, ins.y);
                 } else {
                     st.insertBeforeId = null;
@@ -5193,12 +5455,11 @@
                 if (e.cancelable) e.preventDefault();   // bırakma sonrası sahte tıklamayı (görevi tamamlama) engelle
                 const t = (e.changedTouches && e.changedTouches[0]) || { clientX: st.lastX, clientY: st.lastY };
                 const zone = cancelled ? null : zoneAt(t.clientX, t.clientY);
-                const { id, source, insertBeforeId } = st;
+                const { id, source, insertBeforeId, sec } = st;
                 cleanup();
                 if (zone) {
                     const target = zone.dataset.zone;
-                    if (target === source && insertBeforeId == null) return;   // aynı yere bırakıldı, bir şey değişmedi
-                    if (moveTaskToPosition(id, source, target, insertBeforeId)) {
+                    if (moveTaskToPosition(id, source, target, insertBeforeId, sec)) {
                         if (target === source) {
                             showToast({ title: 'Sıra güncellendi' });
                         } else {
@@ -5270,8 +5531,14 @@
             const idx = list.findIndex(t => t.id == taskId);
             const items = [];
             if (!task.completed) items.push(['▶', 'Sayacı başlat', () => startTaskTimer(taskId)]);
-            if (idx > 0) items.push(['⬆️', 'Yukarı taşı', () => reorderTask(taskId, source, -1)]);
-            if (idx > -1 && idx < list.length - 1) items.push(['⬇️', 'Aşağı taşı', () => reorderTask(taskId, source, 1)]);
+            if (idx > -1 && hasSameSectionNeighbor(list, idx, -1)) items.push(['⬆️', 'Yukarı taşı', () => reorderTask(taskId, source, -1)]);
+            if (idx > -1 && hasSameSectionNeighbor(list, idx, 1)) items.push(['⬇️', 'Aşağı taşı', () => reorderTask(taskId, source, 1)]);
+            if (source !== 'pool' && plannerData.sections && plannerData.sections[source]) {
+                const curSec = (task.sec || 0);
+                const otherSec = curSec === 1 ? 0 : 1;
+                const otherLabel = otherSec === 1 ? plannerData.sections[source].labelB : plannerData.sections[source].labelA;
+                items.push(['🔀', `"${escapeHtml(otherLabel)}" bölümüne taşı`, () => moveTaskSection(taskId, source, otherSec)]);
+            }
             items.push(['📅', 'Güne taşı', () => openMoveSheet(taskId, source)]);
             if (task.tplId) items.push(['🔁', 'Tekrarı tamamen durdur', () => stopRecurringTask(taskId, source), 'danger']);
             items.push(['🗑️', 'Sil' + (task.tplId ? ' (sadece bu gün)' : ''), () => deleteTaskDrag(taskId, source), 'danger']);
