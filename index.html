@@ -807,6 +807,8 @@
             <button class="tab-btn" data-tab="spaced" onclick="switchTab(this, 'spaced')"><span class="tab-ic"></span><span class="tab-label">Aralıklarla Tekrar</span></button>
             <button class="tab-btn" data-tab="errors" onclick="switchTab(this, 'errors')"><span class="tab-ic"></span><span class="tab-label">Fotoğraflı Hata Defteri</span></button>
             <button class="tab-btn" data-tab="notes" onclick="switchTab(this, 'notes')"><span class="tab-ic"></span><span class="tab-label">Önemli Notlar</span></button>
+            <button class="tab-btn" data-tab="camps" onclick="switchTab(this, 'camps')"><span class="tab-ic"></span><span class="tab-label">Kaynak Takibi</span></button>
+            <button class="tab-btn" data-tab="books" onclick="switchTab(this, 'books')"><span class="tab-ic"></span><span class="tab-label">Soru Bankaları</span></button>
             <button class="tab-btn" data-tab="exams" onclick="switchTab(this, 'exams')"><span class="tab-ic"></span><span class="tab-label">Deneme Takibi</span></button>
             <button class="tab-btn" data-tab="stats" onclick="switchTab(this, 'stats')"><span class="tab-ic"></span><span class="tab-label">İstatistik</span></button>
             <button class="tab-btn" data-tab="pomodoro" onclick="switchTab(this, 'pomodoro')"><span class="tab-ic"></span><span class="tab-label">Sayaç</span></button>
@@ -924,18 +926,7 @@
                         <datalist id="errTopicList"></datalist>
                     </div>
                     <div class="form-field">
-                        <label for="errCause">Yanlış Nedeni</label>
-                        <select id="errCause">
-                            <option value="">Seçmedim</option>
-                            <option value="Bilgi eksik">Bilgi eksik</option>
-                            <option value="Dikkat">Dikkat</option>
-                            <option value="İşlem hatası">İşlem hatası</option>
-                            <option value="Yanlış okuma">Yanlış okuma</option>
-                            <option value="Süre yetmedi">Süre yetmedi</option>
-                        </select>
-                    </div>
-                    <div class="form-field">
-                        <label for="errReason">Açıklama</label>
+                        <label for="errReason">Açıklama / Yanlış Nedeni</label>
                         <textarea id="errReason" placeholder="Neden kaçtı?"></textarea>
                     </div>
                     <div class="form-field">
@@ -1041,6 +1032,40 @@
             </div>
         </div>
 
+        <!-- KAYNAK TAKİBİ -->
+        <div id="campsTab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="campName" placeholder="Kitap/Kamp Adı">
+                <select id="campType">
+                    <option value="Video">Video</option>
+                    <option value="Sayfa">Sayfa</option>
+                    <option value="Test">Test</option>
+                    <option value="Konu">Konu</option>
+                </select>
+                <input type="number" id="campTotal" placeholder="Sayı" style="width: 80px;">
+                <button onclick="addCamp()">Ekle</button>
+            </div>
+            <div id="campList"></div>
+        </div>
+
+        <!-- SORU BANKALARI / YAYIN TAKİBİ -->
+        <div id="booksTab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="bookTitle" placeholder="Yayın / Kitap Adı (Örn: 3D AYT Mat)">
+                <select id="bookSubject">
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                    <option value="Türkçe">Türkçe</option>
+                </select>
+                <input type="number" id="bookTotalTests" placeholder="Toplam Test" style="width: 100px;">
+                <button onclick="addBook()">Kitap Ekle</button>
+            </div>
+            <div id="bookList"></div>
+        </div>
+
         <!-- DENEME TAKİP SİSTEMİ -->
         <div id="examsTab" class="tab-content">
             <div class="exam-grid">
@@ -1127,12 +1152,6 @@
             </div>
 
             <div class="stat-insights" id="statInsights"></div>
-
-            <div class="stats-panel">
-                <div class="stats-panel-title">🤖 Haftalık AI Raporu</div>
-                <p class="ai-note" style="margin-top:0;">Bu hafta hangi görevleri yaptın, hangi denemeler nasıl geçti, hata defterinde neler birikti — hepsini okuyup sana özet ve öneri çıkarır.</p>
-                <button class="auth-google-btn" onclick="openWeeklyReport()">Haftalık raporu aç</button>
-            </div>
 
             <div class="stats-charts">
                 <div class="chart-container" style="height: 340px;">
@@ -1612,6 +1631,8 @@
             spaced:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.9-4"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 4"/><path d="M20 20v-4h-4"/></svg>',
             errors:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.2"/><circle cx="12" cy="16.3" r="0.95" fill="currentColor" stroke="none"/></svg>',
             notes:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45.9 1.1.9 1.8V16h5.2v-.3c0-.7.3-1.35.9-1.8A6 6 0 0 0 12 3Z"/></svg>',
+            camps:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 9-4 9 4-9 4-9-4Z"/><path d="m3 12 9 4 9-4"/><path d="m3 17 9 4 9-4"/></svg>',
+            books:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.2A2.2 2.2 0 0 1 6.2 3H19v16.5a1 1 0 0 1-1 1H6.2A2.2 2.2 0 0 0 4 22"/><path d="M4 5.2v14.6A2.2 2.2 0 0 0 6.2 22H18"/></svg>',
             exams:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>',
             stats:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 7-8"/><path d="M15 6h5v5"/></svg>',
             pomodoro:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
@@ -1657,12 +1678,14 @@
                 renderCurriculum(); 
             });
             
-            initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); scheduleSpacedNative(); });
+            initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
             initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
             initCloudSyncFor('yks_notes_data', (data) => { notesData = data; renderNotesLog(); });
+            initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
+            initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
-            initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); scheduleSpacedNative(); });
+            initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); });
             initCloudSyncFor('yks_target_goal', (data) => { const el = document.getElementById('targetGoal'); if (el && typeof data === 'string' && document.activeElement !== el) el.value = data; });
             initCloudSyncFor('yks_reading_data', (data) => { readingData = Object.assign({ book: '', goal: 40, log: {}, history: [] }, data || {}); renderToday(); });
             
@@ -2603,10 +2626,6 @@
                     <div class="stat-card"><div class="stat-label">Çalışma serisi</div><div class="stat-value">🔥 ${computeStreaks().current} gün</div></div>
                     <div class="stat-card" style="cursor:pointer" onclick="gotoTab('spaced')"><div class="stat-label">Bekleyen tekrar kartı</div><div class="stat-value">${due.length}</div></div>
                 </div>
-                <div class="today-col today-spaced-top" style="margin-bottom:14px;">
-                    <div class="today-sec"><span>🧠 Bugün tekrar edilecek</span><span>${due.length} kart</span></div>
-                    ${due.length ? due.slice(0, 5).map(i => `<div class="today-row"><div><b>${escapeHtml(i.topic)}</b><small>${escapeHtml(i.subject)}</small></div><div class="btns"><button class="link-btn" onclick="reviewSpacedItem(${i.id}, false)">❌ Unuttum</button><button class="link-btn" onclick="reviewSpacedItem(${i.id}, true)">✅ Hatırladım</button></div></div>`).join('') + (due.length > 5 ? `<button class="link-btn" onclick="gotoTab('spaced')">+${due.length - 5} kart daha →</button>` : '') : empty('Bugün tekrar zamanı gelen konu yok.')}
-                </div>
                 <div class="today-grid">
                     <div class="today-col">
                         <div class="today-sec"><span>📋 Bugünkü görevler</span><span>${tasks.filter(t => !t.completed).length} açık</span></div>
@@ -2616,6 +2635,8 @@
                             overdue.slice(0, 8).map(({ t, ds }) => { const d = parseDateStr(ds); return `<div class="today-row"><div><b>${escapeHtml(t.subject || '')}</b> ${escapeHtml(t.text)}<small>${d.getDate()} ${monthNames[d.getMonth()]} ${dayNames[(d.getDay() + 6) % 7]}</small></div><button class="link-btn" onclick="pullToToday(${t.id}, '${ds}')">Bugüne al</button></div>`; }).join('') : ''}
                     </div>
                     <div class="today-col">
+                        <div class="today-sec"><span>🧠 Bugünkü tekrar kartları</span></div>
+                        ${due.length ? due.slice(0, 5).map(i => `<div class="today-row"><div><b>${escapeHtml(i.topic)}</b><small>${escapeHtml(i.subject)}</small></div><div class="btns"><button class="link-btn" onclick="reviewSpacedItem(${i.id}, false)">❌</button><button class="link-btn" onclick="reviewSpacedItem(${i.id}, true)">✅</button></div></div>`).join('') + (due.length > 5 ? `<button class="link-btn" onclick="gotoTab('spaced')">+${due.length - 5} kart daha →</button>` : '') : empty('Tekrar edilecek kart yok.')}
                         <div class="today-sec"><span>🎯 En zayıf 3 konu</span></div>
                         ${weak.length ? weak.map(o => `<div class="today-row"><div><b>${escapeHtml(o.topic)}</b><small>${escapeHtml(o.subject)} · ${o.examMisses} denemede · ${o.openErrors} açık hata</small></div><div class="btns">${o.spaced ? '' : `<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'spaced')">🧠 Tekrara ekle</button>`}<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'newerror')">📓</button></div></div>`).join('') : empty('Deneme ve hata defteri doldukça en zayıf konuların burada görünür.')}
                     </div>
@@ -2848,44 +2869,11 @@
         }
 
         /* ================= ARALIKLARLA TEKRAR LOGIC ================= */
-        const spacedIntervals = [7, 14, 30, 90];   // ilk tekrar 1 hafta sonra, sonra 2 hafta, 1 ay, 3 ay
-        const SPACED_NATIF_BASE = 5000000;     // Android'de planlanan tekrar bildirimlerinin id aralığı
+        const spacedIntervals = [1, 3, 7, 14, 30];
         let spacedData = JSON.parse(localStorage.getItem('yks_spaced_data')) || [];
 
         function saveSpacedData() { 
             saveToCloudAndLocal('yks_spaced_data', spacedData); 
-            scheduleSpacedNative();
-        }
-
-        /* Her tekrar kartının gününü, işletim sisteminin alarmına kaydeder (Android/iOS uygulaması).
-           Uygulama kapalıyken bile o gün ve saatte bildirim çıkar. Web'de bu çalışmaz. */
-        async function scheduleSpacedNative() {
-            const LN = getLocalNotificationsPlugin();
-            if (!LN) return;
-            try {
-                const pending = await LN.getPending();
-                const old = (pending.notifications || []).filter(n => n.id >= SPACED_NATIF_BASE).map(n => ({ id: n.id }));
-                if (old.length) await LN.cancel({ notifications: old });
-                if (!notifSettings.spaced) return;
-                if (!(await requestNativeNotifPermission())) return;
-
-                const [h, m] = (notifSettings.morningTime || '09:00').split(':').map(Number);
-                const now = Date.now();
-                const toSchedule = [];
-                spacedData.forEach((item, idx) => {
-                    const at = new Date(item.nextReviewDate);
-                    at.setHours(h, m, 0, 0);
-                    if (at.getTime() <= now) return;
-                    toSchedule.push({
-                        id: SPACED_NATIF_BASE + idx,
-                        title: '🧠 Tekrar zamanı',
-                        body: `${item.subject} · ${item.topic}`,
-                        schedule: { at: at, allowWhileIdle: true },
-                        extra: { tab: 'spaced' }
-                    });
-                });
-                if (toSchedule.length) await LN.schedule({ notifications: toSchedule.slice(0, 60) });
-            } catch (err) { console.error('Tekrar bildirimleri kurulamadı:', err); }
         }
 
         function addSpacedItem() {
@@ -2894,10 +2882,9 @@
             const topic = topicInput.value.trim();
             if (topic === '') return;
 
-            const first = new Date(); first.setHours(0,0,0,0); first.setDate(first.getDate() + spacedIntervals[0]);
-            spacedData.push({ id: Date.now(), topic: topic, subject: subjectSelect.value, stage: 0, nextReviewDate: first.toISOString() });
+            const today = new Date(); today.setHours(0,0,0,0);
+            spacedData.push({ id: Date.now(), topic: topic, subject: subjectSelect.value, stage: 0, nextReviewDate: today.toISOString() });
             saveSpacedData(); topicInput.value = ''; renderSpaced();
-            showToast({ title: 'Tekrar planlandı', body: `${topic} · ilk tekrar ${spacedIntervals[0]} gün sonra` });
         }
 
         function reviewSpacedItem(id, remembered) {
@@ -2907,7 +2894,7 @@
 
             if (remembered) {
                 if (item.stage < spacedIntervals.length - 1) item.stage++;
-                let addDays = spacedIntervals[item.stage];
+                let addDays = spacedIntervals[Math.min(item.stage, spacedIntervals.length - 1)];
                 let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + addDays);
                 item.nextReviewDate = nextDate.toISOString();
                 triggerConfetti('small');
@@ -3102,7 +3089,6 @@
             const subject = document.getElementById('errSubject').value;
             const topic = document.getElementById('errTopic').value.trim();
             const reason = document.getElementById('errReason').value.trim();
-            const cause = document.getElementById('errCause').value;
 
             if (topic === '') { alert('Lütfen konu başlığını girin.'); return; }
             window.__addingError = true;
@@ -3110,8 +3096,8 @@
                 const newId = Date.now();
                 const imgInfo = await buildImageFields('err', newId, pendingErrorImages);
 
-                errorData.unshift(Object.assign({ id: newId, subject: subject, topic: topic, reason: reason, cause: cause, resolved: false, date: new Date().toLocaleDateString('tr-TR') }, imgInfo));
-                document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = ''; document.getElementById('errCause').value = '';
+                errorData.unshift(Object.assign({ id: newId, subject: subject, topic: topic, reason: reason, resolved: false, date: new Date().toLocaleDateString('tr-TR') }, imgInfo));
+                document.getElementById('errTopic').value = ''; document.getElementById('errReason').value = '';
                 pendingErrorImages = []; renderPendingImgPreview('errImgPreviewRow', pendingErrorImages, 'removePendingErrorImage');
                 saveErrorData(); renderErrorLog();
             } catch (err) {
@@ -3177,7 +3163,7 @@
             const filtered = errorData.filter(i => {
                 const matchesSubject = selectedErrorSubjects.length === 0 || selectedErrorSubjects.includes(i.subject);
                 const matchesTopic = !errorTopicFilter || statKey(i.subject, i.topic) === errorTopicFilter.key;
-                const matchesSearch = filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter) || (i.reason && i.reason.toLowerCase().includes(filter)) || (i.cause && i.cause.toLowerCase().includes(filter));
+                const matchesSearch = filter === '' || i.topic.toLowerCase().includes(filter) || i.subject.toLowerCase().includes(filter) || (i.reason && i.reason.toLowerCase().includes(filter));
                 return matchesSubject && matchesSearch && matchesTopic;
             });
 
@@ -3200,7 +3186,6 @@
                         ${allImgTags('err', item)}
                         <div style="font-size: 11px; font-weight: 700; color: ${sc.color}; background: ${sc.bg}; border: 1px solid ${sc.border}; display:inline-block; padding:2px 8px; border-radius:6px; margin-bottom:4px;">${escapeHtml(item.subject)}</div>
                         <div style="font-weight: 700; font-size: 14px;">${escapeHtml(item.topic)}</div>
-                        ${item.cause ? `<div style="font-size: 11px; font-weight: 600; color: var(--subtext-color); background: var(--input-bg); border: 1px solid var(--border-color); display: inline-block; padding: 2px 8px; border-radius: 6px; margin-bottom: 4px;">🔍 ${escapeHtml(item.cause)}</div>` : ''}
                         ${st && st.examMisses ? `<div class="link-note">📝 Denemelerde ${st.examMisses} kez kaçırıldı</div>` : ''}
                         ${item.reason ? `<div style="font-size: 13px; color: var(--subtext-color);">${escapeHtml(item.reason)}</div>` : ''}
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
@@ -3402,6 +3387,118 @@
                     </div>`;
             });
             hydrateImages();
+        }
+
+        /* ================= KAYNAK TAKİBİ LOGIC ================= */
+        let campsData = JSON.parse(localStorage.getItem('yks_camps_data')) || [];
+
+        function addCamp() {
+            const name = document.getElementById('campName').value.trim();
+            const total = parseInt(document.getElementById('campTotal').value);
+            if (name === '' || isNaN(total) || total <= 0) return;
+            campsData.push({ id: Date.now(), name: name, type: document.getElementById('campType').value, total: total, completed: 0 });
+            document.getElementById('campName').value = ''; document.getElementById('campTotal').value = '';
+            saveAndRenderCamps();
+        }
+
+        function updateCamp(id, change) {
+            const camp = campsData.find(c => c.id === id);
+            if (camp) { camp.completed += change; if (camp.completed < 0) camp.completed = 0; if (camp.completed > camp.total) camp.completed = camp.total; saveAndRenderCamps(); }
+        }
+        function deleteCamp(id) { if(confirm('Silmek istediğine emin misin?')) { campsData = campsData.filter(c => c.id !== id); saveAndRenderCamps(); } }
+        
+        function saveAndRenderCamps() { 
+            saveToCloudAndLocal('yks_camps_data', campsData); 
+            renderCamps(); 
+        }
+
+        function renderCamps() {
+            const list = document.getElementById('campList'); 
+            if (!list) return;
+            list.innerHTML = '';
+            if (campsData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz takip edilen kaynak yok. Yukarıdaki formdan ekleyebilirsin.</div>'; return; }
+            campsData.forEach(camp => {
+                const percent = Math.round((camp.completed / camp.total) * 100);
+                list.innerHTML += `
+                    <div class="camp-card">
+                        <div class="camp-header">
+                            <span style="font-weight:600;">${escapeHtml(camp.name)}</span>
+                            <button class="delete-btn" onclick="deleteCamp(${camp.id})">✕</button>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="camp-footer">
+                            <span>%${percent} (${camp.completed} / ${camp.total} ${camp.type})</span>
+                            <div class="camp-controls"><button onclick="updateCamp(${camp.id}, -1)">-</button> <button onclick="updateCamp(${camp.id}, 1)">+</button></div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        /* ================= SORU BANKALARI / YAYIN TAKİBİ LOGIC ================= */
+        let bookData = JSON.parse(localStorage.getItem('yks_books_data')) || [];
+
+        function saveAndRenderBooks() { 
+            saveToCloudAndLocal('yks_books_data', bookData); 
+            renderBooks(); 
+        }
+
+        function addBook() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const subject = document.getElementById('bookSubject').value;
+            const total = parseInt(document.getElementById('bookTotalTests').value);
+
+            if (!title || isNaN(total) || total <= 0) return;
+
+            bookData.push({ id: Date.now(), title: title, subject: subject, total: total, completed: 0 });
+            document.getElementById('bookTitle').value = ''; document.getElementById('bookTotalTests').value = '';
+            saveAndRenderBooks();
+        }
+
+        function updateBook(id, change) {
+            const book = bookData.find(b => b.id === id);
+            if (book) {
+                book.completed += change;
+                if (book.completed < 0) book.completed = 0;
+                if (book.completed > book.total) book.completed = book.total;
+                saveAndRenderBooks();
+            }
+        }
+
+        function deleteBook(id) {
+            if (confirm('Bu soru bankasını silmek istediğine emin misin?')) {
+                bookData = bookData.filter(b => b.id !== id);
+                saveAndRenderBooks();
+            }
+        }
+
+        function renderBooks() {
+            const list = document.getElementById('bookList'); 
+            if (!list) return;
+            list.innerHTML = '';
+            if (bookData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz soru bankası eklenmedi. Yukarıdaki formdan ekleyebilirsin.</div>'; return; }
+
+            bookData.forEach(book => {
+                const sc = getSubjectColor(book.subject);
+                const percent = Math.round((book.completed / book.total) * 100);
+                list.innerHTML += `
+                    <div class="camp-card" style="border-left: 3px solid ${sc.color};">
+                        <div class="camp-header">
+                            <div>
+                                <span style="font-size:11px; font-weight:700; color:${sc.color}; background:${sc.bg}; border:1px solid ${sc.border}; padding:2px 8px; border-radius:6px; display:inline-block; margin-bottom:4px;">${escapeHtml(book.subject)}</span>
+                                <span style="font-weight:600; display:block;">${escapeHtml(book.title)}</span>
+                            </div>
+                            <button class="delete-btn" onclick="deleteBook(${book.id})">✕</button>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${sc.color}, ${sc.color}cc); box-shadow: 0 0 8px ${sc.bg};"></div></div>
+                        <div class="camp-footer">
+                            <span>%${percent} (${book.completed} / ${book.total} Test Bitti)</span>
+                            <div class="camp-controls">
+                                <button onclick="updateBook(${book.id}, -1)">-</button>
+                                <button onclick="updateBook(${book.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
         }
 
         /* ================= DENEME TAKİP LOGIC & CHART ================= */
@@ -4430,11 +4527,10 @@
                 return;
             }
             const today = new Date(); today.setHours(0, 0, 0, 0);
-            const firstReview = new Date(today); firstReview.setDate(firstReview.getDate() + spacedIntervals[0]);
-            spacedData.push({ id: Date.now(), topic: name, subject: subject, stage: 0, nextReviewDate: firstReview.toISOString() });
+            spacedData.push({ id: Date.now(), topic: name, subject: subject, stage: 0, nextReviewDate: today.toISOString() });
             saveSpacedData();
             refreshLinkedViews();
-            showToast({ title: 'Tekrar kartı eklendi', body: `${name} · ilk tekrar ${spacedIntervals[0]} gün sonra`, tab: 'spaced' });
+            showToast({ title: 'Tekrar kartı eklendi', body: `${name} · bugün tekrar edilecek`, tab: 'spaced' });
         }
 
         function markCurriculumTekrar(item) {
@@ -4590,26 +4686,8 @@
             '- Çıktı en fazla yaklaşık 450 kelime olsun.'
         ].join('\n');
 
-        const WEEKLY_AI_SYSTEM = [
-            'Sen deneyimli bir YKS (TYT/AYT) koçusun. Öğrencinin son 7 güne ait görev tamamlama durumu, deneme netleri ve hata defteri/tekrar verilerini özetleyen bir metin alıyorsun; bunu okuyup haftalık bir değerlendirme ve plan çıkarıyorsun.',
-            '',
-            'Kurallar:',
-            '- Türkçe yaz, sade ve kısa cümleler kullan. LaTeX kullanma; formülleri düz metin ve Unicode ile yaz (x², √, ∫, ≤).',
-            '- Yalnızca sana verilen verileri yorumla, veri yoksa veya eksikse bunu açıkça söyle; sayı veya olay uydurma.',
-            '- Yargılayıcı veya suçlayıcı bir dil kullanma; gerçekçi, teşvik edici ve somut ol.',
-            '- Şu başlıkları aynen ve bu sırayla kullan:',
-            '## Bu hafta özet',
-            '## İyi gidenler',
-            '## İhmal edilenler / dikkat',
-            '## Deneme trendi',
-            '## Gelecek hafta için 3 öneri',
-            '- "Gelecek hafta için 3 öneri" altında tam olarak 3 madde ver, her biri tek cümlelik somut bir eylem olsun.',
-            '- Toplam en fazla yaklaşık 350 kelime yaz.'
-        ].join('\n');
-
         let aiCurrentId = null;
         let aiNotesSubject = null;
-        let aiWeeklyMode = false;
         let aiBusy = false;
         const aiCache = {};
 
@@ -4760,161 +4838,6 @@
             else renderNotesAiReady(subject, items.length);
         }
 
-        /* --- Haftalık AI Raporu: users/{uid}/ai/weekly_{weekKey}; bulut yoksa localStorage --- */
-        function parseTrDate(str) {
-            if (!str) return null;
-            const m = String(str).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-            if (!m) return null;
-            return new Date(+m[3], +m[2] - 1, +m[1]);
-        }
-        function currentWeekKey() { return formatDateString(getMonday(new Date())); }
-        function weeklyAiDocRef(weekKey) {
-            return (window.db && window.fsDoc && cloudUid) ? window.fsDoc(window.db, 'users', cloudUid, 'ai', 'weekly_' + weekKey) : null;
-        }
-        function getLocalWeeklyAiReports() { try { return JSON.parse(localStorage.getItem('yks_weekly_ai_reports')) || {}; } catch (e) { return {}; } }
-        function saveLocalWeeklyAiReport(weekKey, obj) { const all = getLocalWeeklyAiReports(); all[weekKey] = obj; localStorage.setItem('yks_weekly_ai_reports', JSON.stringify(all)); }
-        async function saveWeeklyAiReport(weekKey, result) {
-            if (cloudUid) {
-                try {
-                    const ref = weeklyAiDocRef(weekKey);
-                    if (ref && window.fsSetDoc) { await window.fsSetDoc(ref, result); aiCache['weekly_' + weekKey] = result; return; }
-                } catch (e) { console.error('Haftalık rapor kaydedilemedi:', e); }
-            }
-            aiCache['weekly_' + weekKey] = result;
-            saveLocalWeeklyAiReport(weekKey, result);
-        }
-        async function loadWeeklyAiReport(weekKey) {
-            const key = 'weekly_' + weekKey;
-            if (aiCache[key]) return aiCache[key];
-            if (cloudUid && window.fsGetDoc) {
-                try {
-                    const ref = weeklyAiDocRef(weekKey);
-                    if (ref) { const snap = await window.fsGetDoc(ref); if (snap.exists()) { aiCache[key] = snap.data(); return aiCache[key]; } }
-                } catch (e) { console.error('Haftalık rapor okunamadı:', e); }
-            }
-            const all = getLocalWeeklyAiReports();
-            return all[weekKey] || null;
-        }
-        async function deleteWeeklyAiReport(weekKey) {
-            delete aiCache['weekly_' + weekKey];
-            if (cloudUid && window.fsDeleteDoc) {
-                try { const ref = weeklyAiDocRef(weekKey); if (ref) await window.fsDeleteDoc(ref); } catch (e) { console.error('Haftalık rapor silinemedi:', e); }
-            }
-            const all = getLocalWeeklyAiReports(); delete all[weekKey]; localStorage.setItem('yks_weekly_ai_reports', JSON.stringify(all));
-        }
-
-        function buildWeeklyReportData() {
-            const today = new Date(); today.setHours(0, 0, 0, 0);
-
-            // 1) Görev tamamlama (son 7 gün: bugün dahil)
-            let totalTasks = 0, doneTasks = 0;
-            const dayLines = [];
-            const missedBySubject = {};
-            for (let i = 6; i >= 0; i--) {
-                const d = addDays(today, -i);
-                const ds = formatDateString(d);
-                const tasks = (plannerData.days || {})[ds] || [];
-                const done = tasks.filter(t => t.completed).length;
-                totalTasks += tasks.length; doneTasks += done;
-                tasks.filter(t => !t.completed).forEach(t => { missedBySubject[t.subject] = (missedBySubject[t.subject] || 0) + 1; });
-                dayLines.push(`${ds} (${d.toLocaleDateString('tr-TR', { weekday: 'long' })}): ${done}/${tasks.length} görev tamamlandı${tasks.length ? ' — ' + tasks.map(t => `${t.completed ? '✓' : '✗'} [${t.subject}] ${t.text}`).join('; ') : ''}`);
-            }
-            let overdueOpen = 0;
-            for (let i = 7; i <= NOTIF_LOOKBACK_DAYS; i++) {
-                overdueOpen += (((plannerData.days || {})[formatDateString(addDays(today, -i))]) || []).filter(t => !t.completed).length;
-            }
-
-            // 2) Deneme netleri (son 21 gün, trend için)
-            const recentExams = examData.filter(e => { const d = new Date(e.date); return !isNaN(d) && (today - d) / 86400000 <= 21; })
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-            const examLines = recentExams.map(e => `${e.date} · ${e.name} (${e.type}) → toplam net: ${e.total}${e.details ? ' | ' + e.details : ''}`);
-
-            // 3) Hata defteri (son 7 gün eklenenler) + tekrar kartları
-            const newErrors = errorData.filter(e => { const d = parseTrDate(e.date); return d && (today - d) / 86400000 < 7; });
-            const errBySubject = {};
-            newErrors.forEach(e => { errBySubject[e.subject] = (errBySubject[e.subject] || 0) + 1; });
-            const dueCount = notifDueCards().length;
-            const totalSpaced = spacedData.length;
-
-            const lines = [];
-            lines.push(`GÖREV TAMAMLAMA (son 7 gün): ${doneTasks}/${totalTasks} görev tamamlandı.`);
-            if (overdueOpen > 0) lines.push(`Daha eski günlerden biriken, hâlâ tamamlanmamış ${overdueOpen} görev var.`);
-            if (Object.keys(missedBySubject).length) lines.push('Tamamlanmayan görevlerin ders dağılımı: ' + Object.entries(missedBySubject).map(([s, c]) => `${s}: ${c}`).join(', ') + '.');
-            lines.push('Gün gün dökümü:');
-            lines.push(...dayLines.map(l => '- ' + l));
-            lines.push('');
-            lines.push('DENEME NETLERİ (son 21 gün, eskiden yeniye):');
-            lines.push(examLines.length ? examLines.map(l => '- ' + l).join('\n') : '- Bu dönemde kayıtlı deneme yok.');
-            lines.push('');
-            lines.push(`HATA DEFTERİ: son 7 günde ${newErrors.length} yeni hata kaydı eklendi${Object.keys(errBySubject).length ? ' (' + Object.entries(errBySubject).map(([s, c]) => `${s}: ${c}`).join(', ') + ')' : ''}.`);
-            lines.push(`TEKRAR (aralıklı tekrar) KARTLARI: toplam ${totalSpaced} kart, bugün itibarıyla ${dueCount} tanesi tekrar zamanı gelmiş veya gecikmiş.`);
-            return lines.join('\n');
-        }
-
-        function renderWeeklyReportReady() {
-            aiBody(`
-                <div class="ai-note" style="margin-top:0;">📊 Bu hafta yaptıkların (görevler, denemeler, hata defteri) okunup değerlendirilecek.</div>
-                <button class="auth-google-btn" onclick="runWeeklyAiReport()">Rapor oluştur</button>
-                <p class="ai-hint">Model: ${escapeHtml(aiModelLabel(getAiModel()))} · yaklaşık 20–40 saniye sürer.</p>
-            `);
-        }
-        function renderWeeklyReportResult(result) {
-            const when = result.date ? new Date(result.date).toLocaleDateString('tr-TR') : '';
-            aiBody(`
-                <div class="ai-result">${renderMiniMarkdown(result.text)}</div>
-                <div class="ai-meta">${escapeHtml(aiModelLabel(result.model || ''))}${when ? ' · ' + when : ''}</div>
-                <div class="ai-actions">
-                    <button class="link-btn" onclick="weeklyReportReanalyze()">Yeniden oluştur</button>
-                    <button class="link-btn" onclick="deleteWeeklyReportConfirm()">Raporu sil</button>
-                </div>
-                <p class="ai-hint">Yapay zekâ hata yapabilir, rapor fikir vermek içindir.</p>
-            `);
-        }
-        function renderWeeklyReportError(err) {
-            console.error('Haftalık rapor hatası:', err);
-            aiBody(`
-                <div class="ai-error">${escapeHtml(aiErrorText(err))}${err && err.message ? `<small>${escapeHtml(err.message)}</small>` : ''}</div>
-                <div class="ai-actions">
-                    <button class="link-btn" onclick="weeklyReportReanalyze()">Tekrar dene</button>
-                    <button class="link-btn" onclick="renderAiSetup()">⚙️ Ayarlar</button>
-                </div>
-            `);
-        }
-        function weeklyReportReanalyze() { renderWeeklyReportReady(); }
-        async function deleteWeeklyReportConfirm() {
-            if (!confirm('Kayıtlı haftalık rapor silinsin mi?')) return;
-            await deleteWeeklyAiReport(currentWeekKey());
-            renderWeeklyReportReady();
-        }
-        async function runWeeklyAiReport() {
-            if (aiBusy) return;
-            aiBusy = true;
-            renderAiLoading();
-            const weekKey = currentWeekKey();
-            try {
-                const model = getAiModel();
-                const text = await callClaude(model, WEEKLY_AI_SYSTEM, [{ type: 'text', text: buildWeeklyReportData() }]);
-                if (!text) throw new Error('Boş yanıt alındı');
-                const result = { text: text, model: model, date: new Date().toISOString() };
-                await saveWeeklyAiReport(weekKey, result);
-                if (aiWeeklyMode) renderWeeklyReportResult(result);
-            } catch (err) {
-                if (aiWeeklyMode) renderWeeklyReportError(err);
-            } finally { aiBusy = false; }
-        }
-        async function openWeeklyReport() {
-            aiCurrentId = null;
-            aiNotesSubject = null;
-            aiWeeklyMode = true;
-            document.getElementById('aiTitle').innerText = 'Haftalık Rapor';
-            document.getElementById('aiModal').classList.add('open');
-            if (!getAiKey()) { renderAiSetup(); return; }
-            const saved = await loadWeeklyAiReport(currentWeekKey());
-            if (!aiWeeklyMode) return;
-            if (saved) renderWeeklyReportResult(saved);
-            else renderWeeklyReportReady();
-        }
-
         /* --- Küçük ve güvenli markdown çevirici --- */
         function renderMiniMarkdown(text) {
             const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
@@ -4951,7 +4874,7 @@
 
         /* --- Pencere durumları --- */
         function aiBody(html) { document.getElementById('aiBody').innerHTML = html; }
-        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; aiNotesSubject = null; aiWeeklyMode = false; }
+        function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); aiCurrentId = null; aiNotesSubject = null; }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAiModal(); });
 
         async function openAiAnalysis(id) {
@@ -4996,7 +4919,6 @@
             localStorage.setItem('yks_ai_model', document.getElementById('aiModelSelect').value);
             if (aiCurrentId) openAiAnalysis(aiCurrentId);
             else if (aiNotesSubject) openNotesAiSummary(aiNotesSubject);
-            else if (aiWeeklyMode) openWeeklyReport();
         }
         function removeAiKey() {
             if (!confirm('API anahtarı bu tarayıcıdan silinsin mi?')) return;
@@ -5074,7 +4996,7 @@
                         'anthropic-version': '2023-06-01',
                         'anthropic-dangerous-direct-browser-access': 'true'
                     },
-                    body: JSON.stringify({ model: model, max_tokens: 1800, system: system, messages: [{ role: 'user', content: content }] })
+                    body: JSON.stringify({ model: model, max_tokens: 8192, system: system, messages: [{ role: 'user', content: content }] })
                 });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok) {
@@ -5082,7 +5004,11 @@
                     err.status = res.status;
                     throw err;
                 }
-                return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+                let text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+                if (data.stop_reason === 'max_tokens') {
+                    text += '\n\n---\n*(Yanıt uzunluk sınırına takıldığı için burada kesildi. "Yeniden analiz et" ile tekrar deneyebilirsin.)*';
+                }
+                return text;
             } finally { clearTimeout(timer); }
         }
 
