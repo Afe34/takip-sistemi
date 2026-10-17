@@ -807,8 +807,6 @@
             <button class="tab-btn" data-tab="spaced" onclick="switchTab(this, 'spaced')"><span class="tab-ic"></span><span class="tab-label">Aralıklarla Tekrar</span></button>
             <button class="tab-btn" data-tab="errors" onclick="switchTab(this, 'errors')"><span class="tab-ic"></span><span class="tab-label">Fotoğraflı Hata Defteri</span></button>
             <button class="tab-btn" data-tab="notes" onclick="switchTab(this, 'notes')"><span class="tab-ic"></span><span class="tab-label">Önemli Notlar</span></button>
-            <button class="tab-btn" data-tab="camps" onclick="switchTab(this, 'camps')"><span class="tab-ic"></span><span class="tab-label">Kaynak Takibi</span></button>
-            <button class="tab-btn" data-tab="books" onclick="switchTab(this, 'books')"><span class="tab-ic"></span><span class="tab-label">Soru Bankaları</span></button>
             <button class="tab-btn" data-tab="exams" onclick="switchTab(this, 'exams')"><span class="tab-ic"></span><span class="tab-label">Deneme Takibi</span></button>
             <button class="tab-btn" data-tab="stats" onclick="switchTab(this, 'stats')"><span class="tab-ic"></span><span class="tab-label">İstatistik</span></button>
             <button class="tab-btn" data-tab="pomodoro" onclick="switchTab(this, 'pomodoro')"><span class="tab-ic"></span><span class="tab-label">Sayaç</span></button>
@@ -1030,40 +1028,6 @@
                     <div class="error-items-grid" id="noteGrid"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- KAYNAK TAKİBİ -->
-        <div id="campsTab" class="tab-content">
-            <div class="input-group">
-                <input type="text" id="campName" placeholder="Kitap/Kamp Adı">
-                <select id="campType">
-                    <option value="Video">Video</option>
-                    <option value="Sayfa">Sayfa</option>
-                    <option value="Test">Test</option>
-                    <option value="Konu">Konu</option>
-                </select>
-                <input type="number" id="campTotal" placeholder="Sayı" style="width: 80px;">
-                <button onclick="addCamp()">Ekle</button>
-            </div>
-            <div id="campList"></div>
-        </div>
-
-        <!-- SORU BANKALARI / YAYIN TAKİBİ -->
-        <div id="booksTab" class="tab-content">
-            <div class="input-group">
-                <input type="text" id="bookTitle" placeholder="Yayın / Kitap Adı (Örn: 3D AYT Mat)">
-                <select id="bookSubject">
-                    <option value="Matematik">Matematik</option>
-                    <option value="Geometri">Geometri</option>
-                    <option value="Fizik">Fizik</option>
-                    <option value="Kimya">Kimya</option>
-                    <option value="Biyoloji">Biyoloji</option>
-                    <option value="Türkçe">Türkçe</option>
-                </select>
-                <input type="number" id="bookTotalTests" placeholder="Toplam Test" style="width: 100px;">
-                <button onclick="addBook()">Kitap Ekle</button>
-            </div>
-            <div id="bookList"></div>
         </div>
 
         <!-- DENEME TAKİP SİSTEMİ -->
@@ -1631,8 +1595,6 @@
             spaced:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.9-4"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 4"/><path d="M20 20v-4h-4"/></svg>',
             errors:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.2"/><circle cx="12" cy="16.3" r="0.95" fill="currentColor" stroke="none"/></svg>',
             notes:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45.9 1.1.9 1.8V16h5.2v-.3c0-.7.3-1.35.9-1.8A6 6 0 0 0 12 3Z"/></svg>',
-            camps:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 9-4 9 4-9 4-9-4Z"/><path d="m3 12 9 4 9-4"/><path d="m3 17 9 4 9-4"/></svg>',
-            books:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.2A2.2 2.2 0 0 1 6.2 3H19v16.5a1 1 0 0 1-1 1H6.2A2.2 2.2 0 0 0 4 22"/><path d="M4 5.2v14.6A2.2 2.2 0 0 0 6.2 22H18"/></svg>',
             exams:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>',
             stats:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 7-8"/><path d="M15 6h5v5"/></svg>',
             pomodoro:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
@@ -1681,8 +1643,6 @@
             initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
             initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
             initCloudSyncFor('yks_notes_data', (data) => { notesData = data; renderNotesLog(); });
-            initCloudSyncFor('yks_camps_data', (data) => { campsData = data; renderCamps(); });
-            initCloudSyncFor('yks_books_data', (data) => { bookData = data; renderBooks(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
             initCloudSyncFor('yks_notif_settings', (data) => { notifSettings = Object.assign({}, NOTIF_DEFAULTS, data || {}); renderNotifSettings(); scheduleNativeDailyReminders(); });
@@ -3387,118 +3347,6 @@
                     </div>`;
             });
             hydrateImages();
-        }
-
-        /* ================= KAYNAK TAKİBİ LOGIC ================= */
-        let campsData = JSON.parse(localStorage.getItem('yks_camps_data')) || [];
-
-        function addCamp() {
-            const name = document.getElementById('campName').value.trim();
-            const total = parseInt(document.getElementById('campTotal').value);
-            if (name === '' || isNaN(total) || total <= 0) return;
-            campsData.push({ id: Date.now(), name: name, type: document.getElementById('campType').value, total: total, completed: 0 });
-            document.getElementById('campName').value = ''; document.getElementById('campTotal').value = '';
-            saveAndRenderCamps();
-        }
-
-        function updateCamp(id, change) {
-            const camp = campsData.find(c => c.id === id);
-            if (camp) { camp.completed += change; if (camp.completed < 0) camp.completed = 0; if (camp.completed > camp.total) camp.completed = camp.total; saveAndRenderCamps(); }
-        }
-        function deleteCamp(id) { if(confirm('Silmek istediğine emin misin?')) { campsData = campsData.filter(c => c.id !== id); saveAndRenderCamps(); } }
-        
-        function saveAndRenderCamps() { 
-            saveToCloudAndLocal('yks_camps_data', campsData); 
-            renderCamps(); 
-        }
-
-        function renderCamps() {
-            const list = document.getElementById('campList'); 
-            if (!list) return;
-            list.innerHTML = '';
-            if (campsData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz takip edilen kaynak yok. Yukarıdaki formdan ekleyebilirsin.</div>'; return; }
-            campsData.forEach(camp => {
-                const percent = Math.round((camp.completed / camp.total) * 100);
-                list.innerHTML += `
-                    <div class="camp-card">
-                        <div class="camp-header">
-                            <span style="font-weight:600;">${escapeHtml(camp.name)}</span>
-                            <button class="delete-btn" onclick="deleteCamp(${camp.id})">✕</button>
-                        </div>
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
-                        <div class="camp-footer">
-                            <span>%${percent} (${camp.completed} / ${camp.total} ${camp.type})</span>
-                            <div class="camp-controls"><button onclick="updateCamp(${camp.id}, -1)">-</button> <button onclick="updateCamp(${camp.id}, 1)">+</button></div>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        /* ================= SORU BANKALARI / YAYIN TAKİBİ LOGIC ================= */
-        let bookData = JSON.parse(localStorage.getItem('yks_books_data')) || [];
-
-        function saveAndRenderBooks() { 
-            saveToCloudAndLocal('yks_books_data', bookData); 
-            renderBooks(); 
-        }
-
-        function addBook() {
-            const title = document.getElementById('bookTitle').value.trim();
-            const subject = document.getElementById('bookSubject').value;
-            const total = parseInt(document.getElementById('bookTotalTests').value);
-
-            if (!title || isNaN(total) || total <= 0) return;
-
-            bookData.push({ id: Date.now(), title: title, subject: subject, total: total, completed: 0 });
-            document.getElementById('bookTitle').value = ''; document.getElementById('bookTotalTests').value = '';
-            saveAndRenderBooks();
-        }
-
-        function updateBook(id, change) {
-            const book = bookData.find(b => b.id === id);
-            if (book) {
-                book.completed += change;
-                if (book.completed < 0) book.completed = 0;
-                if (book.completed > book.total) book.completed = book.total;
-                saveAndRenderBooks();
-            }
-        }
-
-        function deleteBook(id) {
-            if (confirm('Bu soru bankasını silmek istediğine emin misin?')) {
-                bookData = bookData.filter(b => b.id !== id);
-                saveAndRenderBooks();
-            }
-        }
-
-        function renderBooks() {
-            const list = document.getElementById('bookList'); 
-            if (!list) return;
-            list.innerHTML = '';
-            if (bookData.length === 0) { list.innerHTML = '<div class="empty-text">Henüz soru bankası eklenmedi. Yukarıdaki formdan ekleyebilirsin.</div>'; return; }
-
-            bookData.forEach(book => {
-                const sc = getSubjectColor(book.subject);
-                const percent = Math.round((book.completed / book.total) * 100);
-                list.innerHTML += `
-                    <div class="camp-card" style="border-left: 3px solid ${sc.color};">
-                        <div class="camp-header">
-                            <div>
-                                <span style="font-size:11px; font-weight:700; color:${sc.color}; background:${sc.bg}; border:1px solid ${sc.border}; padding:2px 8px; border-radius:6px; display:inline-block; margin-bottom:4px;">${escapeHtml(book.subject)}</span>
-                                <span style="font-weight:600; display:block;">${escapeHtml(book.title)}</span>
-                            </div>
-                            <button class="delete-btn" onclick="deleteBook(${book.id})">✕</button>
-                        </div>
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${sc.color}, ${sc.color}cc); box-shadow: 0 0 8px ${sc.bg};"></div></div>
-                        <div class="camp-footer">
-                            <span>%${percent} (${book.completed} / ${book.total} Test Bitti)</span>
-                            <div class="camp-controls">
-                                <button onclick="updateBook(${book.id}, -1)">-</button>
-                                <button onclick="updateBook(${book.id}, 1)">+</button>
-                            </div>
-                        </div>
-                    </div>`;
-            });
         }
 
         /* ================= DENEME TAKİP LOGIC & CHART ================= */
