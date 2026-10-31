@@ -394,7 +394,9 @@
         .report-empty { font-size: 13px; color: #9ca3af; padding: 16px 0; }
         .report-foot { margin-top: 10px; font-size: 10.5px; color: #9ca3af; text-align: center; }
 
-        /* ===== Hata Defteri Çıktısı: soru kartları ===== */
+        /* ===== Hata Defteri Çıktısı: başlıksız, 2 sütun (sayfa başına ~4 soru: solda 2, sağda 2) ===== */
+        .report-page-bare { padding-top: 18px; }
+        .report-error-cols { column-count: 2; column-gap: 22px; column-fill: auto; }
         .report-error-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
         .report-error-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
         .report-error-topic { font-size: 14.5px; font-weight: 800; color: #111827; }
@@ -3322,23 +3324,11 @@
                 return;
             }
 
-            const now = new Date();
-            const genDate = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
             const imgSets = await Promise.all(items.map(resolveErrorItemImages));
 
             area.innerHTML = `
-                <div class="report-page" style="--report-accent: ${accent};">
-                    <div class="report-head">
-                        <div class="report-head-left">
-                            <div class="report-brand">YKS Sistemim</div>
-                            <div class="report-title">${escapeHtml(subject)} · Hata Defteri Çıktısı</div>
-                        </div>
-                        <div class="report-head-right">
-                            <div class="report-badge">${items.length} Soru</div>
-                            <div>Oluşturma tarihi: ${genDate}</div>
-                        </div>
-                    </div>
-                    <div class="report-section">
+                <div class="report-page report-page-bare" style="--report-accent: ${accent};">
+                    <div class="report-error-cols">
                         ${items.map((item, i) => `
                             <div class="report-error-card">
                                 <div class="report-error-head">
@@ -3349,7 +3339,6 @@
                                 ${imgSets[i].length ? `<div class="report-error-imgs">${imgSets[i].map(src => `<img src="${src}" alt="Soru fotoğrafı">`).join('')}</div>` : '<div class="report-empty" style="padding:4px 0;">Bu soru için görsel eklenmemiş.</div>'}
                             </div>`).join('')}
                     </div>
-                    <div class="report-foot">YKS Sistemim · kişisel çalışma takip uygulaması</div>
                 </div>`;
         }
 
