@@ -394,11 +394,23 @@
         .report-empty { font-size: 13px; color: #9ca3af; padding: 16px 0; }
         .report-foot { margin-top: 10px; font-size: 10.5px; color: #9ca3af; text-align: center; }
 
+        /* ===== Hata Defteri Çıktısı: soru kartları ===== */
+        .report-error-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
+        .report-error-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+        .report-error-topic { font-size: 14.5px; font-weight: 800; color: #111827; }
+        .report-error-meta { font-size: 11px; color: #9ca3af; white-space: nowrap; }
+        .report-error-reason { font-size: 12.5px; color: #4b5563; margin-bottom: 8px; }
+        .report-error-imgs { display: flex; flex-wrap: wrap; gap: 8px; }
+        .report-error-imgs img { max-width: 100%; max-height: 420px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .report-picker-item { display: flex; justify-content: space-between; align-items: center; width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .report-picker-item:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .report-picker-item .rp-count { font-size: 11px; color: var(--subtext-color); font-weight: 600; }
+
         @media print {
-            body > *:not(#examReportModal) { display: none !important; }
-            #examReportModal { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; overflow: visible !important; }
-            #examReportModal > div { box-shadow: none !important; max-width: 100% !important; border-radius: 0 !important; }
-            #examReportModalBar { display: none !important; }
+            body > *:not(.print-report-modal) { display: none !important; }
+            .print-report-modal { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; overflow: visible !important; }
+            .print-report-modal > div { box-shadow: none !important; max-width: 100% !important; border-radius: 0 !important; }
+            .print-report-modal .print-hide-bar { display: none !important; }
             .report-page { padding: 0 !important; }
         }
 
@@ -941,9 +953,12 @@
                 </div>
 
                 <div class="error-list-card">
-                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <div class="error-form-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
                         <span>Hata Defterim (<span id="errCount">0</span> Soru)</span>
-                        <input type="text" id="errSearch" class="curriculum-search" placeholder="Ara..." oninput="renderErrorLog()" style="padding: 4px 10px; font-size: 12px; min-width: 150px;">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="link-btn" onclick="openErrorExportPicker()" title="Çözemediğin soruları ders bazlı PDF/Word çıktısı olarak al">📄 Çıktı Al</button>
+                            <input type="text" id="errSearch" class="curriculum-search" placeholder="Ara..." oninput="renderErrorLog()" style="padding: 4px 10px; font-size: 12px; min-width: 150px;">
+                        </div>
                     </div>
                     
                     <div id="errTopicFilterBar"></div>
@@ -1273,9 +1288,9 @@
     </div>
 
     <!-- Deneme Analiz Raporu: Çıktı / Yazdırma Modalı -->
-    <div id="examReportModal" class="image-modal" style="align-items:flex-start; overflow-y:auto; padding:24px 12px;">
+    <div id="examReportModal" class="image-modal print-report-modal" style="align-items:flex-start; overflow-y:auto; padding:24px 12px;">
         <div style="background:#ffffff; border-radius:16px; max-width:900px; width:100%; margin:0 auto; overflow:hidden;">
-            <div id="examReportModalBar" style="position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:#111827; color:#fff;">
+            <div id="examReportModalBar" class="print-hide-bar" style="position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:#111827; color:#fff;">
                 <span style="font-weight:700; font-size:14px;">Deneme Analiz Raporu</span>
                 <div style="display:flex; gap:8px;">
                     <button class="btn-add-error" style="padding:8px 14px; width:auto;" onclick="printExamReport()">🖨️ Yazdır / PDF Kaydet</button>
@@ -1283,6 +1298,25 @@
                 </div>
             </div>
             <div id="examReportPrintArea"></div>
+        </div>
+    </div>
+
+    <!-- Hata Defteri Çıktısı: Ders / Kapsam Seçim Modalı -->
+    <div id="errorExportPickerModal" class="image-modal" onclick="closeErrorExportPicker()">
+        <div onclick="event.stopPropagation()" id="errorExportPickerBody" style="background:var(--card-bg); border-radius:16px; padding:28px; max-width:380px; width:90%; text-align:center;"></div>
+    </div>
+
+    <!-- Hata Defteri Çıktısı: Çıktı / Yazdırma Modalı -->
+    <div id="errorExportReportModal" class="image-modal print-report-modal" style="align-items:flex-start; overflow-y:auto; padding:24px 12px;">
+        <div style="background:#ffffff; border-radius:16px; max-width:900px; width:100%; margin:0 auto; overflow:hidden;">
+            <div id="errorExportModalBar" class="print-hide-bar" style="position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:#111827; color:#fff;">
+                <span style="font-weight:700; font-size:14px;">Hata Defteri Çıktısı</span>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-add-error" style="padding:8px 14px; width:auto;" onclick="printErrorExportReport()">🖨️ Yazdır / PDF Kaydet</button>
+                    <button class="btn-icon" style="padding:8px 14px; width:auto; background:transparent; border-color:#374151; color:#fff;" onclick="closeErrorExportReportModal()">✕ Kapat</button>
+                </div>
+            </div>
+            <div id="errorExportPrintArea"></div>
         </div>
     </div>
 
@@ -1642,6 +1676,7 @@
             
             initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
             initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
+            initCloudSyncFor('yks_error_export_pins', (data) => { errorExportPins = data || {}; });
             initCloudSyncFor('yks_notes_data', (data) => { notesData = data; renderNotesLog(); });
             initCloudSyncFor('yks_exam_data', (data) => { examData = data; renderExams(); });
             initCloudSyncFor('yks_study_goal', (data) => { studyGoal = parseFloat(data) || 4; renderStats(); });
@@ -2927,6 +2962,13 @@
             saveToCloudAndLocal('yks_error_data', errorData); 
         }
 
+        // Ders bazında en son "Çıktı Al" zamanı: { "Matematik": 1730400000000, ... }
+        // Bir sonraki çıktıda bu zamandan sonra eklenen sorular "yeni" sayılır.
+        let errorExportPins = JSON.parse(localStorage.getItem('yks_error_export_pins')) || {};
+        function saveErrorExportPins() {
+            saveToCloudAndLocal('yks_error_export_pins', errorExportPins);
+        }
+
         function compressImage(file) {
             return new Promise((resolve) => {
                 if (!file) { resolve(null); return; }
@@ -3155,6 +3197,165 @@
                     </div>`;
             });
             hydrateImages();
+        }
+
+        /* ================= HATA DEFTERİ ÇIKTISI (PDF / Yazdırma) =================
+           Akış: "Çıktı Al" → tek ders filtrelenmişse direkt onunla, değilse ders seçtirir →
+           o dersin ÇÖZÜLMEMİŞ sorularını listeler → daha önce çıktı alınmışsa "sadece yeni
+           eklenenler" / "hepsi" seçimi sorar → yazdırılabilir rapor sayfası (window.print,
+           tarayıcıdan "PDF olarak kaydet" ile PDF alınabilir) → o dersin pin'i şimdiki zamana
+           güncellenir, böylece bir sonraki çıktıda yalnızca aradan eklenen sorular "yeni" sayılır. */
+        const ERROR_EXPORT_SUBJECTS = ['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Sosyal'];
+
+        function unsolvedErrorsBySubject(subject) {
+            return errorData.filter(e => e.subject === subject && !e.resolved).sort((a, b) => a.id - b.id);
+        }
+
+        function openErrorExportPicker() {
+            if (selectedErrorSubjects.length === 1) { decideErrorExportScope(selectedErrorSubjects[0]); return; }
+
+            const subjectsWithItems = ERROR_EXPORT_SUBJECTS
+                .map(s => ({ subject: s, count: unsolvedErrorsBySubject(s).length }))
+                .filter(s => s.count > 0);
+
+            const body = document.getElementById('errorExportPickerBody');
+            if (subjectsWithItems.length === 0) {
+                body.innerHTML = `
+                    <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:10px;">Çıktı alınacak soru yok</div>
+                    <div style="font-size:13px; color:var(--subtext-color); margin-bottom:18px;">Hata defterinde henüz "Çözüldü" işaretlenmemiş bir soru bulunmuyor.</div>
+                    <button class="btn-icon" style="width:100%;" onclick="closeErrorExportPicker()">Kapat</button>`;
+            } else {
+                body.innerHTML = `
+                    <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:6px;">Hangi dersin sorularını çıkaralım?</div>
+                    <div style="font-size:13px; color:var(--subtext-color); margin-bottom:16px;">Sadece henüz "Çözüldü" işaretlenmemiş sorular listelenecek.</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        ${subjectsWithItems.map(s => `<button class="report-picker-item" onclick='decideErrorExportScope(${JSON.stringify(s.subject)})'><span>${escapeHtml(s.subject)}</span><span class="rp-count">${s.count} soru</span></button>`).join('')}
+                    </div>
+                    <button class="btn-icon" style="width:100%; margin-top:14px;" onclick="closeErrorExportPicker()">Vazgeç</button>`;
+            }
+            document.getElementById('errorExportPickerModal').style.display = 'flex';
+        }
+
+        function closeErrorExportPicker() {
+            document.getElementById('errorExportPickerModal').style.display = 'none';
+        }
+
+        // Seçilen ders için: daha önce hiç çıktı alınmamışsa direkt tüm çözülmemiş soruları çıkarır.
+        // Daha önce çıktı alınmışsa, "sadece o tarihten sonra eklenenler" ile "hepsi" arasında seçim sorar.
+        function decideErrorExportScope(subject) {
+            const all = unsolvedErrorsBySubject(subject);
+            const pin = errorExportPins[subject];
+            const body = document.getElementById('errorExportPickerBody');
+
+            if (!all.length) {
+                body.innerHTML = `
+                    <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:10px;">${escapeHtml(subject)} için soru yok</div>
+                    <div style="font-size:13px; color:var(--subtext-color); margin-bottom:18px;">Bu derste henüz "Çözüldü" işaretlenmemiş bir soru bulunmuyor.</div>
+                    <button class="btn-icon" style="width:100%;" onclick="closeErrorExportPicker()">Kapat</button>`;
+                document.getElementById('errorExportPickerModal').style.display = 'flex';
+                return;
+            }
+
+            if (!pin) { runErrorExport(subject, null); return; }
+
+            const newOnes = all.filter(e => e.id > pin);
+            const pinDate = new Date(pin).toLocaleDateString('tr-TR');
+
+            if (newOnes.length === 0 || newOnes.length === all.length) {
+                const label = newOnes.length === 0
+                    ? `En son ${pinDate} tarihinde çıktı almıştın, o zamandan beri bu derste yeni soru eklenmedi.`
+                    : `En son ${pinDate} tarihinde çıktı almıştın; mevcut sorular o tarihten sonra eklendi.`;
+                body.innerHTML = `
+                    <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:6px;">${escapeHtml(subject)} Çıktısı</div>
+                    <div style="font-size:13px; color:var(--subtext-color); margin-bottom:18px;">${label}</div>
+                    <button class="btn-add-error" onclick='runErrorExport(${JSON.stringify(subject)}, null)'>Mevcut ${all.length} soruyu çıkar</button>
+                    <button class="btn-icon" style="width:100%; margin-top:10px;" onclick="closeErrorExportPicker()">Vazgeç</button>`;
+                document.getElementById('errorExportPickerModal').style.display = 'flex';
+                return;
+            }
+
+            body.innerHTML = `
+                <div style="font-weight:800; font-size:17px; color:var(--text-color); margin-bottom:6px;">${escapeHtml(subject)} Çıktısı</div>
+                <div style="font-size:13px; color:var(--subtext-color); margin-bottom:18px;">En son ${pinDate} tarihinde çıktı almıştın. Sadece o zamandan sonra eklenen yeni soruları mı, yoksa hepsini mi çıkarayım?</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn-add-error" onclick='runErrorExport(${JSON.stringify(subject)}, "new")'>🆕 Sadece yeni sorular (${newOnes.length})</button>
+                    <button class="btn-icon" onclick='runErrorExport(${JSON.stringify(subject)}, "all")'>Hepsi (${all.length})</button>
+                </div>
+                <button class="btn-icon" style="width:100%; margin-top:14px; background:transparent;" onclick="closeErrorExportPicker()">Vazgeç</button>`;
+            document.getElementById('errorExportPickerModal').style.display = 'flex';
+        }
+
+        // scope: null (tek seçenek vardı) | "new" | "all" — kapsamı belirler, pini şimdiki zamana günceller, raporu üretir
+        function runErrorExport(subject, scope) {
+            const all = unsolvedErrorsBySubject(subject);
+            const pin = errorExportPins[subject];
+            const items = (scope === 'new' && pin) ? all.filter(e => e.id > pin) : all;
+
+            closeErrorExportPicker();
+            errorExportPins[subject] = Date.now();
+            saveErrorExportPins();
+            generateErrorExportReport(subject, items);
+        }
+
+        // Öğedeki ana görsel + ek görselleri (Firestore'da saklıysa indirerek) base64 olarak döndürür
+        async function resolveErrorItemImages(item) {
+            const srcs = [];
+            if (item.image) srcs.push(item.image);
+            else if (item.hasImage) { const d = await getImageData('err_' + item.id); if (d) srcs.push(d); }
+            for (const ei of (item.extraImages || [])) {
+                if (ei.image) srcs.push(ei.image);
+                else if (ei.hasImage) { const d = await getImageData('err_' + ei.id); if (d) srcs.push(d); }
+            }
+            return srcs;
+        }
+
+        async function generateErrorExportReport(subject, items) {
+            const accent = getThemeAccentHex();
+            const area = document.getElementById('errorExportPrintArea');
+            if (!area) return;
+
+            area.innerHTML = `<div class="report-page"><div class="report-empty">Sorular hazırlanıyor…</div></div>`;
+            document.getElementById('errorExportReportModal').style.display = 'flex';
+
+            if (!items.length) {
+                area.innerHTML = `<div class="report-page"><div class="report-empty">Bu kapsamda çözülmemiş soru bulunamadı.</div></div>`;
+                return;
+            }
+
+            const now = new Date();
+            const genDate = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            const imgSets = await Promise.all(items.map(resolveErrorItemImages));
+
+            area.innerHTML = `
+                <div class="report-page" style="--report-accent: ${accent};">
+                    <div class="report-head">
+                        <div class="report-head-left">
+                            <div class="report-brand">YKS Sistemim</div>
+                            <div class="report-title">${escapeHtml(subject)} · Hata Defteri Çıktısı</div>
+                        </div>
+                        <div class="report-head-right">
+                            <div class="report-badge">${items.length} Soru</div>
+                            <div>Oluşturma tarihi: ${genDate}</div>
+                        </div>
+                    </div>
+                    <div class="report-section">
+                        ${items.map((item, i) => `
+                            <div class="report-error-card">
+                                <div class="report-error-head">
+                                    <div class="report-error-topic">${i + 1}. ${escapeHtml(item.topic)}</div>
+                                    <div class="report-error-meta">${escapeHtml(item.date || '')}</div>
+                                </div>
+                                ${item.reason ? `<div class="report-error-reason">Not: ${escapeHtml(item.reason)}</div>` : ''}
+                                ${imgSets[i].length ? `<div class="report-error-imgs">${imgSets[i].map(src => `<img src="${src}" alt="Soru fotoğrafı">`).join('')}</div>` : '<div class="report-empty" style="padding:4px 0;">Bu soru için görsel eklenmemiş.</div>'}
+                            </div>`).join('')}
+                    </div>
+                    <div class="report-foot">YKS Sistemim · kişisel çalışma takip uygulaması</div>
+                </div>`;
+        }
+
+        function printErrorExportReport() { window.print(); }
+        function closeErrorExportReportModal() {
+            document.getElementById('errorExportReportModal').style.display = 'none';
         }
 
         /* ================= ÖNEMLİ NOTLAR LOGIC ================= */
