@@ -7763,18 +7763,23 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
             if (!uni && !dept) return null;
             const city = String(raw.city || raw.s || raw.sehir || '').trim();
             const uniTypeRaw = String(raw.uniType || raw.t || raw.tur || '').trim();
+            const utNorm = atlasNorm(uniTypeRaw);
             let uniType = 'Devlet';
-            if (/vak[ıi]f/i.test(uniTypeRaw)) uniType = 'Vakıf';
-            else if (/kktc/i.test(uniTypeRaw)) uniType = 'KKTC';
-            else if (/yurt/i.test(uniTypeRaw)) uniType = 'Yurt Dışı';
+            if (utNorm.includes('devlet')) uniType = 'Devlet';
+            else if (utNorm.includes('vakif')) uniType = 'Vakıf';
+            else if (utNorm.includes('kktc')) uniType = 'KKTC';
+            else if (utNorm.includes('yurt')) uniType = 'Yurt Dışı';
             else if (uniTypeRaw) uniType = uniTypeRaw;
 
             const feeRaw = String(raw.fee || raw.f || raw.ucret || raw.burs || '').trim();
+            const deptNorm = atlasNorm(dept);
             let fee = feeRaw || (uniType === 'Devlet' ? 'Ücretsiz' : 'Ücretli');
-            if (!feeRaw && /burslu/i.test(dept)) fee = 'Burslu';
-            else if (!feeRaw && /%50/.test(dept)) fee = '%50 İndirimli';
-            else if (!feeRaw && /%25/.test(dept)) fee = '%25 İndirimli';
-            else if (!feeRaw && /ücretli|ucretli/i.test(dept)) fee = 'Ücretli';
+            if (uniType === 'Devlet' && (!feeRaw || (uniTypeRaw === 'DEVLET' && atlasNorm(feeRaw) === 'ucretli' && !deptNorm.includes('ucretli') && !deptNorm.includes('uolp')))) {
+                fee = 'Ücretsiz';
+            } else if (!feeRaw && deptNorm.includes('burslu')) fee = 'Burslu';
+            else if (!feeRaw && dept.includes('%50')) fee = '%50 İndirimli';
+            else if (!feeRaw && dept.includes('%25')) fee = '%25 İndirimli';
+            else if (!feeRaw && deptNorm.includes('ucretli')) fee = 'Ücretli';
 
             const rankVal = parseNum(raw.rank ?? raw.r ?? raw.siralama ?? raw.tbs);
             const scoreVal = parseNum(raw.score ?? raw.p ?? raw.puan ?? raw.taban);
@@ -8328,8 +8333,8 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
             const sortBy = document.getElementById('atlasSortBy')?.value || 'rank_asc';
 
             const filtered = atlasPrograms.filter(p => {
-                if (city !== 'ALL' && p.city !== city) return false;
-                if (uniType !== 'ALL' && p.uniType !== uniType) return false;
+                if (city !== 'ALL' && atlasNorm(p.city) !== atlasNorm(city)) return false;
+                if (uniType !== 'ALL' && atlasNorm(p.uniType) !== atlasNorm(uniType)) return false;
                 if (feeF !== 'ALL') {
                     const fn = atlasNorm(p.fee);
                     if (feeF === 'Ücretsiz' && !fn.includes('ucretsiz')) return false;
