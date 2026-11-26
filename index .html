@@ -934,67 +934,136 @@
         .cw-stat span { font-size: 12px; color: var(--subtext-color); font-weight: 600; }
         .cw-list { max-height: 150px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: var(--text-color); line-height: 1.6; margin-bottom: 10px; }
         /* ===== YÖK ATLAS (SAYISAL) SEKMESİ ===== */
+        :root { --atlas-accent: #d63384; --atlas-accent-rgb: 214,51,132; --atlas-pos: #15803d; --atlas-pos-bg: rgba(22,163,74,0.14); --atlas-neg: #dc2626; --atlas-neg-bg: rgba(220,38,38,0.13); }
+        [data-theme="dark"], [data-theme="soft"], [data-theme="cyberpunk"] { --atlas-accent: #ec4899; --atlas-accent-rgb: 236,72,153; --atlas-pos: #4ade80; --atlas-pos-bg: rgba(34,197,94,0.16); --atlas-neg: #fb7185; --atlas-neg-bg: rgba(244,63,94,0.16); }
+        [data-theme="sepia"] { --atlas-accent: #b83b5e; --atlas-accent-rgb: 184,59,94; --atlas-pos: #2e7d32; --atlas-pos-bg: rgba(46,125,50,0.14); --atlas-neg: #b91c1c; --atlas-neg-bg: rgba(185,28,28,0.12); }
+
         .atlas-topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
         .atlas-title { font-size: 20px; font-weight: 800; color: var(--text-color); }
         .atlas-sub { font-size: 13px; color: var(--subtext-color); margin-top: 2px; }
         .atlas-top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .atlas-db-pill { font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; background: rgba(236,72,153,0.12); color: #ec4899; border: 1px solid rgba(236,72,153,0.35); }
+        .atlas-db-pill { font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; background: rgba(var(--atlas-accent-rgb),0.12); color: var(--atlas-accent); border: 1px solid rgba(var(--atlas-accent-rgb),0.32); }
         .atlas-db-pill.empty { background: var(--input-bg); color: var(--subtext-color); border-color: var(--border-color); }
-        .atlas-ext-link { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-size: 12.5px; font-weight: 700; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); }
-        .atlas-ext-link:hover { border-color: #ec4899; color: #ec4899; }
+        .atlas-ext-link { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-size: 12.5px; font-weight: 700; padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); transition: all 0.15s; }
+        .atlas-ext-link:hover { border-color: var(--atlas-accent); color: var(--atlas-accent); }
 
-        .atlas-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .atlas-stat { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 13px 15px; border-top: 3px solid var(--at-col, #ec4899); }
-        .atlas-stat-lbl { font-size: 12px; font-weight: 700; color: var(--subtext-color); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .atlas-stat-val { font-size: 20px; font-weight: 800; color: var(--text-color); }
-        .atlas-stat-sub { font-size: 12px; color: var(--subtext-color); margin-top: 3px; }
-        .atlas-inline-in { width: 76px; padding: 4px 8px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 14px; font-weight: 700; text-align: center; outline: none; }
-        .atlas-inline-in:focus { border-color: #ec4899; }
+        .atlas-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .atlas-stat { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 13px; padding: 14px 16px; border-top: 3px solid var(--at-col, var(--atlas-accent)); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .atlas-stat-lbl { font-size: 12px; font-weight: 700; color: var(--subtext-color); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .atlas-stat-val { font-size: 21px; font-weight: 800; color: var(--text-color); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+        .atlas-stat-sub { font-size: 12px; color: var(--subtext-color); margin-top: 4px; }
+        .atlas-inline-in { width: 74px; padding: 4px 8px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 13.5px; font-weight: 700; text-align: center; outline: none; font-variant-numeric: tabular-nums; }
+        .atlas-inline-in:focus { border-color: var(--atlas-accent); }
         .atlas-inline-sel { padding: 3px 7px; border-radius: 7px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 12px; font-weight: 600; outline: none; }
 
         .atlas-subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .atlas-subtab { padding: 8px 14px; border-radius: 9px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--subtext-color); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
-        .atlas-subtab:hover { border-color: #ec4899; color: var(--text-color); }
-        .atlas-subtab.active { background: #ec4899; border-color: #ec4899; color: #fff; }
+        .atlas-subtab:hover { border-color: var(--atlas-accent); color: var(--text-color); }
+        .atlas-subtab.active { background: var(--atlas-accent); border-color: var(--atlas-accent); color: #fff; box-shadow: 0 3px 10px rgba(var(--atlas-accent-rgb),0.26); }
         .atlas-view { display: none; }
         .atlas-view.active { display: block; }
+
+        /* Hedefler üst araç çubuğu & genel grafik paneli */
+        .atlas-targets-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .atlas-targets-bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .atlas-view-toggle { display: inline-flex; gap: 4px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 3px; }
+        .atlas-vt-btn { border: none; background: none; color: var(--subtext-color); font-size: 12.5px; font-weight: 700; padding: 6px 11px; border-radius: 7px; cursor: pointer; transition: all 0.15s; }
+        .atlas-vt-btn.active { background: var(--container-bg); color: var(--atlas-accent); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .atlas-overview-panel { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .atlas-overview-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .atlas-overview-title { font-size: 14.5px; font-weight: 800; color: var(--text-color); }
+        .atlas-overview-canvas { position: relative; width: 100%; }
 
         .atlas-filters { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; }
         .atlas-filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .atlas-filter-row input, .atlas-filter-row select { padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 13.5px; outline: none; }
-        .atlas-filter-row input:focus, .atlas-filter-row select:focus { border-color: #ec4899; }
+        .atlas-filter-row input:focus, .atlas-filter-row select:focus { border-color: var(--atlas-accent); }
         .atlas-search-in { flex: 2 1 240px; min-width: 0; }
         .atlas-rank-in { width: 125px; }
 
         .atlas-results-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; color: var(--subtext-color); }
-        .atlas-list { display: flex; flex-direction: column; gap: 11px; }
-        .atlas-card { background: var(--input-bg); border: 1px solid var(--border-color); border-left: 3px solid #ec4899; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-        .atlas-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-        .atlas-card-main { flex: 1 1 260px; min-width: 0; }
-        .atlas-uni { font-size: 15px; font-weight: 800; color: var(--text-color); line-height: 1.35; }
-        .atlas-dept { font-size: 14px; font-weight: 700; color: #ec4899; margin-top: 2px; line-height: 1.35; }
-        .atlas-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
-        .atlas-badge { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 7px; background: var(--container-bg); border: 1px solid var(--border-color); color: var(--subtext-color); }
+        .atlas-list { display: flex; flex-direction: column; gap: 14px; }
+
+        /* Hedef & Program Kartları */
+        .atlas-card { background: var(--input-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--atlas-accent); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .atlas-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+        .atlas-card-id { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 300px; min-width: 0; }
+        .atlas-rank-box { min-width: 78px; padding: 8px 10px; border-radius: 11px; background: var(--container-bg); border: 1px solid var(--border-color); text-align: center; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+        .atlas-rank-num { font-size: 15px; font-weight: 800; color: var(--accent-color); font-variant-numeric: tabular-nums; line-height: 1.15; }
+        .atlas-rank-lbl { font-size: 12px; font-weight: 600; color: var(--subtext-color); }
+        .atlas-card-main { flex: 1; min-width: 0; }
+        .atlas-uni { font-size: 15.5px; font-weight: 800; color: var(--text-color); line-height: 1.3; }
+        .atlas-dept { font-size: 14px; font-weight: 700; color: var(--atlas-accent); margin-top: 3px; line-height: 1.35; }
+        .atlas-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .atlas-badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 7px; background: var(--container-bg); border: 1px solid var(--border-color); color: var(--subtext-color); font-variant-numeric: tabular-nums; }
         .atlas-badge.rank { color: var(--accent-color); border-color: rgba(var(--accent-rgb), 0.35); background: rgba(var(--accent-rgb), 0.1); }
-        .atlas-badge.good { color: #22c55e; border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.12); }
-        .atlas-badge.warn { color: #f59e0b; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.12); }
-        .atlas-badge.bad  { color: var(--danger-color); border-color: rgba(255,71,87,0.35); background: rgba(255,71,87,0.12); }
+        .atlas-badge.good { color: var(--atlas-pos); border-color: rgba(34,197,94,0.38); background: var(--atlas-pos-bg); }
+        .atlas-badge.warn { color: #d97706; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.13); }
+        .atlas-badge.bad  { color: var(--atlas-neg); border-color: rgba(220,38,38,0.34); background: var(--atlas-neg-bg); }
+
+        .atlas-card-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .atlas-card-acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
-        .atlas-nets-box { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-        .atlas-nets-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 800; color: var(--text-color); }
-        .atlas-net-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 8px; }
-        .atlas-net-cell { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
-        .atlas-net-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; }
-        .atlas-net-vals { font-size: 12px; color: var(--subtext-color); display: flex; justify-content: space-between; gap: 6px; }
-        .atlas-diff { font-size: 12px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
-        .atlas-diff.pos { color: #22c55e; background: rgba(34,197,94,0.14); }
-        .atlas-diff.neg { color: var(--danger-color); background: rgba(255,71,87,0.14); }
-        .atlas-diff.eq  { color: var(--subtext-color); background: var(--container-bg); }
+        /* SVG Hazırlık Halkası */
+        .atlas-ring-box { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 6px; border-radius: 999px; background: var(--container-bg); border: 1px solid var(--border-color); }
+        .atlas-ring-wrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
+        .atlas-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+        .atlas-ring-bg { fill: none; stroke: var(--border-color); stroke-width: 5.5; }
+        .atlas-ring-fg { fill: none; stroke-width: 5.5; stroke-linecap: round; stroke-dasharray: 113.1; transition: stroke-dashoffset 0.45s ease; }
+        .atlas-ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-color); font-variant-numeric: tabular-nums; }
+        .atlas-ring-meta { display: flex; flex-direction: column; line-height: 1.25; }
+        .atlas-ring-meta b { font-size: 12px; color: var(--text-color); }
+        .atlas-ring-meta span { font-size: 12px; color: var(--subtext-color); font-variant-numeric: tabular-nums; }
+
+        /* Net Kıyası Kutusu: Simetrik 4+4 TYT & AYT düzeni */
+        .atlas-nets-box { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+        .atlas-nets-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .atlas-nets-title { font-size: 13.5px; font-weight: 800; color: var(--text-color); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .atlas-nets-legend { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; color: var(--subtext-color); }
+        .atlas-leg-pin { display: inline-block; width: 2.5px; height: 11px; border-radius: 2px; background: var(--text-color); margin-right: 4px; vertical-align: -1px; }
+
+        .atlas-exam-sec { display: flex; flex-direction: column; gap: 8px; }
+        .atlas-exam-sec-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 5px 10px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-color); }
+        .atlas-exam-tag { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 6px; color: #fff; }
+        .atlas-exam-tag.tyt { background: #0891b2; }
+        .atlas-exam-tag.ayt { background: #7c3aed; }
+        .atlas-exam-sum { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--subtext-color); font-variant-numeric: tabular-nums; }
+        .atlas-exam-sum b { color: var(--text-color); }
+
+        .atlas-net-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+        @media (min-width: 720px) { .atlas-net-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+        .atlas-net-cell { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; transition: border-color 0.15s, transform 0.15s; }
+        .atlas-net-cell:hover { border-color: rgba(var(--atlas-accent-rgb), 0.45); }
+        .atlas-net-cell.hit { border-color: rgba(34,197,94,0.45); }
+        .atlas-net-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-color); }
+        .atlas-net-subj { display: inline-flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .atlas-subj-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .atlas-net-nums { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
+        .atlas-net-big { font-size: 16px; font-weight: 800; color: var(--text-color); }
+        .atlas-net-tgt { font-size: 12.5px; font-weight: 600; color: var(--subtext-color); margin-left: 3px; }
+        .atlas-net-pct { font-size: 12px; font-weight: 700; color: var(--subtext-color); }
+
+        /* Hedef çizgili (target-pin) çift katmanlı grafik çubuğu */
+        .atlas-tbar { position: relative; height: 10px; border-radius: 999px; background: var(--border-color); overflow: visible; margin-top: 1px; }
+        .atlas-tbar-track { position: absolute; inset: 0; border-radius: 999px; overflow: hidden; }
+        .atlas-tbar-gap { position: absolute; top: 0; bottom: 0; background: rgba(220,38,38,0.22); }
+        .atlas-tbar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; transition: width 0.4s ease; }
+        .atlas-tbar-pin { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--text-color); box-shadow: 0 0 0 1.5px var(--input-bg); z-index: 2; }
+
+        .atlas-diff { font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .atlas-diff.pos { color: var(--atlas-pos); background: var(--atlas-pos-bg); }
+        .atlas-diff.neg { color: var(--atlas-neg); background: var(--atlas-neg-bg); }
+        .atlas-diff.eq  { color: var(--subtext-color); background: var(--container-bg); border: 1px solid var(--border-color); }
+
+        /* Kart içi açılabilir 8 ders Chart.js grafiği */
+        .atlas-card-chart { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; }
+        .atlas-card-chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 13px; font-weight: 800; color: var(--text-color); }
+        .atlas-card-chart-wrap { position: relative; height: 240px; width: 100%; }
 
         .atlas-pager { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
         .atlas-drop { border: 2px dashed var(--border-color); border-radius: 14px; padding: 26px 18px; text-align: center; background: var(--input-bg); display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: border-color 0.2s, background-color 0.2s; }
-        .atlas-drop:hover, .atlas-drop.over { border-color: #ec4899; background: rgba(236,72,153,0.06); }
+        .atlas-drop:hover, .atlas-drop.over { border-color: var(--atlas-accent); background: rgba(var(--atlas-accent-rgb),0.06); }
         .atlas-steps-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-top: 14px; font-size: 13.5px; line-height: 1.65; color: var(--text-color); }
         .atlas-steps-card ol { padding-left: 20px; margin-top: 8px; }
         .atlas-steps-card code { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 5px; padding: 1px 6px; font-size: 12.5px; }
@@ -1519,6 +1588,24 @@
                         <button type="button" class="rm-submit-btn" onclick="addManualAtlasTarget()">+ Hedefe Ekle</button>
                     </div>
                 </details>
+
+                <div class="atlas-targets-bar" id="atlasTargetsBar" style="display:none;">
+                    <div class="atlas-targets-bar-left">
+                        <div class="atlas-view-toggle" role="group" aria-label="Hedef görünümü">
+                            <button type="button" class="atlas-vt-btn active" data-mode="detailed" onclick="setAtlasTargetMode('detailed')">📊 Detaylı Kartlar</button>
+                            <button type="button" class="atlas-vt-btn" data-mode="compact" onclick="setAtlasTargetMode('compact')">📋 Kompakt Liste</button>
+                        </div>
+                        <button type="button" class="link-btn" id="atlasOverviewChartBtn" onclick="toggleAtlasOverviewChart()">📈 Tüm Hedefleri Grafikte Kıyasla</button>
+                    </div>
+                </div>
+                <div id="atlasOverviewChartPanel" class="atlas-overview-panel" style="display:none;">
+                    <div class="atlas-overview-head">
+                        <span class="atlas-overview-title">📈 Hedef Bölümler · Toplam Net Kıyası (Sen vs. YÖK Atlas)</span>
+                        <button type="button" class="link-btn" onclick="toggleAtlasOverviewChart()">✕ Gizle</button>
+                    </div>
+                    <div id="atlasOverviewEmpty" class="empty-text" style="display:none; margin:8px 0;">Grafik için en az bir hedef bölümde ders neti tanımlı olmalı.</div>
+                    <div class="atlas-overview-canvas" id="atlasOverviewCanvasWrap"><canvas id="atlasOverviewCanvas"></canvas></div>
+                </div>
 
                 <div id="atlasTargetsList" class="atlas-list"></div>
             </div>
@@ -2280,6 +2367,7 @@
         function updateChartTheme() {
             if (examChartInstance) renderExamChart();
             renderStats();
+            if (typeof refreshAtlasCharts === 'function') refreshAtlasCharts();
         }
 
         function switchTab(btnElement, tabId) {
@@ -7644,15 +7732,20 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
 
         /* ================= YÖK ATLAS (SAYISAL) · VERİ TABANI + NET KIYASI ================= */
         const ATLAS_NET_FIELDS = [
-            { key: 'tyt_tr',  exam: 'TYT', code: 'TR',  label: 'TYT Türkçe',    subject: 'Türkçe',    max: 40 },
-            { key: 'tyt_sos', exam: 'TYT', code: 'SOS', label: 'TYT Sosyal',    subject: 'Sosyal',    max: 20 },
-            { key: 'tyt_mat', exam: 'TYT', code: 'MAT', label: 'TYT Matematik', subject: 'Matematik', max: 40 },
-            { key: 'tyt_fen', exam: 'TYT', code: 'FEN', label: 'TYT Fen',       subject: 'Fizik',     max: 20 },
-            { key: 'ayt_mat', exam: 'AYT', code: 'MAT', label: 'AYT Matematik', subject: 'Matematik', max: 40 },
-            { key: 'ayt_fiz', exam: 'AYT', code: 'FİZ', label: 'AYT Fizik',     subject: 'Fizik',     max: 14 },
-            { key: 'ayt_kim', exam: 'AYT', code: 'KİM', label: 'AYT Kimya',     subject: 'Kimya',     max: 13 },
-            { key: 'ayt_bio', exam: 'AYT', code: 'BİO', label: 'AYT Biyoloji',  subject: 'Biyoloji',  max: 13 }
+            { key: 'tyt_tr',  exam: 'TYT', code: 'TR',  label: 'TYT Türkçe',    short: 'Türkçe',    subject: 'Türkçe',    max: 40 },
+            { key: 'tyt_sos', exam: 'TYT', code: 'SOS', label: 'TYT Sosyal',    short: 'Sosyal',    subject: 'Sosyal',    max: 20 },
+            { key: 'tyt_mat', exam: 'TYT', code: 'MAT', label: 'TYT Matematik', short: 'Matematik', subject: 'Matematik', max: 40 },
+            { key: 'tyt_fen', exam: 'TYT', code: 'FEN', label: 'TYT Fen',       short: 'Fen',       subject: 'Fizik',     max: 20 },
+            { key: 'ayt_mat', exam: 'AYT', code: 'MAT', label: 'AYT Matematik', short: 'Matematik', subject: 'Matematik', max: 40 },
+            { key: 'ayt_fiz', exam: 'AYT', code: 'FİZ', label: 'AYT Fizik',     short: 'Fizik',     subject: 'Fizik',     max: 14 },
+            { key: 'ayt_kim', exam: 'AYT', code: 'KİM', label: 'AYT Kimya',     short: 'Kimya',     subject: 'Kimya',     max: 13 },
+            { key: 'ayt_bio', exam: 'AYT', code: 'BİO', label: 'AYT Biyoloji',  short: 'Biyoloji',  subject: 'Biyoloji',  max: 13 }
         ];
+        let atlasTargetMode = localStorage.getItem('yks_atlas_tmode') || 'detailed';
+        let atlasShowOverviewChart = false;
+        let atlasOverviewChartInst = null;
+        const atlasOpenChartIds = new Set();
+        const atlasCardChartInsts = {};
 
         let atlasPrograms = [];
         let atlasDbMeta = { source: 'none', count: 0, year: '' };
@@ -8138,6 +8231,220 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
         }
 
         /* --- Render Fonksiyonları --- */
+        function atlasFmtNet(v) {
+            const n = parseFloat(v);
+            if (!isFinite(n)) return '—';
+            const r = Math.round(n * 100) / 100;
+            return r.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+        function atlasFmtDiff(v) {
+            const n = parseFloat(v);
+            if (!isFinite(n)) return '—';
+            const r = Math.round(n * 100) / 100;
+            if (r === 0) return '✓ 0';
+            return (r > 0 ? '+' : '−') + Math.abs(r).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+        // Eski v5 sürümünde kaydedilmiş DEVLET / hatalı Ücretli etiketlerini gösterim sırasında temizler
+        function cleanAtlasTargetDisplay(t) {
+            const utRaw = String(t.uniType || '').trim();
+            const utN = atlasNorm(utRaw);
+            let uniType = utRaw;
+            if (utN.includes('devlet')) uniType = 'Devlet';
+            else if (utN.includes('vakif')) uniType = 'Vakıf';
+            else if (utN.includes('kktc')) uniType = 'KKTC';
+            else if (utN.includes('yurt')) uniType = 'Yurt Dışı';
+
+            let fee = String(t.fee || '').trim();
+            const dn = atlasNorm(t.dept || '');
+            if (uniType === 'Devlet' && (!fee || (atlasNorm(fee) === 'ucretli' && !dn.includes('ucretli') && !dn.includes('uolp')))) {
+                fee = 'Ücretsiz';
+            }
+            return { uniType, fee };
+        }
+        function computeAtlasTargetReadiness(t, avgs) {
+            if (!t || !t.nets) return null;
+            let tytU = 0, tytT = 0, tytN = 0;
+            let aytU = 0, aytT = 0, aytN = 0;
+            let capped = 0, totalT = 0;
+            ATLAS_NET_FIELDS.forEach(f => {
+                const tn = t.nets[f.key];
+                if (tn === undefined || tn === null || !isFinite(tn)) return;
+                const un = f.exam === 'TYT' ? avgs.tyt.secs[f.code] : avgs.ayt.secs[f.code];
+                const hasU = un !== undefined && isFinite(un);
+                if (f.exam === 'TYT') { tytT += tn; if (hasU) { tytU += un; tytN++; } }
+                else { aytT += tn; if (hasU) { aytU += un; aytN++; } }
+                totalT += tn;
+                if (hasU) capped += Math.min(Math.max(0, un), tn);
+            });
+            if (totalT <= 0) return null;
+            const hasAny = tytN > 0 || aytN > 0;
+            const pct = hasAny ? Math.min(100, Math.round((capped / totalT) * 100)) : 0;
+            return {
+                pct, hasAny,
+                tytU: Math.round(tytU * 100) / 100, tytT: Math.round(tytT * 100) / 100, hasTyt: tytN > 0 && tytT > 0,
+                aytU: Math.round(aytU * 100) / 100, aytT: Math.round(aytT * 100) / 100, hasAyt: aytN > 0 && aytT > 0,
+                sumU: Math.round((tytU + aytU) * 100) / 100, sumT: Math.round((tytT + aytT) * 100) / 100
+            };
+        }
+
+        function setAtlasTargetMode(mode) {
+            atlasTargetMode = mode === 'compact' ? 'compact' : 'detailed';
+            localStorage.setItem('yks_atlas_tmode', atlasTargetMode);
+            renderAtlasTargets();
+        }
+        function toggleAtlasOverviewChart() {
+            atlasShowOverviewChart = !atlasShowOverviewChart;
+            renderAtlasOverviewChart();
+        }
+        function toggleAtlasCardChart(id) {
+            const key = String(id);
+            if (atlasOpenChartIds.has(key)) atlasOpenChartIds.delete(key);
+            else atlasOpenChartIds.add(key);
+            renderAtlasTargets();
+        }
+        function destroyAtlasCardCharts() {
+            Object.keys(atlasCardChartInsts).forEach(k => {
+                try { atlasCardChartInsts[k].destroy(); } catch (e) {}
+                delete atlasCardChartInsts[k];
+            });
+        }
+        function refreshAtlasCharts() {
+            if (atlasShowOverviewChart) renderAtlasOverviewChart();
+            if (atlasOpenChartIds.size) renderAtlasCardCharts(computeUserExamAverages());
+        }
+
+        function renderAtlasOverviewChart(avgs) {
+            const panel = document.getElementById('atlasOverviewChartPanel');
+            const btn = document.getElementById('atlasOverviewChartBtn');
+            const wrap = document.getElementById('atlasOverviewCanvasWrap');
+            const emptyEl = document.getElementById('atlasOverviewEmpty');
+            const cv = document.getElementById('atlasOverviewCanvas');
+            if (!panel || !cv) return;
+
+            if (btn) {
+                btn.innerText = atlasShowOverviewChart ? '📈 Genel Grafiği Gizle' : '📈 Tüm Hedefleri Grafikte Kıyasla';
+                btn.style.borderColor = atlasShowOverviewChart ? 'var(--atlas-accent)' : '';
+                btn.style.color = atlasShowOverviewChart ? 'var(--atlas-accent)' : '';
+            }
+            if (!atlasShowOverviewChart) {
+                panel.style.display = 'none';
+                if (atlasOverviewChartInst) { atlasOverviewChartInst.destroy(); atlasOverviewChartInst = null; }
+                return;
+            }
+
+            avgs = avgs || computeUserExamAverages();
+            const withNets = atlasTargets
+                .slice()
+                .sort((a, b) => (a.rank || 9999999) - (b.rank || 9999999))
+                .map(t => ({ t, r: computeAtlasTargetReadiness(t, avgs) }))
+                .filter(x => x.r && x.r.sumT > 0);
+
+            panel.style.display = 'block';
+            if (!withNets.length) {
+                if (atlasOverviewChartInst) { atlasOverviewChartInst.destroy(); atlasOverviewChartInst = null; }
+                if (emptyEl) emptyEl.style.display = 'block';
+                wrap.style.display = 'none';
+                return;
+            }
+            if (emptyEl) emptyEl.style.display = 'none';
+            wrap.style.display = 'block';
+            wrap.style.height = Math.max(220, withNets.length * 38 + 64) + 'px';
+
+            const { textColor, gridColor } = getChartThemeColors();
+            const accent = getThemeAccentHex();
+            const atlasAccent = getComputedStyle(document.documentElement).getPropertyValue('--atlas-accent').trim() || '#ec4899';
+
+            const labels = withNets.map(({ t }) => {
+                const shortUni = (t.uni || '')
+                    .replace(/ÜNİVERSİTESİ/gi, 'Üni.').replace(/Üniversitesi/g, 'Üni.')
+                    .replace(/İSTANBUL TEKNİK/gi, 'İTÜ').replace(/ORTA DOĞU TEKNİK/gi, 'ODTÜ')
+                    .replace(/BOĞAZİÇİ/gi, 'BÜ').replace(/SAĞLIK BİLİMLERİ/gi, 'SBÜ');
+                const txt = `${shortUni} · ${t.dept || ''}`;
+                return txt.length > 36 ? txt.slice(0, 35) + '…' : txt;
+            });
+            const userTotals = withNets.map(({ r }) => r.sumU);
+            const targetTotals = withNets.map(({ r }) => r.sumT);
+
+            if (atlasOverviewChartInst) atlasOverviewChartInst.destroy();
+            atlasOverviewChartInst = new Chart(cv.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Senin Toplam Netin (TYT+AYT)', data: userTotals, backgroundColor: accent, borderRadius: 5, barPercentage: 0.78 },
+                        { label: 'YÖK Atlas Hedef (TYT+AYT)', data: targetTotals, backgroundColor: hexToRgba(atlasAccent, 0.42), borderColor: atlasAccent, borderWidth: 1.5, borderRadius: 5, barPercentage: 0.78 }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: textColor, boxWidth: 12, font: { size: 12 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: c => `${c.dataset.label}: ${atlasFmtNet(c.parsed.x)} net`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, max: 200, ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderAtlasCardCharts(avgs) {
+            destroyAtlasCardCharts();
+            if (!atlasOpenChartIds.size) return;
+            const { textColor, gridColor } = getChartThemeColors();
+            const accent = getThemeAccentHex();
+            const atlasAccent = getComputedStyle(document.documentElement).getPropertyValue('--atlas-accent').trim() || '#ec4899';
+
+            atlasOpenChartIds.forEach(idKey => {
+                const t = atlasTargets.find(x => String(x.id) === idKey);
+                const cv = document.getElementById('atlasCardChart_' + idKey);
+                if (!t || !t.nets || !cv) return;
+                const fields = ATLAS_NET_FIELDS.filter(f => t.nets[f.key] !== undefined && t.nets[f.key] !== null);
+                if (!fields.length) return;
+
+                const labels = fields.map(f => `${f.exam} ${f.short}`);
+                const userVals = fields.map(f => {
+                    const v = f.exam === 'TYT' ? avgs.tyt.secs[f.code] : avgs.ayt.secs[f.code];
+                    return (v !== undefined && isFinite(v)) ? v : 0;
+                });
+                const tgtVals = fields.map(f => t.nets[f.key]);
+
+                atlasCardChartInsts[idKey] = new Chart(cv.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Senin Ortalaman', data: userVals, backgroundColor: accent, borderRadius: 5 },
+                            { label: 'YÖK Atlas Hedef', data: tgtVals, backgroundColor: hexToRgba(atlasAccent, 0.35), borderColor: atlasAccent, borderWidth: 1.5, borderRadius: 5 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { color: textColor, boxWidth: 12, font: { size: 12 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: c => `${c.dataset.label}: ${atlasFmtNet(c.parsed.y)} net`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false } },
+                            y: { beginAtZero: true, max: 40, ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } }
+                        }
+                    }
+                });
+            });
+        }
+
         function renderAtlasSummary(avgs) {
             const box = document.getElementById('atlasSummaryBar');
             if (!box) return;
@@ -8156,12 +8463,12 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
                             <option value="999" ${w===999?'selected':''}>Tümü</option>
                         </select>
                     </div>
-                    <div class="atlas-stat-val">${avgs.tyt.count ? fmtNet(avgs.tyt.total) + ' Net' : '—'}</div>
+                    <div class="atlas-stat-val">${avgs.tyt.count ? atlasFmtNet(avgs.tyt.total) + ' Net' : '—'}</div>
                     <div class="atlas-stat-sub">${avgs.tyt.count ? `${avgs.tyt.count} TYT denemesi ort.` : 'Deneme Takibi\'ne TYT ekle'}</div>
                 </div>
                 <div class="atlas-stat" style="--at-col:#3b82f6;">
                     <div class="atlas-stat-lbl"><span>AYT Ortalaman</span></div>
-                    <div class="atlas-stat-val">${avgs.ayt.count ? fmtNet(avgs.ayt.total) + ' Net' : '—'}</div>
+                    <div class="atlas-stat-val">${avgs.ayt.count ? atlasFmtNet(avgs.ayt.total) + ' Net' : '—'}</div>
                     <div class="atlas-stat-sub">${avgs.ayt.count ? `${avgs.ayt.count} AYT denemesi ort.` : 'Deneme Takibi\'ne AYT ekle'}</div>
                 </div>
                 <div class="atlas-stat" style="--at-col:#f59e0b;">
@@ -8172,7 +8479,7 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
                     <div class="atlas-stat-val">${avgs.estSay ? '~' + atlasFmtNum(avgs.estSay) : '—'}</div>
                     <div class="atlas-stat-sub">${avgs.estSay ? (obpVal ? 'Yaklaşık SAY yerl. puanı' : 'OBP girince ek puan dahil olur') : 'TYT + AYT girince hesaplanır'}</div>
                 </div>
-                <div class="atlas-stat" style="--at-col:#ec4899;">
+                <div class="atlas-stat" style="--at-col:var(--atlas-accent);">
                     <div class="atlas-stat-lbl"><span>Hedef Listen</span></div>
                     <div class="atlas-stat-val">${atlasTargets.length} Bölüm</div>
                     <div class="atlas-stat-sub">${atlasTargets.filter(t => t.nets).length} bölümde ders neti tanımlı</div>
@@ -8180,14 +8487,59 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
             if (obpFocused) { const el = document.getElementById('atlasObpInput'); if (el) el.focus(); }
         }
 
+        function renderAtlasNetCell(f, targetN, userN) {
+            const hasUser = userN !== undefined && isFinite(userN);
+            const diff = hasUser ? Math.round((userN - targetN) * 100) / 100 : null;
+            const hit = diff !== null && diff >= 0;
+            const ratioPct = hasUser && targetN > 0 ? Math.min(100, Math.max(0, Math.round((userN / targetN) * 100))) : 0;
+            // Çubuk gerçek soru sayısı (f.max) ölçeğinde çizilir: hem hedef çizgisi hem açık alanı net görünür
+            const scaleMax = Math.max(f.max, targetN || 0, hasUser ? userN : 0) || 1;
+            const userBarPct = hasUser ? Math.min(100, Math.max(0, (userN / scaleMax) * 100)) : 0;
+            const tgtPinPct = Math.min(98.5, Math.max(1.5, (targetN / scaleMax) * 100));
+            const sc = getSubjectColor(f.subject);
+            const fillColor = hit ? '#22c55e' : sc.color;
+            const diffBadge = diff === null
+                ? '<span class="atlas-diff eq">—</span>'
+                : `<span class="atlas-diff ${hit ? 'pos' : 'neg'}">${atlasFmtDiff(diff)}</span>`;
+            const gapHtml = (!hit && hasUser && tgtPinPct > userBarPct)
+                ? `<div class="atlas-tbar-gap" style="left:${userBarPct.toFixed(1)}%; width:${(tgtPinPct - userBarPct).toFixed(1)}%;"></div>`
+                : '';
+
+            return `
+                <div class="atlas-net-cell ${hit ? 'hit' : ''}">
+                    <div class="atlas-net-row">
+                        <span class="atlas-net-subj"><span class="atlas-subj-dot" style="background:${sc.color};"></span>${escapeHtml(f.short)}</span>
+                        ${diffBadge}
+                    </div>
+                    <div class="atlas-net-nums">
+                        <div><span class="atlas-net-big">${hasUser ? atlasFmtNet(userN) : '—'}</span><span class="atlas-net-tgt">/ ${atlasFmtNet(targetN)}</span></div>
+                        <span class="atlas-net-pct">${hasUser ? '%' + ratioPct : f.max + ' s.'}</span>
+                    </div>
+                    <div class="atlas-tbar" title="Sen: ${hasUser ? atlasFmtNet(userN) : '—'} · Hedef: ${atlasFmtNet(targetN)} / ${f.max} soru">
+                        <div class="atlas-tbar-track">
+                            ${gapHtml}
+                            <div class="atlas-tbar-fill" style="width:${userBarPct.toFixed(1)}%; background:${fillColor};"></div>
+                        </div>
+                        <div class="atlas-tbar-pin" style="left:${tgtPinPct.toFixed(1)}%;"></div>
+                    </div>
+                </div>`;
+        }
+
         function renderAtlasTargets(avgs) {
             const listEl = document.getElementById('atlasTargetsList');
             const badge = document.getElementById('atlasTargetCountBadge');
+            const barEl = document.getElementById('atlasTargetsBar');
             if (badge) badge.innerText = atlasTargets.length;
             if (!listEl) return;
             avgs = avgs || computeUserExamAverages();
 
+            document.querySelectorAll('#atlasTargetsBar .atlas-vt-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === atlasTargetMode));
+            if (barEl) barEl.style.display = atlasTargets.length ? 'flex' : 'none';
+
             if (!atlasTargets.length) {
+                destroyAtlasCardCharts();
+                atlasShowOverviewChart = false;
+                renderAtlasOverviewChart(avgs);
                 listEl.innerHTML = `
                     <div class="atlas-card" style="align-items:center; text-align:center; padding:26px 18px;">
                         <div style="font-size:15px; font-weight:800;">Henüz hedef bölüm eklemedin</div>
@@ -8204,84 +8556,152 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
 
             const sorted = atlasTargets.slice().sort((a, b) => (a.rank || 9999999) - (b.rank || 9999999));
             listEl.innerHTML = sorted.map(t => {
-                // Yaklaşık puan farkı rozeti
+                const idKey = String(t.id);
+                const clean = cleanAtlasTargetDisplay(t);
+                const readiness = computeAtlasTargetReadiness(t, avgs);
+                const chartOpen = atlasOpenChartIds.has(idKey);
+
                 let scorePill = '';
                 if (avgs.estSay && t.score) {
                     const diff = Math.round((avgs.estSay - t.score) * 10) / 10;
                     const cls = diff >= 0 ? 'good' : (diff >= -20 ? 'warn' : 'bad');
-                    scorePill = `<span class="atlas-badge ${cls}">${diff >= 0 ? '+' : ''}${diff} tahmini puan</span>`;
+                    scorePill = `<span class="atlas-badge ${cls}">${diff >= 0 ? '+' : '−'}${atlasFmtNum(Math.abs(diff))} tahmini puan</span>`;
                 }
 
-                // 8 ders net kıyası
-                let netsBlock = '';
-                if (t.nets && Object.keys(t.nets).length) {
-                    let worst = null;
-                    const cells = ATLAS_NET_FIELDS.filter(f => t.nets[f.key] !== undefined && t.nets[f.key] !== null).map(f => {
-                        const targetN = t.nets[f.key];
-                        const userN = f.exam === 'TYT' ? avgs.tyt.secs[f.code] : avgs.ayt.secs[f.code];
-                        const hasUser = userN !== undefined && isFinite(userN);
-                        const diff = hasUser ? Math.round((userN - targetN) * 100) / 100 : null;
-                        if (diff !== null && diff < 0 && (!worst || diff < worst.diff)) {
-                            worst = { subject: f.subject, label: f.label, diff };
-                        }
-                        const pct = hasUser && targetN > 0 ? Math.min(100, Math.max(0, Math.round((userN / targetN) * 100))) : 0;
-                        const sc = getSubjectColor(f.subject);
-                        const diffBadge = diff === null
-                            ? '<span class="atlas-diff eq">Veri yok</span>'
-                            : `<span class="atlas-diff ${diff > 0 ? 'pos' : (diff < 0 ? 'neg' : 'eq')}">${diff > 0 ? '+' : ''}${diff}</span>`;
-                        return `
-                            <div class="atlas-net-cell">
-                                <div class="atlas-net-row"><span>${f.label}</span>${diffBadge}</div>
-                                <div class="atlas-net-vals"><span>Sen: <b>${hasUser ? userN : '—'}</b></span><span>Hedef: <b>${targetN}</b></span></div>
-                                <div class="rm-bar" style="margin-top:2px;"><div class="rm-bar-fill" style="width:${pct}%; background:${diff !== null && diff >= 0 ? '#22c55e' : sc.color};"></div></div>
-                            </div>`;
-                    }).join('');
-
-                    const worstBtn = worst
-                        ? `<button type="button" class="link-btn" onclick='sendAtlasGapToRoadmap(${JSON.stringify(worst.subject)}, ${JSON.stringify(worst.label)}, ${JSON.stringify(String(worst.diff))}, ${JSON.stringify(t.uni + " " + t.dept)})'>🗺️ ${escapeHtml(worst.label)} (${worst.diff}) → Yapılacaklara Ekle</button>`
-                        : (avgs.tyt.count || avgs.ayt.count ? '<span class="atlas-badge good">✅ Girilen tüm derslerde hedefin üstündesin</span>' : '');
-
-                    netsBlock = `
-                        <div class="atlas-nets-box">
-                            <div class="atlas-nets-head">
-                                <span>📊 Ders Bazlı Net Kıyası (Sen vs. YÖK Atlas)</span>
-                                ${worstBtn}
+                // SVG Hazırlık halkası
+                let ringHTML = '';
+                if (readiness && readiness.hasAny) {
+                    const dashOffset = (113.1 * (1 - readiness.pct / 100)).toFixed(1);
+                    const ringCol = readiness.pct >= 90 ? '#22c55e' : (readiness.pct >= 70 ? '#f59e0b' : 'var(--atlas-accent)');
+                    ringHTML = `
+                        <div class="atlas-ring-box" title="Girilen ders netlerine göre hedefe yaklaşma oranın">
+                            <div class="atlas-ring-wrap">
+                                <svg class="atlas-ring-svg" viewBox="0 0 42 42" aria-hidden="true">
+                                    <circle class="atlas-ring-bg" cx="21" cy="21" r="18"></circle>
+                                    <circle class="atlas-ring-fg" cx="21" cy="21" r="18" style="stroke:${ringCol}; stroke-dashoffset:${dashOffset};"></circle>
+                                </svg>
+                                <div class="atlas-ring-pct">%${readiness.pct}</div>
                             </div>
-                            <div class="atlas-net-grid">${cells}</div>
-                        </div>`;
-                } else {
-                    netsBlock = `
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; background:var(--container-bg); border:1px dashed var(--border-color); border-radius:9px; padding:9px 12px; font-size:13px; color:var(--subtext-color);">
-                            <span>Bu hedef için ders bazlı YÖK Atlas netleri henüz girilmedi.</span>
-                            <button type="button" class="link-btn" onclick='openAtlasNetsModal(${JSON.stringify(String(t.id))})'>🎯 Netleri Gir</button>
+                            <div class="atlas-ring-meta">
+                                <b>Hedef</b>
+                                <span>${atlasFmtNet(readiness.sumU)} / ${atlasFmtNet(readiness.sumT)}</span>
+                            </div>
                         </div>`;
                 }
+
+                // Detaylı 4+4 TYT / AYT Net Kıyası
+                let netsBlock = '';
+                const hasNets = t.nets && Object.keys(t.nets).length > 0;
+                if (atlasTargetMode === 'detailed') {
+                    if (hasNets) {
+                        let worst = null;
+                        ATLAS_NET_FIELDS.forEach(f => {
+                            const tn = t.nets[f.key];
+                            if (tn === undefined || tn === null) return;
+                            const un = f.exam === 'TYT' ? avgs.tyt.secs[f.code] : avgs.ayt.secs[f.code];
+                            if (un !== undefined && isFinite(un)) {
+                                const d = Math.round((un - tn) * 100) / 100;
+                                if (d < 0 && (!worst || d < worst.diff)) worst = { subject: f.subject, label: f.label, diff: d };
+                            }
+                        });
+
+                        const buildGroup = (examType, tagCls) => {
+                            const fields = ATLAS_NET_FIELDS.filter(f => f.exam === examType && t.nets[f.key] !== undefined && t.nets[f.key] !== null);
+                            if (!fields.length) return '';
+                            const isTyt = examType === 'TYT';
+                            const sumU = isTyt ? readiness.tytU : readiness.aytU;
+                            const sumT = isTyt ? readiness.tytT : readiness.aytT;
+                            const hasSum = isTyt ? readiness.hasTyt : readiness.hasAyt;
+                            const diffSum = hasSum ? Math.round((sumU - sumT) * 100) / 100 : null;
+                            const sumBadge = diffSum === null ? '' : `<span class="atlas-diff ${diffSum >= 0 ? 'pos' : 'neg'}">${atlasFmtDiff(diffSum)} net</span>`;
+                            const cells = fields.map(f => renderAtlasNetCell(f, t.nets[f.key], isTyt ? avgs.tyt.secs[f.code] : avgs.ayt.secs[f.code])).join('');
+                            return `
+                                <div class="atlas-exam-sec">
+                                    <div class="atlas-exam-sec-head">
+                                        <span class="atlas-exam-tag ${tagCls}">${examType}</span>
+                                        <div class="atlas-exam-sum">
+                                            <span>Sen: <b>${hasSum ? atlasFmtNet(sumU) : '—'}</b></span>
+                                            <span>·</span>
+                                            <span>Hedef: <b>${atlasFmtNet(sumT)}</b></span>
+                                            ${sumBadge}
+                                        </div>
+                                    </div>
+                                    <div class="atlas-net-grid">${cells}</div>
+                                </div>`;
+                        };
+
+                        const worstBtn = worst
+                            ? `<button type="button" class="link-btn" onclick='sendAtlasGapToRoadmap(${JSON.stringify(worst.subject)}, ${JSON.stringify(worst.label)}, ${JSON.stringify(String(worst.diff))}, ${JSON.stringify(t.uni + " " + t.dept)})'>🗺️ ${escapeHtml(worst.label)} (${atlasFmtDiff(worst.diff)}) → Yapılacaklara Ekle</button>`
+                            : (avgs.tyt.count || avgs.ayt.count ? '<span class="atlas-badge good">✅ Girilen tüm derslerde hedefin üstündesin</span>' : '');
+
+                        netsBlock = `
+                            <div class="atlas-nets-box">
+                                <div class="atlas-nets-head">
+                                    <div class="atlas-nets-title">
+                                        <span>📊 Ders Bazlı Net Kıyası</span>
+                                        <span class="atlas-nets-legend"><span><span class="atlas-leg-pin"></span>Hedef çizgisi</span></span>
+                                    </div>
+                                    ${worstBtn}
+                                </div>
+                                ${buildGroup('TYT', 'tyt')}
+                                ${buildGroup('AYT', 'ayt')}
+                            </div>`;
+                    } else {
+                        netsBlock = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; background:var(--container-bg); border:1px dashed var(--border-color); border-radius:9px; padding:10px 12px; font-size:13px; color:var(--subtext-color);">
+                                <span>Bu hedef için ders bazlı YÖK Atlas netleri henüz girilmedi.</span>
+                                <button type="button" class="link-btn" onclick='openAtlasNetsModal(${JSON.stringify(idKey)})'>🎯 Netleri Gir</button>
+                            </div>`;
+                    }
+                }
+
+                const chartBlock = (chartOpen && hasNets) ? `
+                    <div class="atlas-card-chart">
+                        <div class="atlas-card-chart-head">
+                            <span>📈 8 Ders Karşılaştırma Grafiği (Sen vs. YÖK Atlas)</span>
+                            <button type="button" class="link-btn" onclick='toggleAtlasCardChart(${JSON.stringify(idKey)})'>✕ Grafiği Kapat</button>
+                        </div>
+                        <div class="atlas-card-chart-wrap"><canvas id="atlasCardChart_${escapeHtml(idKey)}"></canvas></div>
+                    </div>` : '';
 
                 return `
                     <div class="atlas-card">
                         <div class="atlas-card-head">
-                            <div class="atlas-card-main">
-                                <div class="atlas-uni">${escapeHtml(t.uni)}</div>
-                                <div class="atlas-dept">${escapeHtml(t.dept)}</div>
-                                <div class="atlas-badges">
-                                    ${t.rank ? `<span class="atlas-badge rank">Sıralama: ${atlasFmtRank(t.rank)}</span>` : ''}
-                                    ${t.score ? `<span class="atlas-badge">Taban Puan: ${atlasFmtNum(t.score)}</span>` : ''}
-                                    ${t.city ? `<span class="atlas-badge">📍 ${escapeHtml(t.city)}</span>` : ''}
-                                    ${t.uniType ? `<span class="atlas-badge">${escapeHtml(t.uniType)}</span>` : ''}
-                                    ${t.fee ? `<span class="atlas-badge">${escapeHtml(t.fee)}</span>` : ''}
-                                    ${t.quota ? `<span class="atlas-badge">Kontenjan: ${escapeHtml(t.quota)}</span>` : ''}
-                                    ${scorePill}
+                            <div class="atlas-card-id">
+                                <div class="atlas-rank-box">
+                                    <span class="atlas-rank-num">${t.rank ? '#' + t.rank.toLocaleString('tr-TR') : '—'}</span>
+                                    <span class="atlas-rank-lbl">Sıralama</span>
+                                </div>
+                                <div class="atlas-card-main">
+                                    <div class="atlas-uni">${escapeHtml(t.uni)}</div>
+                                    <div class="atlas-dept">${escapeHtml(t.dept)}</div>
+                                    <div class="atlas-badges">
+                                        ${t.score ? `<span class="atlas-badge">Puan: ${atlasFmtNum(t.score)}</span>` : ''}
+                                        ${t.city ? `<span class="atlas-badge">📍 ${escapeHtml(t.city)}</span>` : ''}
+                                        ${clean.uniType ? `<span class="atlas-badge">${escapeHtml(clean.uniType)}</span>` : ''}
+                                        ${clean.fee ? `<span class="atlas-badge">${escapeHtml(clean.fee)}</span>` : ''}
+                                        ${t.quota ? `<span class="atlas-badge">Kontenjan: ${escapeHtml(t.quota)}</span>` : ''}
+                                        ${scorePill}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="atlas-card-acts">
-                                <a class="atlas-ext-link" href="${atlasProgramUrl(t.code)}" target="_blank" rel="noopener">🌐 YÖK Atlas ↗</a>
-                                <button type="button" class="link-btn" onclick='openAtlasNetsModal(${JSON.stringify(String(t.id))})'>🎯 Netler</button>
-                                <button type="button" class="delete-btn" onclick='deleteAtlasTarget(${JSON.stringify(String(t.id))})'>Sil</button>
+                            <div class="atlas-card-right">
+                                ${ringHTML}
+                                <div class="atlas-card-acts">
+                                    ${hasNets ? `<button type="button" class="link-btn" style="${chartOpen ? 'border-color:var(--atlas-accent); color:var(--atlas-accent);' : ''}" onclick='toggleAtlasCardChart(${JSON.stringify(idKey)})'>📊 Grafik</button>` : ''}
+                                    <a class="atlas-ext-link" href="${atlasProgramUrl(t.code)}" target="_blank" rel="noopener">🌐 YÖK Atlas ↗</a>
+                                    <button type="button" class="link-btn" onclick='openAtlasNetsModal(${JSON.stringify(idKey)})'>🎯 Netler</button>
+                                    <button type="button" class="delete-btn" onclick='deleteAtlasTarget(${JSON.stringify(idKey)})'>Sil</button>
+                                </div>
                             </div>
                         </div>
+                        ${chartBlock}
                         ${netsBlock}
                     </div>`;
             }).join('');
+
+            renderAtlasOverviewChart(avgs);
+            renderAtlasCardCharts(avgs);
         }
 
         function atlasResetPageAndRender() { atlasPage = 1; renderAtlasBrowse(); }
@@ -8372,19 +8792,25 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
                 const realIdx = start + i;
                 const saved = isAtlasTarget(p.code, p.uni, p.dept);
                 return `
-                    <div class="atlas-card" style="border-left-color:${saved ? 'var(--accent-color)' : '#ec4899'};">
+                    <div class="atlas-card" style="border-left-color:${saved ? 'var(--accent-color)' : 'var(--atlas-accent)'}; padding:13px 16px;">
                         <div class="atlas-card-head">
-                            <div class="atlas-card-main">
-                                <div class="atlas-uni">${escapeHtml(p.uni)}</div>
-                                <div class="atlas-dept">${escapeHtml(p.dept)}</div>
-                                <div class="atlas-badges">
-                                    <span class="atlas-badge rank">Sıralama: ${atlasFmtRank(p.rank)}</span>
-                                    ${p.score ? `<span class="atlas-badge">Puan: ${atlasFmtNum(p.score)}</span>` : ''}
-                                    ${p.city ? `<span class="atlas-badge">📍 ${escapeHtml(p.city)}</span>` : ''}
-                                    ${p.uniType ? `<span class="atlas-badge">${escapeHtml(p.uniType)}</span>` : ''}
-                                    ${p.fee ? `<span class="atlas-badge">${escapeHtml(p.fee)}</span>` : ''}
-                                    ${p.quota ? `<span class="atlas-badge">Kontenjan: ${escapeHtml(p.quota)}</span>` : ''}
-                                    ${p.code ? `<span class="atlas-badge">Kod: ${escapeHtml(p.code)}</span>` : ''}
+                            <div class="atlas-card-id">
+                                <div class="atlas-rank-box">
+                                    <span class="atlas-rank-num">${p.rank ? '#' + p.rank.toLocaleString('tr-TR') : '—'}</span>
+                                    <span class="atlas-rank-lbl">Sıralama</span>
+                                </div>
+                                <div class="atlas-card-main">
+                                    <div class="atlas-uni">${escapeHtml(p.uni)}</div>
+                                    <div class="atlas-dept">${escapeHtml(p.dept)}</div>
+                                    <div class="atlas-badges">
+                                        ${p.score ? `<span class="atlas-badge">Puan: ${atlasFmtNum(p.score)}</span>` : ''}
+                                        ${p.city ? `<span class="atlas-badge">📍 ${escapeHtml(p.city)}</span>` : ''}
+                                        ${p.uniType ? `<span class="atlas-badge">${escapeHtml(p.uniType)}</span>` : ''}
+                                        ${p.fee ? `<span class="atlas-badge">${escapeHtml(p.fee)}</span>` : ''}
+                                        ${p.quota ? `<span class="atlas-badge">Kontenjan: ${escapeHtml(p.quota)}</span>` : ''}
+                                        ${p.nets ? '<span class="atlas-badge good">📊 Net verisi var</span>' : ''}
+                                        ${p.code ? `<span class="atlas-badge">Kod: ${escapeHtml(p.code)}</span>` : ''}
+                                    </div>
                                 </div>
                             </div>
                             <div class="atlas-card-acts">
@@ -8412,7 +8838,6 @@ document.getElementById('pomoHours').addEventListener('input', updatePomoTimeFro
             renderAtlasTargets(avgs);
             if (atlasCurrentView === 'browse') renderAtlasBrowse();
         }
-
         /* --- Excel / CSV / HTML / JSON İçe Aktarıcı & yokatlas-sayisal.json Üretici --- */
         function loadSheetJsLib() {
             if (window.XLSX) return Promise.resolve(window.XLSX);
