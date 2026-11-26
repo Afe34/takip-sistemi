@@ -313,15 +313,81 @@
         .stage-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 
         .spaced-container { display: flex; flex-direction: column; gap: 20px; }
-        .spaced-section-title { font-size: 16px; font-weight: 700; color: var(--accent-color); margin-bottom: 12px; display: flex; justify-content: space-between; }
-        .spaced-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .spaced-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
-        .spaced-card.due { border-color: var(--accent-color); background-color: var(--container-bg); box-shadow: 0 0 16px rgba(var(--accent-rgb),0.12); }
-        .spaced-actions { display: flex; gap: 8px; margin-top: 5px; }
-        .btn-spaced-fail { flex: 1; background-color: rgba(255, 71, 87, 0.08); border: 1px solid var(--danger-color); color: var(--danger-color); font-weight: 600; padding: 8px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
-        .btn-spaced-fail:hover { background-color: rgba(255,71,87,0.18); }
-        .btn-spaced-success { flex: 1.5; background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); border: none; color: white; font-weight: 700; padding: 8px; border-radius: 8px; cursor: pointer; transition: opacity 0.15s; }
+        .spaced-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .sp-stat { background-color: var(--input-bg); border: 1px solid var(--border-color); border-top: 3px solid var(--sp-col, var(--accent-color)); border-radius: 12px; padding: 12px 14px; }
+        .sp-stat-lbl { font-size: 12px; font-weight: 700; color: var(--subtext-color); margin-bottom: 4px; }
+        .sp-stat-val { font-size: 20px; font-weight: 800; color: var(--text-color); font-variant-numeric: tabular-nums; }
+        .sp-stat-sub { font-size: 12px; color: var(--subtext-color); margin-top: 2px; }
+
+        .sp-form { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; }
+        .sp-form-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .sp-form-title { font-size: 14px; font-weight: 800; color: var(--text-color); }
+        .sp-form-hint { font-size: 12px; color: var(--subtext-color); font-weight: 600; }
+        .sp-form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sp-form-row input, .sp-form-row select { padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--container-bg); color: var(--text-color); font-size: 13.5px; outline: none; }
+        .sp-form-row input:focus, .sp-form-row select:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.12); }
+        .sp-topic-in { flex: 2 1 210px; min-width: 0; }
+        .sp-note-in { flex: 2 1 220px; min-width: 0; }
+
+        .sp-toolbar { display: flex; flex-direction: column; gap: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 11px 13px; margin-bottom: 16px; }
+        .sp-filter-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .sp-search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .sp-search-row input { flex: 1 1 200px; padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 13px; outline: none; }
+        .sp-search-row input:focus { border-color: #22c55e; }
+
+        .sp-undo-bar { display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 14px; margin-bottom: 14px; border-radius: 10px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.4); font-size: 13px; font-weight: 600; color: var(--text-color); }
+        .sp-undo-bar.show { display: flex; }
+
+        .spaced-section-title { font-size: 15px; font-weight: 800; color: var(--accent-color); margin-bottom: 11px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .sp-group-title { font-size: 13px; font-weight: 800; color: var(--subtext-color); margin: 14px 0 9px; display: flex; align-items: center; gap: 8px; }
+        .sp-group-title:first-child { margin-top: 0; }
+        .sp-group-count { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--subtext-color); }
+
+        .spaced-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(295px, 1fr)); gap: 14px; }
+        .spaced-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 13px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 11px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .spaced-card.due { border-color: rgba(34,197,94,0.55); background-color: var(--container-bg); box-shadow: 0 3px 14px rgba(0,0,0,0.06); }
+        .spaced-card.overdue { border-color: rgba(255,71,87,0.6); }
+
+        .sp-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .sp-status-pill { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+        .sp-status-pill.late { color: var(--danger-color); background: rgba(255,71,87,0.13); border: 1px solid rgba(255,71,87,0.32); }
+        .sp-status-pill.today { color: #16a34a; background: rgba(34,197,94,0.13); border: 1px solid rgba(34,197,94,0.32); }
+        [data-theme="dark"] .sp-status-pill.today, [data-theme="soft"] .sp-status-pill.today, [data-theme="cyberpunk"] .sp-status-pill.today { color: #4ade80; }
+        .sp-status-pill.soon { color: var(--subtext-color); background: var(--container-bg); border: 1px solid var(--border-color); }
+
+        .sp-card-topic { font-weight: 800; font-size: 15px; line-height: 1.35; color: var(--text-color); margin-top: 6px; word-break: break-word; }
+        .sp-card-note { font-size: 12.5px; color: var(--subtext-color); line-height: 1.45; margin-top: 4px; padding: 6px 9px; border-radius: 7px; background: var(--container-bg); border: 1px dashed var(--border-color); word-break: break-word; }
+        .spaced-card.due .sp-card-note { background: var(--input-bg); }
+
+        /* 3 aşamalı görsel tekrar çubuğu (7g · 30g · 60g) */
+        .sp-steps { display: flex; align-items: center; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+        .sp-step { flex: 1; min-width: 58px; text-align: center; font-size: 12px; font-weight: 700; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--subtext-color); }
+        .spaced-card.due .sp-step { background: var(--input-bg); }
+        .sp-step.done { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.45); color: #15803d; }
+        [data-theme="dark"] .sp-step.done, [data-theme="soft"] .sp-step.done, [data-theme="cyberpunk"] .sp-step.done { color: #4ade80; }
+        .sp-step.cur { border-color: var(--accent-color); color: var(--accent-color); background: rgba(var(--accent-rgb), 0.12); }
+
+        .sp-date-meta { font-size: 12px; color: var(--subtext-color); margin-top: 6px; }
+
+        .spaced-actions { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 6px; margin-top: 4px; }
+        .btn-spaced-fail { background-color: rgba(255, 71, 87, 0.09); border: 1px solid rgba(255,71,87,0.5); color: var(--danger-color); font-weight: 700; font-size: 12.5px; padding: 8px 6px; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+        .btn-spaced-fail:hover { background-color: rgba(255,71,87,0.19); }
+        .btn-spaced-hard { background-color: rgba(245, 158, 11, 0.11); border: 1px solid rgba(245,158,11,0.5); color: #d97706; font-weight: 700; font-size: 12.5px; padding: 8px 6px; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+        [data-theme="dark"] .btn-spaced-hard, [data-theme="soft"] .btn-spaced-hard, [data-theme="cyberpunk"] .btn-spaced-hard { color: #fbbf24; }
+        .btn-spaced-hard:hover { background-color: rgba(245,158,11,0.22); }
+        .btn-spaced-success { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); border: none; color: white; font-weight: 700; font-size: 12.5px; padding: 8px 6px; border-radius: 8px; cursor: pointer; transition: opacity 0.15s; text-align: center; }
         .btn-spaced-success:hover { opacity: 0.88; }
+        .sp-btn-sub { display: block; font-size: 12px; font-weight: 600; opacity: 0.88; margin-top: 1px; }
+
+        .sp-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--border-color); }
+        .sp-foot-left, .sp-foot-right { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+
+        .sp-archive-box { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; }
+        .sp-archive-box summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; list-style: none; }
+        .sp-archive-box summary::-webkit-details-marker { display: none; }
+        .sp-archive-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .sp-archive-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 9px 11px; border-radius: 9px; background: var(--container-bg); border: 1px solid var(--border-color); font-size: 13px; }
+        .toast-act-btn { margin-top: 7px; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--accent-color); background: rgba(var(--accent-rgb), 0.14); color: var(--accent-color); font-size: 12px; font-weight: 700; cursor: pointer; }
 
         .error-layout { display: flex; flex-direction: column; gap: 24px; }
         @media (min-width: 850px) { .error-layout { flex-direction: row; align-items: flex-start; } }
@@ -1310,32 +1376,76 @@
 
         <!-- ARALIKLARLA TEKRAR -->
         <div id="spacedTab" class="tab-content">
-            <div class="input-group">
-                <datalist id="spacedTopicList"></datalist>
-                <input type="text" id="spacedTopicInput" list="spacedTopicList" placeholder="Tekrar Edilecek Konu" onkeypress="if(event.key === 'Enter') addSpacedItem()">
-                <select id="spacedSubjectSelect" onchange="fillTopicDatalist('spacedTopicList', this.value)">
-                    <option value="Matematik">Matematik</option>
-                    <option value="Geometri">Geometri</option>
-                    <option value="Fizik">Fizik</option>
-                    <option value="Kimya">Kimya</option>
-                    <option value="Biyoloji">Biyoloji</option>
-                    <option value="Türkçe">Türkçe</option>
-                    <option value="Sosyal">Sosyal</option>
-                </select>
-                <button onclick="addSpacedItem()">Ekle</button>
+            <div class="spaced-overview" id="spacedOverview"></div>
+
+            <div class="sp-form">
+                <div class="sp-form-head">
+                    <span class="sp-form-title" id="spacedFormTitle">🧠 Yeni Tekrar Kartı Ekle</span>
+                    <span class="sp-form-hint">Döngü: 7 gün → 30 gün → 60 gün</span>
+                </div>
+                <div class="sp-form-row">
+                    <datalist id="spacedTopicList"></datalist>
+                    <select id="spacedSubjectSelect" onchange="fillTopicDatalist('spacedTopicList', this.value)" aria-label="Ders">
+                        <option value="Matematik">Matematik</option>
+                        <option value="Geometri">Geometri</option>
+                        <option value="Fizik">Fizik</option>
+                        <option value="Kimya">Kimya</option>
+                        <option value="Biyoloji">Biyoloji</option>
+                        <option value="Türkçe">Türkçe</option>
+                        <option value="Sosyal">Sosyal</option>
+                    </select>
+                    <input type="text" id="spacedTopicInput" class="sp-topic-in" list="spacedTopicList" placeholder="Tekrar edilecek konu (örn: Optik, İntegral)..." onkeypress="if(event.key === 'Enter') addSpacedItem()">
+                    <select id="spacedStartMode" onchange="toggleSpacedCustomDate()" aria-label="İlk tekrar zamanı">
+                        <option value="week" selected>Bugün çalıştım → 7 gün sonra</option>
+                        <option value="today">Bugün tekrar edilecek</option>
+                        <option value="custom">Özel tarih seç…</option>
+                    </select>
+                    <input type="date" id="spacedCustomDate" style="display:none;" aria-label="Özel tekrar tarihi">
+                </div>
+                <div class="sp-form-row">
+                    <input type="text" id="spacedNoteInput" class="sp-note-in" placeholder="Kısa tekrar notu / kaynak ipucu (opsiyonel — örn: 2 test + özet not)" onkeypress="if(event.key === 'Enter') addSpacedItem()">
+                    <button type="button" class="rm-submit-btn" id="spacedSubmitBtn" onclick="addSpacedItem()">+ Tekrar Kartı Ekle</button>
+                    <button type="button" class="btn-icon" id="spacedCancelEditBtn" onclick="cancelSpacedEdit()" style="display:none;">Vazgeç</button>
+                </div>
             </div>
+
+            <div class="sp-toolbar">
+                <div class="sp-filter-pills" id="spacedSubjectFilterRow">
+                    <button type="button" class="rm-pill-btn active" data-sp-subj="ALL" onclick="setSpacedSubjectFilter('ALL')">Tümü</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Matematik" onclick="setSpacedSubjectFilter('Matematik')">Matematik</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Geometri" onclick="setSpacedSubjectFilter('Geometri')">Geometri</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Fizik" onclick="setSpacedSubjectFilter('Fizik')">Fizik</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Kimya" onclick="setSpacedSubjectFilter('Kimya')">Kimya</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Biyoloji" onclick="setSpacedSubjectFilter('Biyoloji')">Biyoloji</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Türkçe" onclick="setSpacedSubjectFilter('Türkçe')">Türkçe</button>
+                    <button type="button" class="rm-pill-btn" data-sp-subj="Sosyal" onclick="setSpacedSubjectFilter('Sosyal')">Sosyal</button>
+                </div>
+                <div class="sp-search-row">
+                    <input type="text" id="spacedSearch" placeholder="Konu veya notlarda ara..." oninput="renderSpaced()">
+                </div>
+            </div>
+
+            <div class="sp-undo-bar" id="spacedUndoBar">
+                <span id="spacedUndoText"></span>
+                <button type="button" class="link-btn" onclick="undoSpacedAction()">↩ Geri Al</button>
+            </div>
+
             <div class="spaced-container">
                 <div>
                     <div class="spaced-section-title">
-                        <span>🔔 Bugün Tekrar Edilmeli</span>
-                        <span id="spacedDueCount" style="background-color:var(--accent-color); color:white; font-size:12px; padding:2px 8px; border-radius:10px;">0</span>
+                        <span>🔔 Bugün ve Geciken Tekrarlar</span>
+                        <span id="spacedDueCount" style="background-color:#22c55e; color:white; font-size:12px; padding:2px 9px; border-radius:10px;">0</span>
                     </div>
                     <div class="spaced-grid" id="spacedDueGrid"></div>
                 </div>
                 <div>
-                    <div class="spaced-section-title" style="color: var(--subtext-color);"><span>⏳ Gelecek Tekrarlar</span></div>
-                    <div class="spaced-grid" id="spacedUpcomingGrid"></div>
+                    <div class="spaced-section-title" style="color: var(--subtext-color);">
+                        <span>⏳ Gelecek Tekrarlar</span>
+                        <span id="spacedUpcomingCount" class="sp-group-count">0</span>
+                    </div>
+                    <div id="spacedUpcomingGrid"></div>
                 </div>
+                <div id="spacedArchiveWrap"></div>
             </div>
         </div>
 
@@ -2284,7 +2394,8 @@
                 renderCurriculum(); 
             });
             
-            initCloudSyncFor('yks_spaced_data', (data) => { spacedData = data; renderSpaced(); });
+            initCloudSyncFor('yks_spaced_data', (data) => { spacedData = Array.isArray(data) ? data : []; renderSpaced(); });
+            initCloudSyncFor('yks_spaced_archive', (data) => { spacedArchive = Array.isArray(data) ? data : []; renderSpaced(); });
             initCloudSyncFor('yks_error_data', (data) => { errorData = data; renderErrorLog(); });
             initCloudSyncFor('yks_error_export_pins', (data) => { errorExportPins = data || {}; });
             initCloudSyncFor('yks_notes_data', (data) => { notesData = data; renderNotesLog(); });
@@ -3255,7 +3366,7 @@
                     </div>
                     <div class="today-col">
                         <div class="today-sec"><span>🧠 Bugünkü tekrar kartları</span></div>
-                        ${due.length ? due.slice(0, 5).map(i => `<div class="today-row"><div><b>${escapeHtml(i.topic)}</b><small>${escapeHtml(i.subject)}</small></div><div class="btns"><button class="link-btn" onclick="reviewSpacedItem(${i.id}, false)">❌</button><button class="link-btn" onclick="reviewSpacedItem(${i.id}, true)">✅</button></div></div>`).join('') + (due.length > 5 ? `<button class="link-btn" onclick="gotoTab('spaced')">+${due.length - 5} kart daha →</button>` : '') : empty('Tekrar edilecek kart yok.')}
+                        ${due.length ? due.slice(0, 5).map(i => { const late = spacedDaysDiff(i.nextReviewDate); const lateTxt = late < 0 ? ` · ⚠️ ${Math.abs(late)} gün gecikti` : ' · Bugün'; return `<div class="today-row"><div><b>${escapeHtml(i.topic)}</b><small>${escapeHtml(i.subject)}${lateTxt}</small></div><div class="btns"><button class="link-btn" title="Unuttum (yarın)" onclick="reviewSpacedItem(${i.id}, 'fail')">❌</button><button class="link-btn" title="Zorlandım (3 gün)" onclick="reviewSpacedItem(${i.id}, 'hard')">🟡</button><button class="link-btn" title="Hatırladım" onclick="reviewSpacedItem(${i.id}, 'good')">✅</button></div></div>`; }).join('') + (due.length > 5 ? `<button class="link-btn" onclick="gotoTab('spaced')">+${due.length - 5} kart daha →</button>` : '') : empty('Tekrar edilecek kart yok.')}
                         <div class="today-sec"><span>🎯 En zayıf 3 konu</span></div>
                         ${weak.length ? weak.map(o => `<div class="today-row"><div><b>${escapeHtml(o.topic)}</b><small>${escapeHtml(o.subject)} · ${o.examMisses} denemede · ${o.openErrors} açık hata</small></div><div class="btns"><button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'roadmap')" title="Bu haftanın yapılacaklarına ekle">🗺️ Haftaya</button>${o.spaced ? '' : `<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'spaced')">🧠 Tekrara ekle</button>`}<button class="link-btn" ${attrs(o.subject, o.topic)} onclick="topicAction(this, 'newerror')">📓</button></div></div>`).join('') : empty('Deneme ve hata defteri doldukça en zayıf konuların burada görünür.')}
                     </div>
@@ -4264,93 +4375,539 @@
         }
 
         /* ================= ARALIKLARLA TEKRAR LOGIC ================= */
-        const spacedIntervals = [1, 3, 7, 14, 30];
-        let spacedData = JSON.parse(localStorage.getItem('yks_spaced_data')) || [];
+        const spacedIntervals = [7, 30, 60]; // 1. tekrar: 7 gün, 2.: 30 gün, 3.: 60 gün sonra
+        const SPACED_HARD_DAYS = 3;          // Zorlandım: aynı aşamada 3 gün sonra pekiştirme
+        let spacedData = JSON.parse(localStorage.getItem('yks_spaced_data') || 'null') || [];
+        if (!Array.isArray(spacedData)) spacedData = [];
+        let spacedArchive = JSON.parse(localStorage.getItem('yks_spaced_archive') || 'null') || [];
+        if (!Array.isArray(spacedArchive)) spacedArchive = [];
 
-        function saveSpacedData() { 
-            saveToCloudAndLocal('yks_spaced_data', spacedData); 
+        let spacedSubjectFilter = 'ALL';
+        let editingSpacedId = null;
+        let spacedUndoState = null;
+        let spacedUndoTimer = null;
+
+        function saveSpacedData() { saveToCloudAndLocal('yks_spaced_data', spacedData); }
+        function saveSpacedArchive() { saveToCloudAndLocal('yks_spaced_archive', spacedArchive); }
+
+        function spacedDayStart(d) {
+            const dt = d ? new Date(d) : new Date();
+            dt.setHours(0, 0, 0, 0);
+            return dt;
+        }
+        function spacedDaysDiff(iso) {
+            const today = spacedDayStart();
+            const target = spacedDayStart(iso);
+            return Math.round((target.getTime() - today.getTime()) / 86400000);
+        }
+        function spacedRelLabel(diffDays, reviewDate) {
+            const dStr = `${reviewDate.getDate()} ${monthNames[reviewDate.getMonth()].substring(0, 3)}`;
+            if (diffDays < 0) return `⚠️ ${Math.abs(diffDays)} gün gecikti (${dStr})`;
+            if (diffDays === 0) return '⏰ Bugün tekrar edilmeli';
+            if (diffDays === 1) return `📅 Yarın (${dStr})`;
+            return `📅 ${diffDays} gün sonra (${dStr})`;
+        }
+
+        function pushSpacedUndo(label) {
+            spacedUndoState = {
+                data: JSON.parse(JSON.stringify(spacedData)),
+                archive: JSON.parse(JSON.stringify(spacedArchive)),
+                label: label
+            };
+            const bar = document.getElementById('spacedUndoBar');
+            const txt = document.getElementById('spacedUndoText');
+            if (txt) txt.innerText = label;
+            if (bar) bar.classList.add('show');
+            clearTimeout(spacedUndoTimer);
+            spacedUndoTimer = setTimeout(() => {
+                spacedUndoState = null;
+                if (bar) bar.classList.remove('show');
+            }, 7000);
+        }
+
+        function undoSpacedAction() {
+            if (!spacedUndoState) return;
+            clearTimeout(spacedUndoTimer);
+            spacedData = spacedUndoState.data;
+            spacedArchive = spacedUndoState.archive;
+            spacedUndoState = null;
+            const bar = document.getElementById('spacedUndoBar');
+            if (bar) bar.classList.remove('show');
+            saveSpacedData();
+            saveSpacedArchive();
+            refreshLinkedViews();
+            showToast({ title: 'İşlem geri alındı' });
+        }
+
+        function toggleSpacedCustomDate() {
+            const mode = document.getElementById('spacedStartMode')?.value || 'week';
+            const dateIn = document.getElementById('spacedCustomDate');
+            if (!dateIn) return;
+            dateIn.style.display = mode === 'custom' ? '' : 'none';
+            if (mode === 'custom' && !dateIn.value) {
+                dateIn.value = formatDateString(addDays(new Date(), spacedIntervals[0]));
+            }
+        }
+
+        function setSpacedSubjectFilter(subj) {
+            spacedSubjectFilter = subj;
+            document.querySelectorAll('#spacedSubjectFilterRow [data-sp-subj]').forEach(b => b.classList.toggle('active', b.dataset.spSubj === subj));
+            renderSpaced();
         }
 
         function addSpacedItem() {
             const topicInput = document.getElementById('spacedTopicInput');
             const subjectSelect = document.getElementById('spacedSubjectSelect');
-            const topic = topicInput.value.trim();
-            if (topic === '') return;
+            const noteInput = document.getElementById('spacedNoteInput');
+            const startMode = document.getElementById('spacedStartMode')?.value || 'week';
+            const customDateEl = document.getElementById('spacedCustomDate');
 
-            const today = new Date(); today.setHours(0,0,0,0);
-            spacedData.push({ id: Date.now(), topic: topic, subject: subjectSelect.value, stage: 0, nextReviewDate: today.toISOString() });
-            saveSpacedData(); topicInput.value = ''; renderSpaced();
+            const rawTopic = (topicInput?.value || '').trim();
+            if (!rawTopic) { topicInput && topicInput.focus(); return; }
+            const subject = subjectSelect ? subjectSelect.value : 'Matematik';
+            const note = (noteInput?.value || '').trim();
+            const cm = findCurriculumTopic(subject, rawTopic);
+            const topic = cm ? cm.topic : rawTopic;
+
+            const today = spacedDayStart();
+            let targetDate = new Date(today);
+            let initialStage = 0;
+
+            if (startMode === 'week') {
+                targetDate.setDate(targetDate.getDate() + spacedIntervals[0]);
+                initialStage = 1; // Bugün çalışıldı, 1. tekrar (7 gün sonra) planlandı
+            } else if (startMode === 'custom' && customDateEl && customDateEl.value) {
+                targetDate = parseDateStr(customDateEl.value);
+                targetDate.setHours(0, 0, 0, 0);
+                initialStage = targetDate > today ? 1 : 0;
+            }
+
+            if (editingSpacedId) {
+                const item = spacedData.find(i => i.id === editingSpacedId);
+                if (item) {
+                    item.subject = subject;
+                    item.topic = topic;
+                    item.note = note;
+                    if (startMode === 'custom' && customDateEl && customDateEl.value) {
+                        item.nextReviewDate = targetDate.toISOString();
+                    } else if (startMode === 'today') {
+                        item.nextReviewDate = today.toISOString();
+                    }
+                    saveSpacedData();
+                    showToast({ title: 'Tekrar kartı güncellendi', body: `${subject} · ${topic}` });
+                }
+                cancelSpacedEdit();
+                refreshLinkedViews();
+                return;
+            }
+
+            // Mükerrer kayıt kontrolü
+            const dup = spacedData.find(i => i.subject === subject && normTopic(i.topic) === normTopic(topic));
+            if (dup) {
+                showToast({ title: 'Bu konu zaten tekrar listende', body: `${subject} · ${dup.topic}` });
+                return;
+            }
+
+            spacedData.push({
+                id: Date.now(),
+                topic: topic,
+                subject: subject,
+                note: note,
+                stage: initialStage,
+                reviewCount: 0,
+                createdAt: formatDateString(today),
+                nextReviewDate: targetDate.toISOString()
+            });
+            saveSpacedData();
+            topicInput.value = '';
+            if (noteInput) noteInput.value = '';
+            refreshLinkedViews();
+            const msg = initialStage === 1
+                ? `${topic} · 1. tekrar ${targetDate.getDate()} ${monthNames[targetDate.getMonth()]} tarihinde`
+                : `${topic} · bugün tekrar listesine eklendi`;
+            showToast({ title: 'Tekrar kartı eklendi', body: msg });
         }
 
-        function reviewSpacedItem(id, remembered) {
+        function editSpacedItem(id) {
             const item = spacedData.find(i => i.id === id);
             if (!item) return;
-            const today = new Date(); today.setHours(0,0,0,0);
-
-            if (remembered) {
-                if (item.stage < spacedIntervals.length - 1) item.stage++;
-                let addDays = spacedIntervals[Math.min(item.stage, spacedIntervals.length - 1)];
-                let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + addDays);
-                item.nextReviewDate = nextDate.toISOString();
-                triggerConfetti('small');
-                showToast({ title: `Sonraki tekrar: ${addDays} gün sonra`, body: `${item.topic} · ${nextDate.getDate()} ${monthNames[nextDate.getMonth()]} ${dayNames[(nextDate.getDay() + 6) % 7]}` });
-                markCurriculumTekrar(item);
-            } else {
-                item.stage = 0;
-                let nextDate = new Date(today); nextDate.setDate(nextDate.getDate() + 1);
-                item.nextReviewDate = nextDate.toISOString();
-                showToast({ title: 'Yarın tekrar', body: `${item.topic} · tekrar döngüsü başa döndü` });
+            editingSpacedId = id;
+            const subjEl = document.getElementById('spacedSubjectSelect');
+            if (subjEl) { subjEl.value = item.subject; fillTopicDatalist('spacedTopicList', item.subject); }
+            document.getElementById('spacedTopicInput').value = item.topic || '';
+            const noteEl = document.getElementById('spacedNoteInput');
+            if (noteEl) noteEl.value = item.note || '';
+            const modeEl = document.getElementById('spacedStartMode');
+            const dateEl = document.getElementById('spacedCustomDate');
+            if (modeEl && dateEl) {
+                modeEl.value = 'custom';
+                dateEl.style.display = '';
+                dateEl.value = formatDateString(spacedDayStart(item.nextReviewDate));
             }
-            saveSpacedData(); renderSpaced();
+            document.getElementById('spacedFormTitle').innerText = '✏️ Tekrar Kartını Düzenle';
+            document.getElementById('spacedSubmitBtn').innerText = 'Kaydet';
+            document.getElementById('spacedCancelEditBtn').style.display = '';
+            document.getElementById('spacedTopicInput').focus();
+        }
+
+        function cancelSpacedEdit() {
+            editingSpacedId = null;
+            document.getElementById('spacedTopicInput').value = '';
+            const noteEl = document.getElementById('spacedNoteInput');
+            if (noteEl) noteEl.value = '';
+            const modeEl = document.getElementById('spacedStartMode');
+            if (modeEl) modeEl.value = 'week';
+            toggleSpacedCustomDate();
+            document.getElementById('spacedFormTitle').innerText = '🧠 Yeni Tekrar Kartı Ekle';
+            document.getElementById('spacedSubmitBtn').innerText = '+ Tekrar Kartı Ekle';
+            document.getElementById('spacedCancelEditBtn').style.display = 'none';
+        }
+
+        // rating: 'good' / true | 'hard' | 'fail' / false
+        function reviewSpacedItem(id, rating) {
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            const mode = rating === true ? 'good' : (rating === false ? 'fail' : rating);
+            const today = spacedDayStart();
+
+            pushSpacedUndo(`${item.topic} güncellendi`);
+
+            item.reviewCount = (parseInt(item.reviewCount, 10) || 0) + 1;
+            item.lastReviewedAt = formatDateString(today);
+
+            if (mode === 'good') {
+                item.stage = (parseInt(item.stage, 10) || 0) + 1;
+                if (item.stage > spacedIntervals.length) {
+                    markCurriculumTekrar(item);
+                    spacedArchive.unshift({
+                        id: item.id,
+                        topic: item.topic,
+                        subject: item.subject,
+                        note: item.note || '',
+                        reviewCount: item.reviewCount,
+                        completedAt: formatDateString(today)
+                    });
+                    spacedArchive = spacedArchive.slice(0, 100);
+                    spacedData = spacedData.filter(i => i.id !== id);
+                    saveSpacedData();
+                    saveSpacedArchive();
+                    refreshLinkedViews();
+                    triggerConfetti('medium', 'Tekrar döngüsü tamamlandı!');
+                    showToast({
+                        title: 'Tekrar döngüsü tamamlandı 🎉',
+                        body: `${item.topic} · 7, 30 ve 60 günlük tekrarlar bitti (arşive eklendi)`,
+                        actionLabel: '↩ Geri Al',
+                        onAction: undoSpacedAction
+                    });
+                    return;
+                }
+                const addD = spacedIntervals[item.stage - 1];
+                const nextDate = addDays(today, addD);
+                item.nextReviewDate = nextDate.toISOString();
+                markCurriculumTekrar(item);
+                saveSpacedData();
+                refreshLinkedViews();
+                triggerConfetti('small');
+                showToast({
+                    title: `Sonraki tekrar: ${addD} gün sonra`,
+                    body: `${item.topic} · ${nextDate.getDate()} ${monthNames[nextDate.getMonth()]} ${dayNames[(nextDate.getDay() + 6) % 7]}`,
+                    actionLabel: '↩ Geri Al',
+                    onAction: undoSpacedAction
+                });
+            } else if (mode === 'hard') {
+                // Zorlandım: ilerlemeyi sıfırlama, 3 gün sonra pekiştir
+                const nextDate = addDays(today, SPACED_HARD_DAYS);
+                item.nextReviewDate = nextDate.toISOString();
+                saveSpacedData();
+                refreshLinkedViews();
+                showToast({
+                    title: `${SPACED_HARD_DAYS} gün sonra pekiştirme`,
+                    body: `${item.topic} · aşaman korundu (${nextDate.getDate()} ${monthNames[nextDate.getMonth()]})`,
+                    actionLabel: '↩ Geri Al',
+                    onAction: undoSpacedAction
+                });
+            } else {
+                // Unuttum: başa dön, yarın tekrar
+                item.stage = 0;
+                const nextDate = addDays(today, 1);
+                item.nextReviewDate = nextDate.toISOString();
+                saveSpacedData();
+                refreshLinkedViews();
+                showToast({
+                    title: 'Yarın tekrar',
+                    body: `${item.topic} · tekrar döngüsü başa döndü`,
+                    actionLabel: '↩ Geri Al',
+                    onAction: undoSpacedAction
+                });
+            }
+        }
+
+        function snoozeSpacedItem(id, days) {
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            pushSpacedUndo(`${item.topic} +${days} gün ertelendi`);
+            const base = Math.max(spacedDayStart().getTime(), spacedDayStart(item.nextReviewDate).getTime());
+            const nextDate = addDays(new Date(base), days);
+            nextDate.setHours(0, 0, 0, 0);
+            item.nextReviewDate = nextDate.toISOString();
+            saveSpacedData();
+            refreshLinkedViews();
+            showToast({
+                title: `${days} gün ertelendi`,
+                body: `${item.topic} · ${nextDate.getDate()} ${monthNames[nextDate.getMonth()]}`,
+                actionLabel: '↩ Geri Al',
+                onAction: undoSpacedAction
+            });
+        }
+
+        function pullSpacedToNow(id) {
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            pushSpacedUndo(`${item.topic} bugüne çekildi`);
+            item.nextReviewDate = spacedDayStart().toISOString();
+            saveSpacedData();
+            refreshLinkedViews();
+            showToast({ title: 'Bugünkü tekrarlara alındı', body: item.topic, actionLabel: '↩ Geri Al', onAction: undoSpacedAction });
+        }
+
+        function sendSpacedToTodayPlanner(id) {
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            tplList();
+            const todayStr = formatDateString(new Date());
+            const taskText = `Tekrar: ${item.topic}`;
+            const exists = (plannerData.days[todayStr] || []).some(t => !t.completed && normTopic(t.text) === normTopic(taskText));
+            if (exists) {
+                showToast({ title: 'Bu tekrar zaten bugünkü planında', body: item.topic, tab: 'today' });
+                return;
+            }
+            if (!plannerData.days[todayStr]) plannerData.days[todayStr] = [];
+            plannerData.days[todayStr].push({
+                id: Date.now(),
+                subject: item.subject || 'Genel',
+                text: taskText,
+                completed: false
+            });
+            savePlanner();
+            renderPlanner();
+            showToast({ title: 'Bugünkü plana eklendi', body: `${item.subject} · ${taskText}`, tab: 'today' });
         }
 
         function deleteSpacedItem(id) {
-            if(confirm("Bu tekrar kartını silmek istediğine emin misin?")) {
-                spacedData = spacedData.filter(i => i.id !== id);
-                saveSpacedData(); renderSpaced();
-            }
+            const item = spacedData.find(i => i.id === id);
+            if (!item) return;
+            pushSpacedUndo(`"${item.topic}" silindi`);
+            spacedData = spacedData.filter(i => i.id !== id);
+            if (editingSpacedId === id) cancelSpacedEdit();
+            saveSpacedData();
+            refreshLinkedViews();
+            showToast({ title: 'Tekrar kartı silindi', body: item.topic, actionLabel: '↩ Geri Al', onAction: undoSpacedAction });
+        }
+
+        function restartArchivedSpaced(id) {
+            const arch = spacedArchive.find(a => a.id === id);
+            if (!arch) return;
+            const dup = spacedData.find(i => i.subject === arch.subject && normTopic(i.topic) === normTopic(arch.topic));
+            if (dup) { showToast({ title: 'Bu konu zaten aktif tekrarlarda', body: arch.topic }); return; }
+            const today = spacedDayStart();
+            spacedArchive = spacedArchive.filter(a => a.id !== id);
+            spacedData.push({
+                id: Date.now(),
+                topic: arch.topic,
+                subject: arch.subject,
+                note: arch.note || '',
+                stage: 0,
+                reviewCount: 0,
+                createdAt: formatDateString(today),
+                nextReviewDate: today.toISOString()
+            });
+            saveSpacedData();
+            saveSpacedArchive();
+            refreshLinkedViews();
+            showToast({ title: 'Tekrar döngüsü yeniden başlatıldı', body: `${arch.topic} · bugün tekrar listesinde` });
+        }
+
+        function deleteArchivedSpaced(id) {
+            spacedArchive = spacedArchive.filter(a => a.id !== id);
+            saveSpacedArchive();
+            renderSpaced();
+        }
+
+        function renderSpacedStepsHTML(stage, isDue) {
+            const st = Math.max(0, parseInt(stage, 10) || 0);
+            // stage 0: ilk kontrol; stage 1: 7g bekleniyor; stage 2: 7g bitti, 30g bekleniyor; stage 3: 7g+30g bitti, 60g bekleniyor
+            const doneCount = Math.max(0, st - 1);
+            const curIdx = st === 0 ? 0 : Math.min(st - 1, spacedIntervals.length - 1);
+            return `<div class="sp-steps">${spacedIntervals.map((d, idx) => {
+                const isDone = idx < doneCount;
+                const isCur = !isDone && idx === curIdx;
+                const cls = isDone ? 'done' : (isCur && isDue ? 'cur' : '');
+                return `<span class="sp-step ${cls}">${isDone ? '✓ ' : ''}${d}g</span>`;
+            }).join('')}</div>`;
+        }
+
+        function buildSpacedCardHTML(item, isDue, stats) {
+            const sc = getSubjectColor(item.subject);
+            const st = stats[statKey(item.subject, item.topic)];
+            const reviewDate = spacedDayStart(item.nextReviewDate);
+            const diffDays = spacedDaysDiff(item.nextReviewDate);
+            const isOverdue = diffDays < 0;
+            const stage = parseInt(item.stage, 10) || 0;
+            const nextStepDays = stage >= spacedIntervals.length ? null : spacedIntervals[stage];
+            const goodSub = nextStepDays ? `+${nextStepDays}g` : 'Bitir 🎉';
+
+            const pillCls = isOverdue ? 'late' : (diffDays === 0 ? 'today' : 'soon');
+            const pillTxt = isOverdue ? `⚠️ ${Math.abs(diffDays)} gün gecikti` : (diffDays === 0 ? '⏰ Bugün' : (diffDays === 1 ? 'Yarın' : `${diffDays} gün sonra`));
+
+            return `
+                <div class="spaced-card ${isDue ? 'due' : ''} ${isOverdue ? 'overdue' : ''}" style="border-left: 3px solid ${sc.color};">
+                    <div>
+                        <div class="sp-card-top">
+                            <span style="font-size:12px; font-weight:700; color:${sc.color}; background:${sc.bg}; border:1px solid ${sc.border}; padding:2px 8px; border-radius:6px;">${escapeHtml(item.subject)}</span>
+                            <span class="sp-status-pill ${pillCls}">${pillTxt}</span>
+                        </div>
+                        <div class="sp-card-topic">${escapeHtml(item.topic)}</div>
+                        ${item.note ? `<div class="sp-card-note">📝 ${escapeHtml(item.note)}</div>` : ''}
+                        ${renderSpacedStepsHTML(stage, isDue)}
+                        <div class="sp-date-meta">${spacedRelLabel(diffDays, reviewDate)}${item.reviewCount ? ` · ${item.reviewCount} tekrar` : ''}</div>
+                        ${spacedLinkHTML(item, st)}
+                    </div>
+                    <div>
+                        ${isDue ? `
+                            <div class="spaced-actions">
+                                <button type="button" class="btn-spaced-fail" onclick="reviewSpacedItem(${item.id}, 'fail')">❌ Unuttum<span class="sp-btn-sub">Yarın</span></button>
+                                <button type="button" class="btn-spaced-hard" onclick="reviewSpacedItem(${item.id}, 'hard')">🟡 Zorlandım<span class="sp-btn-sub">+${SPACED_HARD_DAYS}g</span></button>
+                                <button type="button" class="btn-spaced-success" onclick="reviewSpacedItem(${item.id}, 'good')" style="background: linear-gradient(135deg, ${sc.color}, ${sc.color}bb);">✅ Hatırladım<span class="sp-btn-sub">${goodSub}</span></button>
+                            </div>` : ''}
+                        <div class="sp-card-foot" style="${isDue ? 'margin-top:8px;' : ''}">
+                            <div class="sp-foot-left">
+                                <button type="button" class="link-btn" onclick="sendSpacedToTodayPlanner(${item.id})" title="Bugünkü görev listene ekle">📅 Bugüne Ekle</button>
+                                ${isDue
+                                    ? `<button type="button" class="link-btn" onclick="snoozeSpacedItem(${item.id}, 1)" title="1 gün ertele">⏩ +1g</button>`
+                                    : `<button type="button" class="link-btn" onclick="pullSpacedToNow(${item.id})" title="Şimdi tekrar et">⚡ Şimdi</button>`}
+                            </div>
+                            <div class="sp-foot-right">
+                                <button type="button" class="edit-btn" onclick="editSpacedItem(${item.id})" title="Düzenle">✏️</button>
+                                <button type="button" class="delete-btn" onclick="deleteSpacedItem(${item.id})" title="Sil">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
         }
 
         function renderSpaced() {
             const dueGrid = document.getElementById('spacedDueGrid');
             const upcomingGrid = document.getElementById('spacedUpcomingGrid');
+            const overviewEl = document.getElementById('spacedOverview');
+            const archiveWrap = document.getElementById('spacedArchiveWrap');
             if (!dueGrid || !upcomingGrid) return;
-            dueGrid.innerHTML = ''; upcomingGrid.innerHTML = '';
+
             const stats = collectTopicStats();
-            const today = new Date(); today.setHours(0,0,0,0);
-            let dueCount = 0;
+            const q = (document.getElementById('spacedSearch')?.value || '').toLowerCase().trim();
 
+            // Özet sayaçlar (tüm aktif kartlar üzerinden)
+            let totalOverdue = 0, totalToday = 0, totalWeek = 0;
             spacedData.forEach(item => {
-                const sc = getSubjectColor(item.subject);
-                const st = stats[statKey(item.subject, item.topic)];
-                const reviewDate = new Date(item.nextReviewDate); reviewDate.setHours(0,0,0,0);
-                const isDue = reviewDate <= today;
-                if (isDue) dueCount++;
-
-                const cardHTML = `
-                    <div class="spaced-card ${isDue ? 'due' : ''}" style="border-left: 3px solid ${sc.color}; ${isDue ? `box-shadow: 0 0 16px ${sc.bg};` : ''}">
-                        <div>
-                            <div style="font-size: 12px; font-weight: 700; color: ${sc.color}; background: ${sc.bg}; border: 1px solid ${sc.border}; display:inline-block; padding:2px 8px; border-radius:6px; margin-bottom:6px;">${escapeHtml(item.subject)}</div>
-                            <div style="font-weight: 700; font-size: 15px; margin: 4px 0;">${escapeHtml(item.topic)}</div>
-                            <div style="font-size: 12px; color: var(--subtext-color);">${isDue ? '⏰ Bugün Tekrar Edilmeli' : `📅 Gelecek Tekrar`}</div>
-                            ${spacedLinkHTML(item, st)}
-                        </div>
-                        <div>
-                            ${isDue ? `
-                                <div class="spaced-actions">
-                                    <button class="btn-spaced-fail" onclick="reviewSpacedItem(${item.id}, false)">❌ Unuttum</button>
-                                    <button class="btn-spaced-success" onclick="reviewSpacedItem(${item.id}, true)" style="background: linear-gradient(135deg, ${sc.color}, ${sc.color}bb);">✅ Hatırladım</button>
-                                </div>
-                            ` : `<div style="text-align:right;"><button class="delete-btn" onclick="deleteSpacedItem(${item.id})">Sil</button></div>`}
-                        </div>
-                    </div>`;
-                if (isDue) dueGrid.innerHTML += cardHTML; else upcomingGrid.innerHTML += cardHTML;
+                const d = spacedDaysDiff(item.nextReviewDate);
+                if (d < 0) totalOverdue++;
+                else if (d === 0) totalToday++;
+                else if (d <= 7) totalWeek++;
             });
 
+            if (overviewEl) {
+                overviewEl.innerHTML = `
+                    <div class="sp-stat" style="--sp-col:${totalOverdue ? 'var(--danger-color)' : 'var(--border-color)'};">
+                        <div class="sp-stat-lbl">Geciken</div>
+                        <div class="sp-stat-val" style="${totalOverdue ? 'color:var(--danger-color);' : ''}">${totalOverdue}</div>
+                        <div class="sp-stat-sub">${totalOverdue ? 'En eskiden başla' : 'Geciken kart yok'}</div>
+                    </div>
+                    <div class="sp-stat" style="--sp-col:#22c55e;">
+                        <div class="sp-stat-lbl">Bugün</div>
+                        <div class="sp-stat-val">${totalToday}</div>
+                        <div class="sp-stat-sub">Toplam açık: ${totalOverdue + totalToday}</div>
+                    </div>
+                    <div class="sp-stat" style="--sp-col:#3b82f6;">
+                        <div class="sp-stat-lbl">Önümüzdeki 7 Gün</div>
+                        <div class="sp-stat-val">${totalWeek}</div>
+                        <div class="sp-stat-sub">Yaklaşan tekrarlar</div>
+                    </div>
+                    <div class="sp-stat" style="--sp-col:#a855f7;">
+                        <div class="sp-stat-lbl">Aktif / Biten</div>
+                        <div class="sp-stat-val">${spacedData.length} / ${spacedArchive.length}</div>
+                        <div class="sp-stat-sub">7 → 30 → 60 gün</div>
+                    </div>`;
+            }
+
+            // Filtreleme
+            const filtered = spacedData.filter(item => {
+                if (spacedSubjectFilter !== 'ALL' && item.subject !== spacedSubjectFilter) return false;
+                if (q && !(item.topic || '').toLowerCase().includes(q) && !(item.subject || '').toLowerCase().includes(q) && !(item.note || '').toLowerCase().includes(q)) return false;
+                return true;
+            });
+
+            // Due (en çok geciken en üstte) & Upcoming (en yakın tarih en üstte)
+            const dueItems = filtered
+                .filter(i => spacedDaysDiff(i.nextReviewDate) <= 0)
+                .sort((a, b) => new Date(a.nextReviewDate) - new Date(b.nextReviewDate));
+            const upItems = filtered
+                .filter(i => spacedDaysDiff(i.nextReviewDate) > 0)
+                .sort((a, b) => new Date(a.nextReviewDate) - new Date(b.nextReviewDate));
+
             const dueCountEl = document.getElementById('spacedDueCount');
-            if (dueCountEl) dueCountEl.innerText = dueCount;
-            if (dueGrid.innerHTML === '') dueGrid.innerHTML = '<div class="empty-text">Bugün tekrar edilecek konu yok. Aşağıdaki formdan yeni konu ekleyebilirsin.</div>';
-            if (upcomingGrid.innerHTML === '') upcomingGrid.innerHTML = '<div class="empty-text">Gelecek tekrar yok. Konu ekledikçe burada sırayla görünür.</div>';
+            if (dueCountEl) dueCountEl.innerText = dueItems.length;
+            const upCountEl = document.getElementById('spacedUpcomingCount');
+            if (upCountEl) upCountEl.innerText = upItems.length;
+
+            dueGrid.innerHTML = dueItems.length
+                ? dueItems.map(item => buildSpacedCardHTML(item, true, stats)).join('')
+                : `<div class="empty-text">${spacedData.length ? 'Filtreye uygun bugünkü tekrar yok.' : 'Bugün tekrar edilecek konu yok. Yukarıdan yeni konu ekleyebilirsin.'}</div>`;
+
+            // Gelecek tekrarları zaman gruplarına ayır (Bu hafta / Bu ay / Daha sonra)
+            if (!upItems.length) {
+                upcomingGrid.innerHTML = `<div class="empty-text">${spacedData.length ? 'Filtreye uygun gelecek tekrar yok.' : 'Gelecek tekrar yok. Konu ekledikçe tarihe göre sıralı görünür.'}</div>`;
+            } else {
+                const groups = [
+                    { title: '📅 Önümüzdeki 7 Gün', items: upItems.filter(i => spacedDaysDiff(i.nextReviewDate) <= 7) },
+                    { title: '🗓️ Bu Ay (8–30 Gün)', items: upItems.filter(i => { const d = spacedDaysDiff(i.nextReviewDate); return d > 7 && d <= 30; }) },
+                    { title: '🔭 Daha Sonra (30+ Gün)', items: upItems.filter(i => spacedDaysDiff(i.nextReviewDate) > 30) }
+                ].filter(g => g.items.length > 0);
+
+                upcomingGrid.innerHTML = groups.map(g => `
+                    <div class="sp-group-title"><span>${g.title}</span><span class="sp-group-count">${g.items.length}</span></div>
+                    <div class="spaced-grid">${g.items.map(item => buildSpacedCardHTML(item, false, stats)).join('')}</div>`).join('');
+            }
+
+            // Tamamlanan tekrarlar arşivi
+            if (archiveWrap) {
+                if (!spacedArchive.length) {
+                    archiveWrap.innerHTML = '';
+                } else {
+                    archiveWrap.innerHTML = `
+                        <details class="sp-archive-box">
+                            <summary>
+                                <span>🏆 Tamamlanan Tekrarlar (${spacedArchive.length} konu)</span>
+                                <span style="font-size:12px; color:#22c55e;">7 · 30 · 60 gün bitti</span>
+                            </summary>
+                            <div class="sp-archive-list">
+                                ${spacedArchive.map(a => {
+                                    const sc = getSubjectColor(a.subject);
+                                    return `<div class="sp-archive-row">
+                                        <div>
+                                            <b class="tk-sub" style="color:${sc.color}; background:${sc.bg};">${escapeHtml(subjectAbbr(a.subject))}</b>
+                                            <b>${escapeHtml(a.topic)}</b>
+                                            <span style="font-size:12px; color:var(--subtext-color); margin-left:6px;">✓ ${escapeHtml(a.completedAt || '')}</span>
+                                        </div>
+                                        <div style="display:flex; gap:6px; align-items:center;">
+                                            <button type="button" class="link-btn" onclick="restartArchivedSpaced(${a.id})">🔄 Yeniden Başlat</button>
+                                            <button type="button" class="delete-btn" onclick="deleteArchivedSpaced(${a.id})" title="Arşivden sil">✕</button>
+                                        </div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </details>`;
+                }
+            }
+
             if (typeof renderToday === 'function') renderToday();
         }
 
@@ -7327,7 +7884,9 @@
         /* --- Veri okuyucular --- */
         function notifDueCards() {
             const today = new Date(); today.setHours(0, 0, 0, 0);
-            return spacedData.filter(i => { const d = new Date(i.nextReviewDate); d.setHours(0, 0, 0, 0); return d <= today; });
+            return spacedData
+                .filter(i => { const d = new Date(i.nextReviewDate); d.setHours(0, 0, 0, 0); return d <= today; })
+                .sort((a, b) => new Date(a.nextReviewDate) - new Date(b.nextReviewDate));
         }
         function notifTaskCounts() {
             const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -7386,6 +7945,14 @@
             const el = document.createElement('div');
             el.className = 'toast';
             el.innerHTML = `<div class="toast-title">${escapeHtml(t.title)}</div>${t.body ? `<div class="toast-body">${escapeHtml(t.body).replace(/\n/g, '<br>')}</div>` : ''}`;
+            if (t.actionLabel && typeof t.onAction === 'function') {
+                const actBtn = document.createElement('button');
+                actBtn.type = 'button';
+                actBtn.className = 'toast-act-btn';
+                actBtn.textContent = t.actionLabel;
+                actBtn.onclick = (ev) => { ev.stopPropagation(); t.onAction(); el.remove(); };
+                el.appendChild(actBtn);
+            }
             el.onclick = () => { if (t.tab) gotoTab(t.tab); el.remove(); };
             stack.appendChild(el);
             setTimeout(() => el.remove(), 8000);
